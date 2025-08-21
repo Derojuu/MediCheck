@@ -17,22 +17,33 @@ export default function HomePage() {
               <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="#verify" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#verify"
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
                 Verify Drug
               </Link>
-              <Link href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#about"
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
                 About
               </Link>
-              <Link href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#contact"
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
                 Contact
               </Link>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/auth/login">
-                <Button variant="outline">Login</Button>
+                <Button variant="outline" className="cursor-pointer bg-transparent">
+                  Login
+                </Button>
               </Link>
               <Link href="/auth/register">
-                <Button>Get Started</Button>
+                <Button className="cursor-pointer">Get Started</Button>
               </Link>
             </div>
           </div>
@@ -55,14 +66,14 @@ export default function HomePage() {
             verify, and trust with enterprise-grade security.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/scan">
-              <Button size="lg" className="text-lg px-8 py-6">
+            <Link href="/consumer/scan">
+              <Button size="lg" className="text-lg px-8 py-6 cursor-pointer">
                 <Scan className="h-5 w-5 mr-2" />
                 Scan Medicine Now
               </Button>
             </Link>
             <Link href="/auth/register">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6 bg-transparent">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6 bg-transparent cursor-pointer">
                 <Building2 className="h-5 w-5 mr-2" />
                 Register Organization
               </Button>
@@ -152,8 +163,8 @@ export default function HomePage() {
             <p className="text-xl text-muted-foreground mb-8">
               Scan any QR code or NFC tag on your medication packaging to instantly verify authenticity
             </p>
-            <Link href="/scan">
-              <Button size="lg" className="text-lg px-8 py-6">
+            <Link href="/consumer/scan">
+              <Button size="lg" className="text-lg px-8 py-6 cursor-pointer">
                 <Scan className="h-5 w-5 mr-2" />
                 Start Scanning
                 <ChevronRight className="h-5 w-5 ml-2" />
@@ -172,13 +183,13 @@ export default function HomePage() {
               <span className="font-montserrat font-bold text-lg">MedChain</span>
             </div>
             <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-              <Link href="#" className="hover:text-foreground transition-colors">
+              <Link href="#" className="hover:text-foreground transition-colors cursor-pointer">
                 Privacy Policy
               </Link>
-              <Link href="#" className="hover:text-foreground transition-colors">
+              <Link href="#" className="hover:text-foreground transition-colors cursor-pointer">
                 Terms of Service
               </Link>
-              <Link href="#" className="hover:text-foreground transition-colors">
+              <Link href="#" className="hover:text-foreground transition-colors cursor-pointer">
                 Contact
               </Link>
             </div>

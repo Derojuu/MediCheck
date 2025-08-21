@@ -10,50 +10,346 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Building2, Users, User, ArrowLeft, Upload } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Shield, Building2, User, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
-  const [accountType, setAccountType] = useState<"organization" | "individual" | "consumer" | null>(null)
+  const [accountType, setAccountType] = useState<"organization" | "consumer" | null>(null)
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
+    // Organization fields
     organizationType: "",
-    organizationName: "",
+    companyName: "",
+    rcNumber: "",
+    nafdacNumber: "",
     businessRegNumber: "",
+    licenseNumber: "",
+    pcnNumber: "",
+    agencyName: "",
+    officialId: "",
+    distributorType: "",
     address: "",
+    country: "",
+    state: "",
+    contactPersonName: "",
     contactEmail: "",
     contactPhone: "",
+    // Consumer fields
     fullName: "",
-    role: "",
-    selectedOrganization: "",
+    dateOfBirth: "",
+    // Common fields
     password: "",
     confirmPassword: "",
+    agreeToTerms: false,
   })
   const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Simulate registration process
     if (accountType === "organization") {
-      router.push("/dashboard/organization")
-    } else if (accountType === "individual") {
-      router.push("/dashboard/team-member")
+      switch (formData.organizationType) {
+        case "Hospital":
+          router.push("/dashboard/hospital")
+          break
+        case "Pharmacy/Retailer":
+          router.push("/dashboard/pharmacy")
+          break
+        case "Regulator":
+          router.push("/dashboard/regulator")
+          break
+        case "Drug Distributor":
+          router.push("/dashboard/drug-distributor")
+          break
+        default:
+          router.push("/dashboard/organization")
+      }
     } else {
       router.push("/consumer/profile")
     }
   }
 
-  const organizationTypes = ["Manufacturer", "Distributor", "Wholesaler", "Hospital", "Pharmacy/Retailer", "Regulator"]
+  const organizationTypes = ["Manufacturer", "Drug Distributor", "Hospital", "Pharmacy/Retailer", "Regulator"]
 
-  const roles = [
-    "Pharmacist",
-    "Store Manager",
-    "Logistics Officer",
-    "Quality Control",
-    "Lab Technician",
-    "Compliance Officer",
-  ]
+  const countries = ["Nigeria", "Ghana", "Kenya", "South Africa", "Egypt"]
+  const nigerianStates = ["Lagos", "Abuja", "Kano", "Rivers", "Ogun", "Kaduna", "Oyo", "Delta"]
+
+  const renderOrganizationSpecificFields = () => {
+    switch (formData.organizationType) {
+      case "Manufacturer":
+        return (
+          <>
+            <div>
+              <Label htmlFor="companyName">Company Name *</Label>
+              <Input
+                id="companyName"
+                value={formData.companyName}
+                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                placeholder="Enter company name"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="rcNumber">RC Number (Registration Certificate) *</Label>
+              <Input
+                id="rcNumber"
+                value={formData.rcNumber}
+                onChange={(e) => setFormData({ ...formData, rcNumber: e.target.value })}
+                placeholder="Enter RC number"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="nafdacNumber">NAFDAC Registration Number *</Label>
+              <Input
+                id="nafdacNumber"
+                value={formData.nafdacNumber}
+                onChange={(e) => setFormData({ ...formData, nafdacNumber: e.target.value })}
+                placeholder="Enter NAFDAC registration number"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="address">Headquarters Address *</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Enter complete headquarters address"
+                rows={3}
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="country">Country of Origin *</Label>
+              <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )
+
+      case "Drug Distributor":
+        return (
+          <>
+            <div>
+              <Label htmlFor="companyName">Company Name *</Label>
+              <Input
+                id="companyName"
+                value={formData.companyName}
+                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                placeholder="Enter company name"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="businessRegNumber">Business Registration Number *</Label>
+              <Input
+                id="businessRegNumber"
+                value={formData.businessRegNumber}
+                onChange={(e) => setFormData({ ...formData, businessRegNumber: e.target.value })}
+                placeholder="Enter business registration number"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="distributorType">Type of Distributor *</Label>
+              <Select
+                value={formData.distributorType}
+                onValueChange={(value) => setFormData({ ...formData, distributorType: value })}
+              >
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select distributor type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Wholesaler">Wholesaler</SelectItem>
+                  <SelectItem value="Retailer">Retailer</SelectItem>
+                  <SelectItem value="Certified Distributor">Certified Distributor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="address">Operating Address *</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Enter complete operating address"
+                rows={3}
+                className="cursor-pointer"
+                required
+              />
+            </div>
+          </>
+        )
+
+      case "Hospital":
+        return (
+          <>
+            <div>
+              <Label htmlFor="companyName">Hospital Name *</Label>
+              <Input
+                id="companyName"
+                value={formData.companyName}
+                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                placeholder="Enter hospital name"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="licenseNumber">License Number *</Label>
+              <Input
+                id="licenseNumber"
+                value={formData.licenseNumber}
+                onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+                placeholder="Enter hospital license number"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="address">Address *</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Enter complete hospital address"
+                rows={3}
+                className="cursor-pointer"
+                required
+              />
+            </div>
+          </>
+        )
+
+      case "Pharmacy/Retailer":
+        return (
+          <>
+            <div>
+              <Label htmlFor="fullName">Full Name *</Label>
+              <Input
+                id="fullName"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                placeholder="Enter your full name"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="pcnNumber">Pharmacist Council of Nigeria (PCN) Registration Number *</Label>
+              <Input
+                id="pcnNumber"
+                value={formData.pcnNumber}
+                onChange={(e) => setFormData({ ...formData, pcnNumber: e.target.value })}
+                placeholder="Enter PCN registration number"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="state">State of Practice *</Label>
+              <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {nigerianStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="companyName">Pharmacy/Hospital Affiliation (Optional)</Label>
+              <Input
+                id="companyName"
+                value={formData.companyName}
+                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                placeholder="Enter pharmacy or hospital name"
+                className="cursor-pointer"
+              />
+            </div>
+          </>
+        )
+
+      case "Regulator":
+        return (
+          <>
+            <div>
+              <Label htmlFor="agencyName">Agency Name *</Label>
+              <Select
+                value={formData.agencyName}
+                onValueChange={(value) => setFormData({ ...formData, agencyName: value })}
+              >
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select agency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NAFDAC">NAFDAC</SelectItem>
+                  <SelectItem value="NDLEA">NDLEA</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="businessRegNumber">Department/Unit *</Label>
+              <Input
+                id="businessRegNumber"
+                value={formData.businessRegNumber}
+                onChange={(e) => setFormData({ ...formData, businessRegNumber: e.target.value })}
+                placeholder="Enter department or unit"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="officialId">Official ID/Badge Number *</Label>
+              <Input
+                id="officialId"
+                value={formData.officialId}
+                onChange={(e) => setFormData({ ...formData, officialId: e.target.value })}
+                placeholder="Enter official ID or badge number"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="fullName">Full Name *</Label>
+              <Input
+                id="fullName"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                placeholder="Enter your full name"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+          </>
+        )
+
+      default:
+        return null
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,7 +362,7 @@ export default function RegisterPage() {
               <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
             </Link>
             <Link href="/">
-              <Button variant="ghost">
+              <Button variant="ghost" className="cursor-pointer">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Home
               </Button>
@@ -95,23 +391,8 @@ export default function RegisterPage() {
                     <div>
                       <h3 className="font-montserrat font-semibold text-lg">Organization</h3>
                       <p className="text-muted-foreground">
-                        Manufacturer, Distributor, Hospital, Pharmacy, or Regulator
+                        Manufacturer, Drug Distributor, Hospital, Pharmacy, or Regulator
                       </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="p-6 border-2 border-dashed border-border hover:border-primary cursor-pointer rounded-lg transition-colors"
-                  onClick={() => setAccountType("individual")}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Users className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-montserrat font-semibold text-lg">Team Member</h3>
-                      <p className="text-muted-foreground">Work under an existing organization</p>
                     </div>
                   </div>
                 </div>
@@ -138,18 +419,12 @@ export default function RegisterPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="font-montserrat font-bold text-2xl">
-                      {accountType === "organization"
-                        ? "Organization Registration"
-                        : accountType === "individual"
-                          ? "Team Member Registration"
-                          : "Consumer Registration"}
+                      {accountType === "organization" ? "Organization Registration" : "Consumer Registration"}
                     </CardTitle>
                     <CardDescription>
                       {accountType === "organization"
                         ? "Register your organization to start managing medication verification"
-                        : accountType === "individual"
-                          ? "Join an existing organization as a team member"
-                          : "Create your consumer account for medication verification"}
+                        : "Create your consumer account for medication verification"}
                     </CardDescription>
                   </div>
                   <Badge variant="secondary">
@@ -164,12 +439,12 @@ export default function RegisterPage() {
                       {step === 1 && (
                         <div className="space-y-4">
                           <div>
-                            <Label htmlFor="organizationType">Organization Type</Label>
+                            <Label htmlFor="organizationType">Organization Type *</Label>
                             <Select
                               value={formData.organizationType}
                               onValueChange={(value) => setFormData({ ...formData, organizationType: value })}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="cursor-pointer">
                                 <SelectValue placeholder="Select organization type" />
                               </SelectTrigger>
                               <SelectContent>
@@ -181,35 +456,15 @@ export default function RegisterPage() {
                               </SelectContent>
                             </Select>
                           </div>
-                          <div>
-                            <Label htmlFor="organizationName">Organization Name</Label>
-                            <Input
-                              id="organizationName"
-                              value={formData.organizationName}
-                              onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                              placeholder="Enter organization name"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="businessRegNumber">Business Registration Number</Label>
-                            <Input
-                              id="businessRegNumber"
-                              value={formData.businessRegNumber}
-                              onChange={(e) => setFormData({ ...formData, businessRegNumber: e.target.value })}
-                              placeholder="Enter business registration number"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="address">Address</Label>
-                            <Textarea
-                              id="address"
-                              value={formData.address}
-                              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                              placeholder="Enter complete address"
-                              rows={3}
-                            />
-                          </div>
-                          <Button type="button" onClick={() => setStep(2)} className="w-full">
+
+                          {formData.organizationType && renderOrganizationSpecificFields()}
+
+                          <Button
+                            type="button"
+                            onClick={() => setStep(2)}
+                            className="w-full cursor-pointer"
+                            disabled={!formData.organizationType}
+                          >
                             Continue
                           </Button>
                         </div>
@@ -217,36 +472,99 @@ export default function RegisterPage() {
                       {step === 2 && (
                         <div className="space-y-4">
                           <div>
-                            <Label htmlFor="contactEmail">Contact Email</Label>
+                            <Label htmlFor="contactPersonName">Contact Person Name *</Label>
+                            <Input
+                              id="contactPersonName"
+                              value={formData.contactPersonName}
+                              onChange={(e) => setFormData({ ...formData, contactPersonName: e.target.value })}
+                              placeholder="Enter contact person name"
+                              className="cursor-pointer"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="contactEmail">
+                              {formData.organizationType === "Regulator"
+                                ? "Official Email Address"
+                                : "Contact Person Email"}{" "}
+                              *
+                            </Label>
                             <Input
                               id="contactEmail"
                               type="email"
                               value={formData.contactEmail}
                               onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                              placeholder="Enter contact email"
+                              placeholder="Enter email address"
+                              className="cursor-pointer"
+                              required
                             />
                           </div>
                           <div>
-                            <Label htmlFor="contactPhone">Contact Phone</Label>
+                            <Label htmlFor="contactPhone">
+                              {formData.organizationType === "Regulator"
+                                ? "Official Phone Number"
+                                : "Contact Person Phone Number"}{" "}
+                              *
+                            </Label>
                             <Input
                               id="contactPhone"
+                              type="tel"
                               value={formData.contactPhone}
                               onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                              placeholder="Enter contact phone"
+                              placeholder="Enter phone number"
+                              className="cursor-pointer"
+                              required
                             />
                           </div>
                           <div>
-                            <Label>License Certificate</Label>
-                            <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                              <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                              <p className="text-sm text-muted-foreground">Click to upload license certificate</p>
-                            </div>
+                            <Label htmlFor="password">Password *</Label>
+                            <Input
+                              id="password"
+                              type="password"
+                              value={formData.password}
+                              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                              placeholder="Create a password"
+                              className="cursor-pointer"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                            <Input
+                              id="confirmPassword"
+                              type="password"
+                              value={formData.confirmPassword}
+                              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                              placeholder="Confirm your password"
+                              className="cursor-pointer"
+                              required
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="agreeToTerms"
+                              checked={formData.agreeToTerms}
+                              onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: !!checked })}
+                              className="cursor-pointer"
+                            />
+                            <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer">
+                              I agree to the Terms and Conditions *
+                            </Label>
                           </div>
                           <div className="flex space-x-4">
-                            <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setStep(1)}
+                              className="flex-1 cursor-pointer"
+                            >
                               Back
                             </Button>
-                            <Button type="submit" className="flex-1">
+                            <Button
+                              type="submit"
+                              className="flex-1 cursor-pointer"
+                              disabled={!formData.agreeToTerms || formData.password !== formData.confirmPassword}
+                            >
                               Submit Application
                             </Button>
                           </div>
@@ -255,110 +573,104 @@ export default function RegisterPage() {
                     </>
                   )}
 
-                  {accountType === "individual" && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="fullName">Full Name</Label>
-                        <Input
-                          id="fullName"
-                          value={formData.fullName}
-                          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                          placeholder="Enter your full name"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="selectedOrganization">Select Organization</Label>
-                        <Select
-                          value={formData.selectedOrganization}
-                          onValueChange={(value) => setFormData({ ...formData, selectedOrganization: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Search and select organization" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pharma-corp">Pharma Corp Ltd.</SelectItem>
-                            <SelectItem value="med-distributors">Med Distributors Inc.</SelectItem>
-                            <SelectItem value="city-hospital">City General Hospital</SelectItem>
-                            <SelectItem value="health-pharmacy">Health Plus Pharmacy</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="role">Role</Label>
-                        <Select
-                          value={formData.role}
-                          onValueChange={(value) => setFormData({ ...formData, role: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select your role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {roles.map((role) => (
-                              <SelectItem key={role} value={role}>
-                                {role}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="contactEmail">Email</Label>
-                        <Input
-                          id="contactEmail"
-                          type="email"
-                          value={formData.contactEmail}
-                          onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                          placeholder="Enter your email"
-                        />
-                      </div>
-                      <Button type="submit" className="w-full">
-                        Submit Request
-                      </Button>
-                    </div>
-                  )}
-
                   {accountType === "consumer" && (
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="fullName">Full Name</Label>
+                        <Label htmlFor="fullName">Full Name *</Label>
                         <Input
                           id="fullName"
                           value={formData.fullName}
                           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                           placeholder="Enter your full name"
+                          className="cursor-pointer"
+                          required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="contactEmail">Email</Label>
+                        <Label htmlFor="contactEmail">Email Address *</Label>
                         <Input
                           id="contactEmail"
                           type="email"
                           value={formData.contactEmail}
                           onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
                           placeholder="Enter your email"
+                          className="cursor-pointer"
+                          required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="contactPhone">Phone Number *</Label>
+                        <Input
+                          id="contactPhone"
+                          type="tel"
+                          value={formData.contactPhone}
+                          onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                          placeholder="Enter your phone number"
+                          className="cursor-pointer"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                        <Input
+                          id="dateOfBirth"
+                          type="date"
+                          value={formData.dateOfBirth}
+                          onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="address">Address</Label>
+                        <Textarea
+                          id="address"
+                          value={formData.address}
+                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                          placeholder="Enter your address"
+                          rows={3}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="password">Password *</Label>
                         <Input
                           id="password"
                           type="password"
                           value={formData.password}
                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           placeholder="Create a password"
+                          className="cursor-pointer"
+                          required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="confirmPassword">Confirm Password</Label>
+                        <Label htmlFor="confirmPassword">Confirm Password *</Label>
                         <Input
                           id="confirmPassword"
                           type="password"
                           value={formData.confirmPassword}
                           onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                           placeholder="Confirm your password"
+                          className="cursor-pointer"
+                          required
                         />
                       </div>
-                      <Button type="submit" className="w-full">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="agreeToTerms"
+                          checked={formData.agreeToTerms}
+                          onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: !!checked })}
+                          className="cursor-pointer"
+                        />
+                        <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer">
+                          I agree to the Terms and Conditions *
+                        </Label>
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full cursor-pointer"
+                        disabled={!formData.agreeToTerms || formData.password !== formData.confirmPassword}
+                      >
                         Create Account
                       </Button>
                     </div>
@@ -366,7 +678,7 @@ export default function RegisterPage() {
                 </form>
 
                 <div className="mt-6 text-center">
-                  <Button variant="ghost" onClick={() => setAccountType(null)}>
+                  <Button variant="ghost" onClick={() => setAccountType(null)} className="cursor-pointer">
                     Choose Different Account Type
                   </Button>
                 </div>

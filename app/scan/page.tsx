@@ -101,10 +101,12 @@ export default function ScanPage() {
             </Link>
             <div className="flex items-center space-x-4">
               <Link href="/auth/register">
-                <Button variant="outline">Create Account</Button>
+                <Button variant="outline" className="cursor-pointer bg-transparent">
+                  Create Account
+                </Button>
               </Link>
               <Link href="/auth/login">
-                <Button>Sign In</Button>
+                <Button className="cursor-pointer">Sign In</Button>
               </Link>
             </div>
           </div>
@@ -113,7 +115,10 @@ export default function ScanPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 cursor-pointer"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
@@ -141,7 +146,7 @@ export default function ScanPage() {
                   <div className="space-y-4">
                     <QrCode className="h-16 w-16 text-muted-foreground mx-auto" />
                     <p className="text-muted-foreground">Click the button below to start scanning</p>
-                    <Button size="lg" onClick={handleScan}>
+                    <Button size="lg" onClick={handleScan} className="cursor-pointer">
                       <Scan className="h-5 w-5 mr-2" />
                       Start Scan
                     </Button>
@@ -249,18 +254,18 @@ export default function ScanPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
-              <Button onClick={() => setScanResult(null)}>
+              <Button onClick={() => setScanResult(null)} className="cursor-pointer">
                 <Scan className="h-4 w-4 mr-2" />
                 Scan Another
               </Button>
               <Link href="/auth/register">
-                <Button variant="outline">
+                <Button variant="outline" className="cursor-pointer bg-transparent">
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Chat with AI for Usage Guidance
                 </Button>
               </Link>
               <Link href="/auth/register">
-                <Button variant="outline">
+                <Button variant="outline" className="cursor-pointer bg-transparent">
                   <History className="h-4 w-4 mr-2" />
                   Save to History
                 </Button>
@@ -290,7 +295,7 @@ export default function ScanPage() {
                 </ul>
                 <div className="pt-4">
                   <Link href="/auth/register">
-                    <Button className="w-full">Create Free Account</Button>
+                    <Button className="w-full cursor-pointer">Create Free Account</Button>
                   </Link>
                 </div>
               </CardContent>
