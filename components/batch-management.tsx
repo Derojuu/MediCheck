@@ -117,7 +117,7 @@ export function BatchManagement() {
               <div>
                 <Label htmlFor="drugName">Drug Name</Label>
                 <Input
-                  id="drugName"
+                  id="drugName" 
                   value={newBatch.drugName}
                   onChange={(e) => setNewBatch({ ...newBatch, drugName: e.target.value })}
                   placeholder="e.g., Paracetamol 500mg"
