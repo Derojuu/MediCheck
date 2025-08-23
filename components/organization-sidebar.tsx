@@ -64,7 +64,7 @@ export function OrganizationSidebar({ activeTab, setActiveTab }: OrganizationSid
             <Button
               key={item.id}
               variant={activeTab === item.id ? "secondary" : "ghost"}
-              className="w-full justify-start"
+              className="w-full justify-start cursor-pointer"
               onClick={() => setActiveTab(item.id)}
             >
               <Icon className="h-4 w-4 mr-3" />
@@ -76,7 +76,7 @@ export function OrganizationSidebar({ activeTab, setActiveTab }: OrganizationSid
 
       <div className="absolute bottom-4 left-4 right-4">
         <Link href="/auth/login">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground">
+          <Button variant="ghost" className="w-full justify-start text-muted-foreground cursor-pointer">
             <LogOut className="h-4 w-4 mr-3" />
             Sign Out
           </Button>

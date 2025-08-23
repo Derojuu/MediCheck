@@ -16,17 +16,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Users, Plus, Mail, UserCheck, UserX, Clock } from "lucide-react"
+import { Users, Plus, Mail, UserCheck, UserX, Clock, CheckCircle, XCircle } from "lucide-react"
 
 export function TeamManagement() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [showErrorModal, setShowErrorModal] = useState(false)
+  const [modalMessage, setModalMessage] = useState("")
   const [inviteData, setInviteData] = useState({
     email: "",
     role: "",
     department: "",
   })
 
-  // Mock team data
   const teamMembers = [
     {
       id: 1,
@@ -99,17 +101,32 @@ export function TeamManagement() {
   ]
 
   const handleInvite = () => {
-    console.log("Inviting team member:", inviteData)
+    console.log("[v0] Inviting team member:", inviteData)
+
+    const isSuccess = Math.random() > 0.3
+
+    if (isSuccess) {
+      setModalMessage(`Invitation sent successfully to ${inviteData.email}`)
+      setShowSuccessModal(true)
+    } else {
+      setModalMessage(`Failed to send invitation to ${inviteData.email}. Please try again.`)
+      setShowErrorModal(true)
+    }
+
     setIsInviteModalOpen(false)
     setInviteData({ email: "", role: "", department: "" })
   }
 
   const handleApproveRequest = (requestId: number) => {
-    console.log("Approving request:", requestId)
+    console.log("[v0] Approving request:", requestId)
+    setModalMessage("Team member request approved successfully!")
+    setShowSuccessModal(true)
   }
 
   const handleRejectRequest = (requestId: number) => {
-    console.log("Rejecting request:", requestId)
+    console.log("[v0] Rejecting request:", requestId)
+    setModalMessage("Team member request rejected.")
+    setShowErrorModal(true)
   }
 
   const getStatusColor = (status: string) => {
@@ -134,7 +151,7 @@ export function TeamManagement() {
         </div>
         <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="cursor-pointer">
               <Plus className="h-4 w-4 mr-2" />
               Invite Team Member
             </Button>
@@ -153,6 +170,7 @@ export function TeamManagement() {
                   value={inviteData.email}
                   onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
                   placeholder="Enter email address"
+                  className="cursor-pointer"
                 />
               </div>
               <div>
@@ -161,7 +179,7 @@ export function TeamManagement() {
                   value={inviteData.role}
                   onValueChange={(value) => setInviteData({ ...inviteData, role: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="cursor-pointer">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -179,7 +197,7 @@ export function TeamManagement() {
                   value={inviteData.department}
                   onValueChange={(value) => setInviteData({ ...inviteData, department: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="cursor-pointer">
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
@@ -193,16 +211,55 @@ export function TeamManagement() {
               </div>
             </div>
             <div className="flex justify-end space-x-4 mt-6">
-              <Button variant="outline" onClick={() => setIsInviteModalOpen(false)}>
+              <Button variant="outline" onClick={() => setIsInviteModalOpen(false)} className="cursor-pointer">
                 Cancel
               </Button>
-              <Button onClick={handleInvite}>Send Invitation</Button>
+              <Button onClick={handleInvite} className="cursor-pointer">
+                Send Invitation
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Pending Requests */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="h-5 w-5" />
+              Success
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>{modalMessage}</p>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => setShowSuccessModal(false)} className="cursor-pointer">
+              OK
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <XCircle className="h-5 w-5" />
+              Error
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>{modalMessage}</p>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => setShowErrorModal(false)} className="cursor-pointer">
+              OK
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {pendingRequests.length > 0 && (
         <Card>
           <CardHeader>
@@ -223,11 +280,16 @@ export function TeamManagement() {
                     <p className="text-xs text-muted-foreground">Requested on: {request.requestDate}</p>
                   </div>
                   <div className="flex space-x-2">
-                    <Button size="sm" onClick={() => handleApproveRequest(request.id)}>
+                    <Button size="sm" onClick={() => handleApproveRequest(request.id)} className="cursor-pointer">
                       <UserCheck className="h-4 w-4 mr-1" />
                       Approve
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleRejectRequest(request.id)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRejectRequest(request.id)}
+                      className="cursor-pointer"
+                    >
                       <UserX className="h-4 w-4 mr-1" />
                       Reject
                     </Button>
@@ -239,7 +301,6 @@ export function TeamManagement() {
         </Card>
       )}
 
-      {/* Team Members */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -276,10 +337,10 @@ export function TeamManagement() {
                   <TableCell>{member.lastActive}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="cursor-pointer bg-transparent">
                         Edit
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="cursor-pointer bg-transparent">
                         <Mail className="h-4 w-4" />
                       </Button>
                     </div>
