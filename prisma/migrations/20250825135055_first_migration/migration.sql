@@ -1,0 +1,253 @@
+-- CreateEnum
+CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_ADMIN', 'TEAM_MEMBER', 'CONSUMER', 'SUPER_ADMIN');
+
+-- CreateEnum
+CREATE TYPE "public"."OrganizationType" AS ENUM ('MANUFACTURER', 'DRUG_DISTRIBUTOR', 'HOSPITAL', 'PHARMACY', 'REGULATOR');
+
+-- CreateEnum
+CREATE TYPE "public"."BatchStatus" AS ENUM ('MANUFACTURING', 'READY_FOR_DISPATCH', 'IN_TRANSIT', 'DELIVERED', 'RECALLED', 'EXPIRED');
+
+-- CreateEnum
+CREATE TYPE "public"."TransferStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED');
+
+-- CreateEnum
+CREATE TYPE "public"."ScanResult" AS ENUM ('GENUINE', 'COUNTERFEIT', 'SUSPICIOUS', 'NOT_FOUND', 'EXPIRED');
+
+-- CreateEnum
+CREATE TYPE "public"."ReportType" AS ENUM ('COUNTERFEIT_DETECTED', 'PACKAGING_ISSUE', 'EXPIRY_MISMATCH', 'MULTIPLE_SCANS', 'SUSPICIOUS_ACTIVITY');
+
+-- CreateEnum
+CREATE TYPE "public"."SeverityLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+
+-- CreateEnum
+CREATE TYPE "public"."ReportStatus" AS ENUM ('PENDING', 'INVESTIGATING', 'RESOLVED', 'DISMISSED', 'ESCALATED');
+
+-- CreateTable
+CREATE TABLE "public"."users" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" "public"."UserRole" NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."consumers" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "fullName" TEXT NOT NULL,
+    "dateOfBirth" TIMESTAMP(3),
+    "phoneNumber" TEXT,
+    "address" TEXT,
+    "country" TEXT,
+    "state" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "consumers_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."organizations" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "organizationType" "public"."OrganizationType" NOT NULL,
+    "companyName" TEXT NOT NULL,
+    "contactEmail" TEXT NOT NULL,
+    "contactPhone" TEXT,
+    "contactPersonName" TEXT,
+    "address" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "state" TEXT,
+    "rcNumber" TEXT,
+    "nafdacNumber" TEXT,
+    "businessRegNumber" TEXT,
+    "licenseNumber" TEXT,
+    "pcnNumber" TEXT,
+    "agencyName" TEXT,
+    "officialId" TEXT,
+    "distributorType" TEXT,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "organizations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."team_members" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "department" TEXT NOT NULL,
+    "joinDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastActive" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "team_members_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."medication_batches" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "drugName" TEXT NOT NULL,
+    "composition" TEXT,
+    "batchSize" INTEGER NOT NULL,
+    "manufacturingDate" TIMESTAMP(3) NOT NULL,
+    "expiryDate" TIMESTAMP(3) NOT NULL,
+    "storageInstructions" TEXT,
+    "currentLocation" TEXT,
+    "status" "public"."BatchStatus" NOT NULL DEFAULT 'MANUFACTURING',
+    "qrCodeData" TEXT,
+    "blockchainHash" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "medication_batches_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."ownership_transfers" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "fromOrgId" TEXT NOT NULL,
+    "toOrgId" TEXT NOT NULL,
+    "transferDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "status" "public"."TransferStatus" NOT NULL DEFAULT 'PENDING',
+    "blockchainHash" TEXT,
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ownership_transfers_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."scan_history" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "consumerId" TEXT,
+    "scanLocation" TEXT,
+    "scanDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "scanResult" "public"."ScanResult" NOT NULL,
+    "ipAddress" TEXT,
+    "deviceInfo" TEXT,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "scan_history_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."counterfeit_reports" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT,
+    "reporterId" TEXT NOT NULL,
+    "reportType" "public"."ReportType" NOT NULL,
+    "severity" "public"."SeverityLevel" NOT NULL,
+    "description" TEXT NOT NULL,
+    "location" TEXT,
+    "evidence" TEXT[],
+    "status" "public"."ReportStatus" NOT NULL DEFAULT 'PENDING',
+    "investigatorId" TEXT,
+    "resolution" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "counterfeit_reports_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."system_config" (
+    "id" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "description" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "system_config_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."audit_logs" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT,
+    "action" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "entityId" TEXT,
+    "details" JSONB,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "audit_logs_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "public"."users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "consumers_userId_key" ON "public"."consumers"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "organizations_userId_key" ON "public"."organizations"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "team_members_userId_key" ON "public"."team_members"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "medication_batches_batchId_key" ON "public"."medication_batches"("batchId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "system_config_key_key" ON "public"."system_config"("key");
+
+-- AddForeignKey
+ALTER TABLE "public"."consumers" ADD CONSTRAINT "consumers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."organizations" ADD CONSTRAINT "organizations_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."team_members" ADD CONSTRAINT "team_members_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."team_members" ADD CONSTRAINT "team_members_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."medication_batches" ADD CONSTRAINT "medication_batches_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."ownership_transfers" ADD CONSTRAINT "ownership_transfers_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."ownership_transfers" ADD CONSTRAINT "ownership_transfers_fromOrgId_fkey" FOREIGN KEY ("fromOrgId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."ownership_transfers" ADD CONSTRAINT "ownership_transfers_toOrgId_fkey" FOREIGN KEY ("toOrgId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."scan_history" ADD CONSTRAINT "scan_history_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."scan_history" ADD CONSTRAINT "scan_history_consumerId_fkey" FOREIGN KEY ("consumerId") REFERENCES "public"."consumers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."counterfeit_reports" ADD CONSTRAINT "counterfeit_reports_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."counterfeit_reports" ADD CONSTRAINT "counterfeit_reports_reporterId_fkey" FOREIGN KEY ("reporterId") REFERENCES "public"."consumers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
