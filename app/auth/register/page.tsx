@@ -16,8 +16,15 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
+
   const [accountType, setAccountType] = useState<"organization" | "consumer" | null>(null)
+
   const [step, setStep] = useState(1)
+
+  const [isLoading, setIsLoading] = useState(false)
+
+  const [errorMessage, setErrorMessage] = useState("")
+
   const [formData, setFormData] = useState({
     // Organization fields
     organizationType: "",
@@ -44,16 +51,28 @@ export default function RegisterPage() {
     confirmPassword: "",
     agreeToTerms: false,
   })
+
   const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    // setErrorMessage("");
+    // setIsLoading(true);
+    // try {
+      
+    // }
+    // catch (err) {
+      
+    // }
+    // finally {
+      
+    // }
     if (accountType === "organization") {
       switch (formData.organizationType) {
         case "Hospital":
           router.push("/dashboard/hospital")
           break
-        case "Pharmacy/Retailer":
+        case "Pharmacy":
           router.push("/dashboard/pharmacy")
           break
         case "Regulator":
@@ -70,13 +89,15 @@ export default function RegisterPage() {
     }
   }
 
-  const organizationTypes = ["Manufacturer", "Drug Distributor", "Hospital", "Pharmacy/Retailer", "Regulator"]
+  const organizationTypes = ["Manufacturer", "Drug Distributor", "Hospital", "Pharmacy", "Regulator"]
 
   const countries = ["Nigeria", "Ghana", "Kenya", "South Africa", "Egypt"]
+
   const nigerianStates = ["Lagos", "Abuja", "Kano", "Rivers", "Ogun", "Kaduna", "Oyo", "Delta"]
 
   const renderOrganizationSpecificFields = () => {
     switch (formData.organizationType) {
+
       case "Manufacturer":
         return (
           <>
@@ -239,7 +260,7 @@ export default function RegisterPage() {
           </>
         )
 
-      case "Pharmacy/Retailer":
+      case "Pharmacy":
         return (
           <>
             <div>
@@ -352,6 +373,7 @@ export default function RegisterPage() {
   }
 
   return (
+
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b bg-card/50 backdrop-blur-sm">
@@ -374,12 +396,14 @@ export default function RegisterPage() {
       <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
           {!accountType ? (
+
             <Card>
               <CardHeader className="text-center">
                 <CardTitle className="font-montserrat font-bold text-2xl">Choose Account Type</CardTitle>
                 <CardDescription>Select the type of account that best describes your role</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+
                 <div
                   className="p-6 border-2 border-dashed border-border hover:border-primary cursor-pointer rounded-lg transition-colors"
                   onClick={() => setAccountType("organization")}
@@ -411,9 +435,12 @@ export default function RegisterPage() {
                     </div>
                   </div>
                 </div>
+
               </CardContent>
             </Card>
-          ) : (
+
+          ) :
+          (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -433,7 +460,9 @@ export default function RegisterPage() {
                 </div>
               </CardHeader>
               <CardContent>
+                  
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    
                   {accountType === "organization" && (
                     <>
                       {step === 1 && (
@@ -576,7 +605,7 @@ export default function RegisterPage() {
                   {accountType === "consumer" && (
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="fullName">Full Name *</Label>
+                        <Label htmlFor="fullName">Full Name</Label>
                         <Input
                           id="fullName"
                           value={formData.fullName}
@@ -587,7 +616,7 @@ export default function RegisterPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="contactEmail">Email Address *</Label>
+                        <Label htmlFor="contactEmail">Email Address</Label>
                         <Input
                           id="contactEmail"
                           type="email"
@@ -599,7 +628,7 @@ export default function RegisterPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="contactPhone">Phone Number *</Label>
+                        <Label htmlFor="contactPhone">Phone Number</Label>
                         <Input
                           id="contactPhone"
                           type="tel"
@@ -618,6 +647,7 @@ export default function RegisterPage() {
                           value={formData.dateOfBirth}
                           onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
                           className="cursor-pointer"
+                          required
                         />
                       </div>
                       <div>
@@ -629,6 +659,7 @@ export default function RegisterPage() {
                           placeholder="Enter your address"
                           rows={3}
                           className="cursor-pointer"
+                          required
                         />
                       </div>
                       <div>
@@ -644,7 +675,7 @@ export default function RegisterPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                        <Label htmlFor="confirmPassword">Confirm Password</Label>
                         <Input
                           id="confirmPassword"
                           type="password"
@@ -675,6 +706,7 @@ export default function RegisterPage() {
                       </Button>
                     </div>
                   )}
+                    
                 </form>
 
                 <div className="mt-6 text-center">
@@ -682,6 +714,7 @@ export default function RegisterPage() {
                     Choose Different Account Type
                   </Button>
                 </div>
+                  
               </CardContent>
             </Card>
           )}

@@ -19,8 +19,8 @@ datasource db {
 // Main user account - can be either organization or consumer
 model User {
   id        String   @id @default(cuid())
-  email     String   @unique
-  password  String   // Hashed password
+  clerkUserId     String   @unique
+  organizationType String
   role      UserRole // Determines user type and permissions
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
