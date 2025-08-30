@@ -10,24 +10,46 @@ import { Label } from "@/components/ui/label"
 import { Shield, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSignIn } from "@clerk/nextjs";
+import { toast } from "react-toastify"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Simulate login - in real app, this would validate credentials
-    // For demo purposes, route based on email domain
-    if (email.includes("org") || email.includes("pharma") || email.includes("hospital")) {
-      router.push("/dashboard/organization")
-    } else if (email.includes("team") || email.includes("staff")) {
-      router.push("/dashboard/team-member")
-    } else {
-      router.push("/consumer/profile")
+  const [email, setEmail] = useState("")
+
+  const [password, setPassword] = useState("")
+
+  const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { signIn, setActive } = useSignIn();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    if (!signIn) return;
+
+    try {
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/dashboard/organization"); // or role-based redirect
+      }
     }
-  }
+    catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+    finally{
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,7 +62,7 @@ export default function LoginPage() {
               <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
             </Link>
             <Link href="/">
-              <Button variant="ghost">
+              <Button className="cursor-pointer" variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Home
               </Button>
@@ -80,8 +102,8 @@ export default function LoginPage() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  Sign In
+                <Button disabled={isLoading} type="submit" className="w-full cursor-pointer">
+                  {isLoading ? "Loading..." : "Sign In"}
                 </Button>
               </form>
 
@@ -94,13 +116,13 @@ export default function LoginPage() {
                 </p>
               </div>
 
-              <div className="mt-4 text-center">
+              {/* <div className="mt-4 text-center">
                 <Link href="/scan">
                   <Button variant="outline" className="w-full bg-transparent">
                     Continue Without Account
                   </Button>
                 </Link>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
         </div>
