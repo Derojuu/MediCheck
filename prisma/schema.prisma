@@ -1,6 +1,3 @@
-// This is your Prisma schema file for MedChain - Pharmaceutical Supply Chain Management System
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -12,298 +9,198 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ========================
-// USER MANAGEMENT MODELS
-// ========================
-
-// Main user account - can be either organization or consumer
 model User {
-  id        String   @id @default(cuid())
-  clerkUserId     String   @unique
-  organizationType String
-  role      UserRole // Determines user type and permissions
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String        @id @default(cuid())
+  userRole         UserRole
+  clerkUserId      String        @unique
+  isActive         Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
-  // Relationships
-  organization Organization? // One-to-one if user is organization admin
-  consumer     Consumer?     // One-to-one if user is consumer
-  teamMember   TeamMember?   // One-to-one if user is team member
+  consumer         Consumer?
+  organizations    Organization?
+  teamMember       TeamMember?
 
   @@map("users")
 }
 
-// User role enumeration for access control
-enum UserRole {
-  ORGANIZATION_ADMIN // Organization administrator
-  TEAM_MEMBER       // Organization team member
-  CONSUMER          // End consumer
-  SUPER_ADMIN       // System administrator
-}
-
-// Consumer profile for end users who scan medications
 model Consumer {
-  id          String    @id @default(cuid())
-  userId      String    @unique
-  fullName    String    // Consumer's full name
-  dateOfBirth DateTime? // Date of birth for age verification
-  phoneNumber String?   // Contact phone number
-  address     String?   // Consumer address
-  country     String?   // Country of residence
-  state       String?   // State/province of residence
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                  String              @id @default(cuid())
+  userId              String              @unique
+  fullName            String
+  dateOfBirth         DateTime?
+  phoneNumber         String?
+  address             String?
+  country             String?             // currenly no in the consmer register form
+  state               String?             // currenly no in the consmer register form
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 
-  // Relationships
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scanHistory    ScanHistory[]     // History of medication scans
-  counterfeitReports CounterfeitReport[] // Reports filed by consumer
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  counterfeit_reports CounterfeitReport[]
+  scanHistory         ScanHistory[]
 
   @@map("consumers")
 }
 
-// ========================
-// ORGANIZATION MODELS
-// ========================
-
-// Organization entity (Manufacturer, Distributor, Hospital, Pharmacy, Regulator)
 model Organization {
-  id               String           @id @default(cuid())
-  userId           String           @unique
-  organizationType OrganizationType // Type of organization
-  companyName      String           // Official company/organization name
-  contactEmail     String           // Primary contact email
-  contactPhone     String?          // Primary contact phone
-  contactPersonName String?         // Primary contact person name
-  address          String           // Physical address
-  country          String           // Country of operation
-  state            String?          // State/province
+  id                String              @id @default(cuid())
+  adminId           String              @unique
+  organizationType  OrganizationType
+  companyName       String
+  contactEmail      String
+  contactPhone      String?
+  contactPersonName String?
+  address           String
+  country           String
+  state             String?
+  rcNumber          String?
+  nafdacNumber      String?
+  businessRegNumber String?
+  licenseNumber     String?
+  pcnNumber         String?
+  agencyName        String?
+  officialId        String?
+  distributorType   String?
+  isVerified        Boolean             @default(false)
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   
-  // Registration details - varies by organization type
-  rcNumber         String?          // Registration Certificate number (Manufacturers)
-  nafdacNumber     String?          // NAFDAC registration (Manufacturers/Pharmacies)
-  businessRegNumber String?         // Business registration (Distributors)
-  licenseNumber    String?          // Professional license (Hospitals/Pharmacies)
-  pcnNumber        String?          // Pharmacists Council Number (Pharmacies)
-  agencyName       String?          // Agency name (Regulators)
-  officialId       String?          // Official ID (Regulators)
-  distributorType  String?          // Type of distributor (Wholesaler/Retailer/Certified)
-  
-  isVerified       Boolean          @default(false) // Verification status by regulators
-  isActive         Boolean          @default(true)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  medicationBatches MedicationBatch[]
+  users             User                @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  transfersFrom     OwnershipTransfer[] @relation("TransferFrom")
+  transfersTo       OwnershipTransfer[] @relation("TransferTo")
+  teamMembers       TeamMember[]
 
-  // Relationships
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  teamMembers       TeamMember[]       // Organization team members
-  medicationBatches MedicationBatch[]  // Batches created/owned by this organization
-  transfersFrom     OwnershipTransfer[] @relation("TransferFrom") // Transfers initiated by this org
-  transfersTo       OwnershipTransfer[] @relation("TransferTo")   // Transfers received by this org
-  
   @@map("organizations")
 }
 
-// Organization type enumeration
-enum OrganizationType {
-  MANUFACTURER     // Drug manufacturers
-  DRUG_DISTRIBUTOR // Drug distributors/wholesalers
-  HOSPITAL         // Hospitals and healthcare facilities
-  PHARMACY         // Pharmacies and retailers
-  REGULATOR        // Regulatory bodies (NAFDAC, etc.)
-}
-
-// Team members within organizations
 model TeamMember {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  organizationId String   // Organization they belong to
-  name           String   // Team member name
-  email          String   // Team member email
-  role           String   // Role within organization (Quality Control Manager, Pharmacist, etc.)
-  department     String   // Department (Quality Assurance, Production, etc.)
-  joinDate       DateTime @default(now()) // Date joined organization
-  lastActive     DateTime @default(now()) // Last activity timestamp
-  isActive       Boolean  @default(true)  // Active status
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id             String       @id @default(cuid())
+  userId         String       @unique
+  organizationId String
+  isAdmin        Boolean
+  name           String
+  email          String
+  role           String
+  department     String
+  joinDate       DateTime     @default(now())
+  lastActive     DateTime     @default(now())
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
-  // Relationships
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("team_members")
 }
 
-// ========================
-// MEDICATION & BATCH MODELS
-// ========================
-
-// Medication batch information - core entity for supply chain tracking
 model MedicationBatch {
-  id                   String      @id @default(cuid())
-  batchId              String      @unique // Human-readable batch identifier (e.g., BTH-2024-001)
-  organizationId       String      // Organization that created this batch
-  drugName             String      // Name of the medication
-  composition          String?     // Active ingredients and composition details
-  batchSize            Int         // Number of units in this batch
-  manufacturingDate    DateTime    // Date of manufacturing
-  expiryDate           DateTime    // Expiration date
-  storageInstructions  String?     // Storage requirements (temperature, humidity, etc.)
-  currentLocation      String?     // Current physical location
-  status               BatchStatus @default(MANUFACTURING) // Current status in supply chain
-  qrCodeData           String?     // QR code data for verification
-  blockchainHash       String?     // Blockchain transaction hash for immutability
-  createdAt            DateTime    @default(now())
-  updatedAt            DateTime    @updatedAt
+  id                  String              @id @default(cuid())
+  batchId             String              @unique
+  organizationId      String
+  drugName            String
+  composition         String?
+  batchSize           Int
+  manufacturingDate   DateTime
+  expiryDate          DateTime
+  storageInstructions String?
+  currentLocation     String?
+  status              BatchStatus         @default(MANUFACTURING)
+  qrCodeData          String?
+  blockchainHash      String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 
-  // Relationships
-  organization       Organization        @relation(fields: [organizationId], references: [id])
-  ownershipTransfers OwnershipTransfer[] // Transfers of this batch
-  scanHistory        ScanHistory[]       // Scan verification history
-  counterfeitReports CounterfeitReport[] // Counterfeit reports for this batch
+  counterfeitReports  CounterfeitReport[]
+  organization        Organization        @relation(fields: [organizationId], references: [id])
+  ownershipTransfers  OwnershipTransfer[]
+  scanHistory         ScanHistory[]
+  medicationUnits     MedicationUnit[]
 
   @@map("medication_batches")
 }
 
-// Batch status enumeration for supply chain tracking
-enum BatchStatus {
-  MANUFACTURING     // Being manufactured
-  READY_FOR_DISPATCH // Ready to be shipped
-  IN_TRANSIT        // Being transported
-  DELIVERED         // Delivered to destination
-  RECALLED          // Recalled due to issues
-  EXPIRED           // Past expiration date
+model MedicationUnit {
+  id              String      @id @default(cuid()) // Primary key
+  batchId         String                         // FK to MedicationBatch
+  serialNumber    String      @unique            // Unique identifier per unit
+  qrCode          String?                        // Optional QR code for scanning
+  currentLocation String?                        // Where the unit currently is
+  status          UnitStatus  @default(IN_STOCK) // Enum for tracking unit state
+  blockchainHash  String?                        // Optional for blockchain verification
+  createdAt       DateTime    @default(now())    // Auto set on creation
+  updatedAt       DateTime    @updatedAt         // Auto updated on changes
+
+  // Relation back to MedicationBatch
+  batch           MedicationBatch @relation(fields: [batchId], references: [id])
+
+  @@map("medication_units")
 }
 
-// ========================
-// SUPPLY CHAIN TRACKING
-// ========================
-
-// Ownership transfer records for supply chain tracking
 model OwnershipTransfer {
-  id              String         @id @default(cuid())
-  batchId         String         // Batch being transferred
-  fromOrgId       String         // Organization transferring ownership
-  toOrgId         String         // Organization receiving ownership
-  transferDate    DateTime       @default(now()) // Date of transfer
-  status          TransferStatus @default(PENDING) // Transfer status
-  blockchainHash  String?        // Blockchain transaction hash
-  notes           String?        // Additional transfer notes
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-
-  // Relationships
-  batch    MedicationBatch @relation(fields: [batchId], references: [id])
-  fromOrg  Organization    @relation("TransferFrom", fields: [fromOrgId], references: [id])
-  toOrg    Organization    @relation("TransferTo", fields: [toOrgId], references: [id])
+  id             String          @id @default(cuid())
+  batchId        String
+  fromOrgId      String
+  toOrgId        String
+  transferDate   DateTime        @default(now())
+  status         TransferStatus  @default(PENDING)
+  blockchainHash String?
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  batch          MedicationBatch @relation(fields: [batchId], references: [id])
+  fromOrg        Organization    @relation("TransferFrom", fields: [fromOrgId], references: [id])
+  toOrg          Organization    @relation("TransferTo", fields: [toOrgId], references: [id])
 
   @@map("ownership_transfers")
 }
 
-// Transfer status enumeration
-enum TransferStatus {
-  PENDING    // Transfer initiated but not completed
-  IN_PROGRESS // Transfer in progress
-  COMPLETED  // Transfer completed successfully
-  FAILED     // Transfer failed
-  CANCELLED  // Transfer cancelled
-}
-
-// ========================
-// VERIFICATION & SECURITY
-// ========================
-
-// Scan history for medication verification tracking
 model ScanHistory {
-  id              String          @id @default(cuid())
-  batchId         String          // Batch that was scanned
-  consumerId      String?         // Consumer who scanned (if applicable)
-  scanLocation    String?         // Location where scan occurred
-  scanDate        DateTime        @default(now()) // Date and time of scan
-  scanResult      ScanResult      // Result of the scan verification
-  ipAddress       String?         // IP address of scanner for fraud detection
-  deviceInfo      String?         // Device information for analytics
-  latitude        Float?          // GPS latitude for location tracking
-  longitude       Float?          // GPS longitude for location tracking
-  createdAt       DateTime        @default(now())
-
-  // Relationships
-  batch    MedicationBatch @relation(fields: [batchId], references: [id])
-  consumer Consumer?       @relation(fields: [consumerId], references: [id])
+  id           String          @id @default(cuid())
+  batchId      String
+  consumerId   String?
+  scanLocation String?
+  scanDate     DateTime        @default(now())
+  scanResult   ScanResult
+  ipAddress    String?
+  deviceInfo   String?
+  latitude     Float?
+  longitude    Float?
+  createdAt    DateTime        @default(now())
+  batch        MedicationBatch @relation(fields: [batchId], references: [id])
+  consumer     Consumer?       @relation(fields: [consumerId], references: [id])
 
   @@map("scan_history")
 }
 
-// Scan result enumeration
-enum ScanResult {
-  GENUINE      // Medication verified as genuine
-  COUNTERFEIT  // Medication identified as counterfeit
-  SUSPICIOUS   // Suspicious activity detected
-  NOT_FOUND    // Batch not found in database
-  EXPIRED      // Medication has expired
-}
-
-// Counterfeit report system for security alerts
 model CounterfeitReport {
-  id              String           @id @default(cuid())
-  batchId         String?          // Batch reported as counterfeit (if known)
-  reporterId      String           // Consumer or organization reporting
-  reportType      ReportType       // Type of report
-  severity        SeverityLevel    // Severity of the issue
-  description     String           // Detailed description of the issue
-  location        String?          // Location where counterfeit was found
-  evidence        String[]         // URLs/paths to evidence files
-  status          ReportStatus     @default(PENDING) // Status of investigation
-  investigatorId  String?          // Organization investigating the report
-  resolution      String?          // Resolution details
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  // Relationships
-  batch    MedicationBatch? @relation(fields: [batchId], references: [id])
-  reporter Consumer         @relation(fields: [reporterId], references: [id])
+  id             String           @id @default(cuid())
+  batchId        String?
+  reporterId     String
+  reportType     ReportType
+  severity       SeverityLevel
+  description    String
+  location       String?
+  evidence       String[]
+  status         ReportStatus     @default(PENDING)
+  investigatorId String?
+  resolution     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  batch          MedicationBatch? @relation(fields: [batchId], references: [id])
+  consumers      Consumer         @relation(fields: [reporterId], references: [id])
 
   @@map("counterfeit_reports")
 }
 
-// Report type enumeration
-enum ReportType {
-  COUNTERFEIT_DETECTED  // Counterfeit medication found
-  PACKAGING_ISSUE       // Issues with packaging
-  EXPIRY_MISMATCH      // Expiry date doesn't match records
-  MULTIPLE_SCANS       // Same batch scanned in multiple locations
-  SUSPICIOUS_ACTIVITY  // Other suspicious activities
-}
-
-// Severity level enumeration
-enum SeverityLevel {
-  LOW      // Low priority issue
-  MEDIUM   // Medium priority issue
-  HIGH     // High priority issue
-  CRITICAL // Critical security issue
-}
-
-// Report status enumeration
-enum ReportStatus {
-  PENDING       // Report submitted, awaiting review
-  INVESTIGATING // Under investigation
-  RESOLVED      // Issue resolved
-  DISMISSED     // Report dismissed as false positive
-  ESCALATED     // Escalated to higher authorities
-}
-
-// ========================
-// SYSTEM CONFIGURATION
-// ========================
-
-// System settings and configuration
 model SystemConfig {
   id          String   @id @default(cuid())
-  key         String   @unique // Configuration key
-  value       String   // Configuration value
-  description String?  // Description of the setting
+  key         String   @unique
+  value       String
+  description String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -311,17 +208,86 @@ model SystemConfig {
   @@map("system_config")
 }
 
-// Audit log for system activities and security monitoring
 model AuditLog {
-  id          String   @id @default(cuid())
-  userId      String?  // User who performed the action
-  action      String   // Action performed
-  entityType  String   // Type of entity affected
-  entityId    String?  // ID of affected entity
-  details     Json?    // Additional details in JSON format
-  ipAddress   String?  // IP address of the user
-  userAgent   String?  // Browser/device information
-  timestamp   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
 
   @@map("audit_logs")
+}
+
+enum UserRole {
+  ORGANIZATION_MEMBER
+  CONSUMER
+  SUPER_ADMIN
+}
+
+enum OrganizationType {
+  MANUFACTURER
+  DRUG_DISTRIBUTOR
+  HOSPITAL
+  PHARMACY
+  REGULATOR
+}
+
+enum BatchStatus {
+  MANUFACTURING
+  READY_FOR_DISPATCH
+  IN_TRANSIT
+  DELIVERED
+  RECALLED
+  EXPIRED
+}
+
+enum UnitStatus {
+  IN_STOCK
+  DISPATCHED
+  SOLD
+  RETURNED
+  LOST
+}
+
+enum TransferStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ScanResult {
+  GENUINE
+  COUNTERFEIT
+  SUSPICIOUS
+  NOT_FOUND
+  EXPIRED
+}
+
+enum ReportType {
+  COUNTERFEIT_DETECTED
+  PACKAGING_ISSUE
+  EXPIRY_MISMATCH
+  MULTIPLE_SCANS
+  SUSPICIOUS_ACTIVITY
+}
+
+enum SeverityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportStatus {
+  PENDING
+  INVESTIGATING
+  RESOLVED
+  DISMISSED
+  ESCALATED
 }

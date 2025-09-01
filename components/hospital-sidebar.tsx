@@ -14,7 +14,9 @@ import {
   LogOut,
   Building2,
 } from "lucide-react"
-import Link from "next/link"
+import Link from "next/link";
+import { useClerk } from "@clerk/nextjs";
+import { authRoutes } from "@/utils";
 
 interface HospitalSidebarProps {
   activeTab: string
@@ -22,6 +24,9 @@ interface HospitalSidebarProps {
 }
 
 export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProps) {
+
+  const { signOut } = useClerk();
+
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "inventory", label: "Inventory", icon: Package },
@@ -74,12 +79,14 @@ export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProp
       </nav>
 
       <div className="absolute bottom-4 left-4 right-4">
-        <Link href="/auth/login">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground cursor-pointer">
+          <Button 
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground cursor-pointer"
+            onClick={() => signOut({ redirectUrl: authRoutes.login })}
+          >
             <LogOut className="h-4 w-4 mr-3" />
             Sign Out
           </Button>
-        </Link>
       </div>
     </div>
   )

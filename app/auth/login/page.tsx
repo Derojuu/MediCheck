@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,20 +8,24 @@ import { Label } from "@/components/ui/label"
 import { Shield, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useSignIn } from "@clerk/nextjs";
-import { toast } from "react-toastify"
+import { useSignIn, useUser } from "@clerk/nextjs";
+import { toast } from "react-toastify";
+import { getRedirectPath } from "@/utils"
+
 
 export default function LoginPage() {
 
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState("");
 
-  const [password, setPassword] = useState("")
-
-  const router = useRouter();
+  const [password, setPassword] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const router = useRouter();
+
   const { signIn, setActive } = useSignIn();
+
+  const { user, isSignedIn } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,18 +40,38 @@ export default function LoginPage() {
         password,
       });
 
+      console.log("Sign-in result:", result);
+
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.push("/dashboard/organization"); // or role-based redirect
       }
+
     }
     catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     }
-    finally{
+    finally {
       setIsLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (isSignedIn && user) {
+
+      const role = user.publicMetadata?.role as string | undefined;
+
+      const orgType = user.publicMetadata?.organizationType as string | undefined;
+
+      console.log("User Role:", role);
+      
+      console.log("Organization Type:", orgType);
+
+      const redirectPath = getRedirectPath(role, orgType);
+
+      router.push(redirectPath);
+    }
+  }, [isSignedIn, user, router]);
+
 
   return (
     <div className="min-h-screen bg-background">
