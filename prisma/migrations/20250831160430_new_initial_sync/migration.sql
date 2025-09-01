@@ -1,11 +1,14 @@
 -- CreateEnum
-CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_ADMIN', 'TEAM_MEMBER', 'CONSUMER', 'SUPER_ADMIN');
+CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_MEMBER', 'CONSUMER', 'SUPER_ADMIN');
 
 -- CreateEnum
 CREATE TYPE "public"."OrganizationType" AS ENUM ('MANUFACTURER', 'DRUG_DISTRIBUTOR', 'HOSPITAL', 'PHARMACY', 'REGULATOR');
 
 -- CreateEnum
 CREATE TYPE "public"."BatchStatus" AS ENUM ('MANUFACTURING', 'READY_FOR_DISPATCH', 'IN_TRANSIT', 'DELIVERED', 'RECALLED', 'EXPIRED');
+
+-- CreateEnum
+CREATE TYPE "public"."UnitStatus" AS ENUM ('IN_STOCK', 'DISPATCHED', 'SOLD', 'RETURNED', 'LOST');
 
 -- CreateEnum
 CREATE TYPE "public"."TransferStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED');
@@ -25,9 +28,8 @@ CREATE TYPE "public"."ReportStatus" AS ENUM ('PENDING', 'INVESTIGATING', 'RESOLV
 -- CreateTable
 CREATE TABLE "public"."users" (
     "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "role" "public"."UserRole" NOT NULL,
+    "userRole" "public"."UserRole" NOT NULL,
+    "clerkUserId" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -54,7 +56,7 @@ CREATE TABLE "public"."consumers" (
 -- CreateTable
 CREATE TABLE "public"."organizations" (
     "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
+    "adminId" TEXT NOT NULL,
     "organizationType" "public"."OrganizationType" NOT NULL,
     "companyName" TEXT NOT NULL,
     "contactEmail" TEXT NOT NULL,
@@ -84,6 +86,7 @@ CREATE TABLE "public"."team_members" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
+    "isAdmin" BOOLEAN NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "role" TEXT NOT NULL,
@@ -116,6 +119,21 @@ CREATE TABLE "public"."medication_batches" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "medication_batches_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."medication_units" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "serialNumber" TEXT NOT NULL,
+    "qrCode" TEXT,
+    "currentLocation" TEXT,
+    "status" "public"."UnitStatus" NOT NULL DEFAULT 'IN_STOCK',
+    "blockchainHash" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "medication_units_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -199,13 +217,13 @@ CREATE TABLE "public"."audit_logs" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_email_key" ON "public"."users"("email");
+CREATE UNIQUE INDEX "users_clerkUserId_key" ON "public"."users"("clerkUserId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "consumers_userId_key" ON "public"."consumers"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "organizations_userId_key" ON "public"."organizations"("userId");
+CREATE UNIQUE INDEX "organizations_adminId_key" ON "public"."organizations"("adminId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "team_members_userId_key" ON "public"."team_members"("userId");
@@ -214,22 +232,28 @@ CREATE UNIQUE INDEX "team_members_userId_key" ON "public"."team_members"("userId
 CREATE UNIQUE INDEX "medication_batches_batchId_key" ON "public"."medication_batches"("batchId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "medication_units_serialNumber_key" ON "public"."medication_units"("serialNumber");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "system_config_key_key" ON "public"."system_config"("key");
 
 -- AddForeignKey
 ALTER TABLE "public"."consumers" ADD CONSTRAINT "consumers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."organizations" ADD CONSTRAINT "organizations_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."team_members" ADD CONSTRAINT "team_members_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."organizations" ADD CONSTRAINT "organizations_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."team_members" ADD CONSTRAINT "team_members_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "public"."team_members" ADD CONSTRAINT "team_members_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "public"."medication_batches" ADD CONSTRAINT "medication_batches_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."medication_units" ADD CONSTRAINT "medication_units_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."ownership_transfers" ADD CONSTRAINT "ownership_transfers_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

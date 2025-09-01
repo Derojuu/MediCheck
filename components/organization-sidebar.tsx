@@ -15,6 +15,8 @@ import {
   Building2,
 } from "lucide-react"
 import Link from "next/link"
+import { useClerk } from "@clerk/nextjs"
+import { authRoutes } from "@/utils"
 
 interface OrganizationSidebarProps {
   activeTab: string
@@ -22,6 +24,9 @@ interface OrganizationSidebarProps {
 }
 
 export function OrganizationSidebar({ activeTab, setActiveTab }: OrganizationSidebarProps) {
+
+  const { signOut } = useClerk();
+
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "batches", label: "Manage Batches", icon: Package },
@@ -33,7 +38,9 @@ export function OrganizationSidebar({ activeTab, setActiveTab }: OrganizationSid
   ]
 
   return (
-    <div className="w-64 bg-sidebar border-r border-sidebar-border">
+
+    <div className="w-64 relative bg-sidebar border-r border-sidebar-border">
+
       <div className="p-6">
         <Link href="/" className="flex items-center space-x-2">
           <Shield className="h-8 w-8 text-sidebar-primary" />
@@ -75,13 +82,17 @@ export function OrganizationSidebar({ activeTab, setActiveTab }: OrganizationSid
       </nav>
 
       <div className="absolute bottom-4 left-4 right-4">
-        <Link href="/auth/login">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground cursor-pointer">
+        <Button
+          variant="ghost"
+          className=" justify-start text-muted-foreground cursor-pointer"
+          onClick={() => signOut({ redirectUrl: authRoutes.login })}
+        >
             <LogOut className="h-4 w-4 mr-3" />
             Sign Out
-          </Button>
-        </Link>
+        </Button>
       </div>
+
     </div>
+
   )
 }

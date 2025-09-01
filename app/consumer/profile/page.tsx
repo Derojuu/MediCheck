@@ -21,10 +21,15 @@ import {
   Bell,
   LogOut,
 } from "lucide-react"
-import Link from "next/link"
+import Link from "next/link";
+import { authRoutes } from "@/utils"
+import { useClerk } from "@clerk/nextjs"
 
 export default function ConsumerProfile() {
-  const [activeTab, setActiveTab] = useState("profile")
+
+  const [activeTab, setActiveTab] = useState("profile");
+
+  const { signOut } = useClerk();
 
   // Mock user data
   const userProfile = {
@@ -100,12 +105,14 @@ export default function ConsumerProfile() {
                   Scan Medicine
                 </Button>
               </Link>
-              <Link href="/auth/login">
-                <Button variant="ghost">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost"
+                className="cursor-pointer"
+                onClick={() => signOut({ redirectUrl: authRoutes.login })}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
