@@ -79,14 +79,14 @@ export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProp
       </nav>
 
       <div className="absolute bottom-4 left-4 right-4">
-          <Button 
-            variant="ghost"
-            className="w-full justify-start text-muted-foreground cursor-pointer"
-            onClick={() => signOut({ redirectUrl: authRoutes.login })}
-          >
-            <LogOut className="h-4 w-4 mr-3" />
-            Sign Out
-          </Button>
+        <Button
+          variant="ghost"
+          className=" justify-start text-muted-foreground cursor-pointer"
+          onClick={() => signOut({ redirectUrl: authRoutes.login })}
+        >
+          <LogOut className="h-4 w-4 mr-3" />
+          Sign Out
+        </Button>
       </div>
     </div>
   )

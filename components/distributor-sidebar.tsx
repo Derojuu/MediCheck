@@ -14,7 +14,9 @@ import {
   LogOut,
   Building2,
 } from "lucide-react"
-import Link from "next/link"
+import Link from "next/link";
+import { useClerk } from "@clerk/nextjs"
+import { authRoutes } from "@/utils"
 
 interface DistributorSidebarProps {
   activeTab: string
@@ -22,6 +24,9 @@ interface DistributorSidebarProps {
 }
 
 export function DistributorSidebar({ activeTab, setActiveTab }: DistributorSidebarProps) {
+
+  const { signOut } = useClerk();
+
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "shipments", label: "Shipments", icon: Truck },
@@ -75,13 +80,16 @@ export function DistributorSidebar({ activeTab, setActiveTab }: DistributorSideb
       </nav>
 
       <div className="absolute bottom-4 left-4 right-4">
-        <Link href="/auth/login">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground cursor-pointer">
-            <LogOut className="h-4 w-4 mr-3" />
-            Sign Out
-          </Button>
-        </Link>
+        <Button
+          variant="ghost"
+          className=" justify-start text-muted-foreground cursor-pointer"
+          onClick={() => signOut({ redirectUrl: authRoutes.login })}
+        >
+          <LogOut className="h-4 w-4 mr-3" />
+          Sign Out
+        </Button>
       </div>
+      
     </div>
   )
 }
