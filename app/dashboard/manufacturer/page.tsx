@@ -9,7 +9,8 @@ import { OrganizationSidebar } from "@/components/organization-sidebar"
 import { BatchManagement } from "@/components/batch-management"
 import { TransferOwnership } from "@/components/transfer-ownership"
 import { TeamManagement } from "@/components/team-management"
-import { ReportsAnalytics } from "@/components/reports-analytics"
+import { ReportsAnalytics } from "@/components/reports-analytics";
+import QRGenerationComponent from "@/components/QrGenerationComponent"
 
 export default function OrganizationDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -169,20 +170,7 @@ export default function OrganizationDashboard() {
           )}
 
           {activeTab === "batches" && <BatchManagement />}
-          {activeTab === "qr-generation" && (
-            <div className="space-y-6">
-              <h1 className="font-montserrat font-bold text-3xl text-foreground">QR/NFC Generation</h1>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Generate QR Codes</CardTitle>
-                  <CardDescription>Create QR codes for your medication batches</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">QR code generation functionality will be implemented here.</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          {activeTab === "qr-generation" && <QRGenerationComponent />}
           {activeTab === "transfer" && <TransferOwnership />}
           {activeTab === "reports" && <ReportsAnalytics />}
           {activeTab === "team" && <TeamManagement />}

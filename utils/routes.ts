@@ -17,7 +17,7 @@ export const consumerRoutes: Record<string, string> = {
 export const orgnaizationRoutes: Record<string, string> = {
   drug_distributor: "/dashboard/drug-distributor",
   hospital: "/dashboard/hospital",
-  organization: "/dashboard/organization",
+  manufacturer: "/dashboard/manufacturer",
   pharmacy: "/dashboard/pharmacy",
   regulator: "/dashboard/regulator",
 };
