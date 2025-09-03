@@ -7,54 +7,54 @@ function generateToken(prefix: string) {
   return `${prefix}-${randomBytes(16).toString("hex")}`;
 }
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const {
-      organizationId,
-      drugName,
-      batchSize,
-      manufacturingDate,
-      expiryDate,
-    } = body;
+// export async function POST(req: Request) {
+//   try {
+//     const body = await req.json();
+//     const {
+//       organizationId,
+//       drugName,
+//       batchSize,
+//       manufacturingDate,
+//       expiryDate,
+//     } = body;
 
-    // Generate batch token
-    const batchToken = generateToken("batch");
+//     // Generate batch token
+//     const batchToken = generateToken("batch");
 
-    // Create batch
-    const batch = await prisma.medicationBatch.create({
-      data: {
-        batchId: batchToken, // can also store in qrCodeData if needed
-        organizationId,
-        drugName,
-        batchSize,
-        manufacturingDate: new Date(manufacturingDate),
-        expiryDate: new Date(expiryDate),
-      },
-    });
+//     // Create batch
+//     const batch = await prisma.medicationBatch.create({
+//       data: {
+//         batchId: batchToken, // can also store in qrCodeData if needed
+//         organizationId,
+//         drugName,
+//         batchSize,
+//         manufacturingDate: new Date(manufacturingDate),
+//         expiryDate: new Date(expiryDate),
+//       },
+//     });
 
-    // Create units
-    const unitsData = Array.from({ length: batchSize }).map(() => ({
-      batchId: batch.id,
-      serialNumber: generateToken("unit"),
-    }));
+//     // Create units
+//     const unitsData = Array.from({ length: batchSize }).map(() => ({
+//       batchId: batch.id,
+//       serialNumber: generateToken("unit"),
+//     }));
 
-    await prisma.medicationUnit.createMany({ data: unitsData });
+//     await prisma.medicationUnit.createMany({ data: unitsData });
 
-    return NextResponse.json({
-      success: true,
-      batchId: batch.id,
-      batchToken,
-      totalUnits: batchSize,
-    });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Failed to create batch" },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json({
+//       success: true,
+//       batchId: batch.id,
+//       batchToken,
+//       totalUnits: batchSize,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return NextResponse.json(
+//       { error: "Failed to create batch" },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function GET() {
   try {
