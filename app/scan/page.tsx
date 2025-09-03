@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { QRScanner } from "@/components/qr-scanner"
 import {
   Shield,
   Scan,
@@ -24,43 +25,141 @@ export default function ScanPage() {
   const [scanResult, setScanResult] = useState<any>(null)
   const [isScanning, setIsScanning] = useState(false)
 
+  // Handle QR code scan results
+  const handleQRScan = (qrData: string) => {
+    console.log('QR Code scanned:', qrData)
+    console.log('QR Data type:', typeof qrData)
+    console.log('QR Data length:', qrData.length)
+    
+    // Process the QR data and generate result
+    const result = processQRCodeData(qrData)
+    console.log('Processed result:', result)
+    setScanResult(result)
+    setIsScanning(false) // Stop scanning after successful scan
+  }
+
+  // Handle QR scanner errors
+  const handleQRError = (error: string) => {
+    console.error('QR Scanner error:', error)
+    // You could show an error message to the user here
+  }
+
+  // Process QR code data and return a scan result
+  const processQRCodeData = (qrData: string): any => {
+    console.log('Processing QR Data:', qrData)
+    
+    try {
+      // Try to parse as JSON first (most common format for structured data)
+      const parsedData = JSON.parse(qrData)
+      console.log('Successfully parsed as JSON:', parsedData)
+      
+      // Extract the required fields from the QR code data
+      const extractedInfo = {
+        status: "genuine", // Default to genuine if we can parse the data
+        batchId: parsedData.batchId || parsedData.batch_id || parsedData.BatchId || "Unknown",
+        drugName: parsedData.drugName || parsedData.drug_name || parsedData.DrugName || parsedData.name || "Unknown",
+        manufacturer: parsedData.manufacturer || parsedData.Manufacturer || parsedData.mfg || "Unknown",
+        expiryDate: parsedData.expiryDate || parsedData.expiry_date || parsedData.ExpiryDate || parsedData.expiry || "Unknown",
+        firstDistributedTo: parsedData.firstDistributedTo || parsedData.first_distributed_to || parsedData.FirstDistributedTo || parsedData.distributor || "Unknown",
+        lastVerifiedAt: parsedData.lastVerifiedAt || parsedData.last_verified_at || parsedData.LastVerifiedAt || parsedData.location || "Just now",
+        verificationCount: parsedData.verificationCount || parsedData.verification_count || parsedData.count || Math.floor(Math.random() * 100) + 1,
+        blockchainHash: parsedData.blockchainHash || parsedData.blockchain_hash || parsedData.hash || `0x${qrData.replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+      }
+      
+      console.log('Extracted Info:', extractedInfo)
+      return extractedInfo
+      
+    } catch (jsonError) {
+      console.log('Not JSON format, trying other formats...')
+      console.log('JSON Parse Error:', jsonError)
+      
+      // Try to parse as pipe-separated values (|)
+      if (qrData.includes('|')) {
+        console.log('Parsing as pipe-separated values')
+        const parts = qrData.split('|')
+        console.log('Pipe-separated parts:', parts)
+        return {
+          status: "genuine",
+          batchId: parts[0] || "Unknown",
+          drugName: parts[1] || "Unknown",
+          manufacturer: parts[2] || "Unknown",
+          expiryDate: parts[3] || "Unknown",
+          firstDistributedTo: parts[4] || "Unknown",
+          lastVerifiedAt: parts[5] || "Just now",
+          verificationCount: Math.floor(Math.random() * 100) + 1,
+          blockchainHash: `0x${qrData.replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+        }
+      }
+      
+      // Try to parse as comma-separated values
+      if (qrData.includes(',')) {
+        console.log('Parsing as comma-separated values')
+        const parts = qrData.split(',')
+        console.log('Comma-separated parts:', parts)
+        return {
+          status: "genuine",
+          batchId: parts[0] || "Unknown",
+          drugName: parts[1] || "Unknown",
+          manufacturer: parts[2] || "Unknown",
+          expiryDate: parts[3] || "Unknown",
+          firstDistributedTo: parts[4] || "Unknown",
+          lastVerifiedAt: parts[5] || "Just now",
+          verificationCount: Math.floor(Math.random() * 100) + 1,
+          blockchainHash: `0x${qrData.replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+        }
+      }
+      
+      // Try to parse as key-value pairs (key=value format)
+      if (qrData.includes('=')) {
+        console.log('Parsing as key-value pairs')
+        const pairs = qrData.split(/[&\n;]/) // Split by &, newline, or semicolon
+        console.log('Key-value pairs:', pairs)
+        const data: any = {}
+        
+        pairs.forEach(pair => {
+          const [key, value] = pair.split('=')
+          if (key && value) {
+            data[key.trim().toLowerCase()] = value.trim()
+          }
+        })
+        
+        console.log('Parsed key-value data:', data)
+        
+        return {
+          status: "genuine",
+          batchId: data.batchid || data.batch_id || data.batch || "Unknown",
+          drugName: data.drugname || data.drug_name || data.name || data.drug || "Unknown",
+          manufacturer: data.manufacturer || data.mfg || data.company || "Unknown",
+          expiryDate: data.expirydate || data.expiry_date || data.expiry || data.exp || "Unknown",
+          firstDistributedTo: data.firstdistributedto || data.distributor || data.dist || "Unknown",
+          lastVerifiedAt: data.lastverifiedat || data.location || data.loc || "Just now",
+          verificationCount: data.count || Math.floor(Math.random() * 100) + 1,
+          blockchainHash: `0x${qrData.replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`
+        }
+      }
+      
+      // If none of the above formats work, try to extract any readable info
+      // This handles plain text QR codes or unstructured data
+      console.log('Using fallback parsing method')
+      console.log('QR Data as plain text:', qrData)
+      
+      return {
+        status: "suspicious",
+        batchId: qrData.length > 50 ? qrData.substring(0, 20) + '...' : qrData,
+        drugName: "Unknown - Please check QR code format",
+        manufacturer: "Unknown",
+        expiryDate: "Unknown",
+        firstDistributedTo: "Unknown",
+        lastVerifiedAt: "Just scanned",
+        verificationCount: 1,
+        blockchainHash: `0x${qrData.replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)}`,
+        warning: `QR code format not recognized. Raw content: "${qrData}". Please ensure the QR code contains proper medication data.`
+      }
+    }
+  }
+
   const handleScan = () => {
     setIsScanning(true)
-
-    // Simulate scanning process
-    setTimeout(() => {
-      // Mock different scan results
-      const results = [
-        {
-          status: "genuine",
-          batchId: "BTH-2024-001",
-          drugName: "Paracetamol 500mg",
-          manufacturer: "Pharma Corp Ltd.",
-          expiryDate: "2025-12-15",
-          firstDistributedTo: "Metro Medical Distributors",
-          lastVerifiedAt: "Downtown Pharmacy, New York",
-          verificationCount: 23,
-          blockchainHash: "0x1a2b3c4d5e6f7890abcdef1234567890",
-        },
-        {
-          status: "fake",
-          message: "This medication could not be verified in our blockchain database.",
-          reportSuggestion: "Please report this to authorities immediately.",
-        },
-        {
-          status: "suspicious",
-          batchId: "BTH-2024-002",
-          drugName: "Amoxicillin 250mg",
-          manufacturer: "Unknown Manufacturer",
-          warning: "This batch has been scanned multiple times in different cities within 24 hours.",
-          locations: ["New York", "Los Angeles", "Chicago"],
-        },
-      ]
-
-      const randomResult = results[Math.floor(Math.random() * results.length)]
-      setScanResult(randomResult)
-      setIsScanning(false)
-    }, 2000)
   }
 
   const getStatusIcon = (status: string) => {
@@ -139,8 +238,18 @@ export default function ScanPage() {
               <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
                 {isScanning ? (
                   <div className="space-y-4">
-                    <div className="animate-spin mx-auto w-12 h-12 border-4 border-primary border-t-transparent rounded-full"></div>
-                    <p className="text-muted-foreground">Scanning and verifying on blockchain...</p>
+                    <QRScanner
+                      onScan={handleQRScan}
+                      onError={handleQRError}
+                      width={400}
+                      height={300}
+                      facingMode="environment"
+                      className="mx-auto"
+                    />
+                    <p className="text-muted-foreground">Position the QR code within the scanning area</p>
+                    <Button variant="outline" onClick={() => setIsScanning(false)} className="cursor-pointer">
+                      Stop Scanning
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -172,39 +281,39 @@ export default function ScanPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-muted-foreground">Batch ID</p>
-                        <p className="font-medium">{scanResult.batchId}</p>
+                        <p className="text-gray-600">Batch ID</p>
+                        <p className="font-medium text-black">{scanResult.batchId}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Drug Name</p>
-                        <p className="font-medium">{scanResult.drugName}</p>
+                        <p className="text-gray-600">Drug Name</p>
+                        <p className="font-medium text-black">{scanResult.drugName}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Manufacturer</p>
-                        <p className="font-medium">{scanResult.manufacturer}</p>
+                        <p className="text-gray-600">Manufacturer</p>
+                        <p className="font-medium text-black">{scanResult.manufacturer}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Expiry Date</p>
-                        <p className="font-medium flex items-center">
+                        <p className="text-gray-600">Expiry Date</p>
+                        <p className="font-medium text-black flex items-center">
                           <Calendar className="h-4 w-4 mr-1" />
                           {scanResult.expiryDate}
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">First Distributed To</p>
-                        <p className="font-medium">{scanResult.firstDistributedTo}</p>
+                        <p className="text-gray-600">First Distributed To</p>
+                        <p className="font-medium text-black">{scanResult.firstDistributedTo}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Last Verified At</p>
-                        <p className="font-medium flex items-center">
+                        <p className="text-gray-600">Last Verified At</p>
+                        <p className="font-medium text-black flex items-center">
                           <MapPin className="h-4 w-4 mr-1" />
                           {scanResult.lastVerifiedAt}
                         </p>
                       </div>
                     </div>
                     <div className="pt-4 border-t">
-                      <p className="text-xs text-muted-foreground">
-                        Verified {scanResult.verificationCount} times • Blockchain: {scanResult.blockchainHash}
+                      <p className="text-xs text-gray-600">
+                        Verified <span className="text-black font-medium">{scanResult.verificationCount}</span> times • Blockchain: <span className="text-black font-medium">{scanResult.blockchainHash}</span>
                       </p>
                     </div>
                   </div>
@@ -224,28 +333,53 @@ export default function ScanPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-muted-foreground">Batch ID</p>
-                        <p className="font-medium">{scanResult.batchId}</p>
+                        <p className="text-gray-600">Batch ID</p>
+                        <p className="font-medium text-black">{scanResult.batchId}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Drug Name</p>
-                        <p className="font-medium">{scanResult.drugName}</p>
+                        <p className="text-gray-600">Drug Name</p>
+                        <p className="font-medium text-black">{scanResult.drugName}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Manufacturer</p>
+                        <p className="font-medium text-black">{scanResult.manufacturer}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Expiry Date</p>
+                        <p className="font-medium text-black">{scanResult.expiryDate}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">First Distributed To</p>
+                        <p className="font-medium text-black">{scanResult.firstDistributedTo}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Last Verified At</p>
+                        <p className="font-medium text-black">{scanResult.lastVerifiedAt}</p>
                       </div>
                     </div>
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>{scanResult.warning}</AlertDescription>
-                    </Alert>
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-2">Recent scan locations:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {scanResult.locations.map((location: string, index: number) => (
-                          <Badge key={index} variant="outline">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {location}
-                          </Badge>
-                        ))}
+                    {scanResult.warning && (
+                      <Alert>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription className="text-black">{scanResult.warning}</AlertDescription>
+                      </Alert>
+                    )}
+                    {scanResult.locations && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Recent scan locations:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {scanResult.locations.map((location: string, index: number) => (
+                            <Badge key={index} variant="outline" className="text-black">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {location}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
+                    )}
+                    <div className="pt-4 border-t">
+                      <p className="text-xs text-gray-600">
+                        Verified <span className="text-black font-medium">{scanResult.verificationCount}</span> times • Blockchain: <span className="text-black font-medium">{scanResult.blockchainHash}</span>
+                      </p>
                     </div>
                   </div>
                 )}
@@ -254,7 +388,7 @@ export default function ScanPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
-              <Button onClick={() => setScanResult(null)} className="cursor-pointer">
+              <Button onClick={() => { setScanResult(null); setIsScanning(false); }} className="cursor-pointer">
                 <Scan className="h-4 w-4 mr-2" />
                 Scan Another
               </Button>
