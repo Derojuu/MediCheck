@@ -1,0 +1,1 @@
+// No exports from './qrcode' because it is not a module
