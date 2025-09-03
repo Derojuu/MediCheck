@@ -33,6 +33,8 @@ import {
 import { ManufacturerSidebar } from "@/components/manufacturer-sidebar"
 import { TeamManagement } from "@/components/team-management"
 import { mockBatches, mockProducts, createBatch, getBatches, transferBatch, getTransferHistory, getManufacturerStats } from "@/lib/manufacturer-data"
+import { ReportsAnalytics } from "@/components/reports-analytics";
+import QRGenerationComponent from "@/components/QRGenerationComponent"
 
 export default function ManufacturerDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -995,6 +997,9 @@ The transfer has been recorded off-chain and will be processed shortly.`)
             </div>
           )}
 
+          {activeTab === "qr-generation" && <QRGenerationComponent />}
+          {activeTab === "reports" && <ReportsAnalytics />}
+          {activeTab === "team" && <TeamManagement />}
           {activeTab === "settings" && (
             <div className="space-y-6">
               <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
