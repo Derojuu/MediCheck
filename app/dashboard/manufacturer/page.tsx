@@ -10,9 +10,10 @@ import { BatchManagement } from "@/components/batch-management"
 import { TransferOwnership } from "@/components/transfer-ownership"
 import { TeamManagement } from "@/components/team-management"
 import { ReportsAnalytics } from "@/components/reports-analytics";
-import QRGenerationComponent from "@/components/QrGenerationComponent"
+import QRGenerationComponent from "@/components/QRGenerationComponent"
 
 export default function OrganizationDashboard() {
+
   const [activeTab, setActiveTab] = useState("dashboard")
 
   // Mock data
@@ -168,7 +169,6 @@ export default function OrganizationDashboard() {
               </div>
             </div>
           )}
-
           {activeTab === "batches" && <BatchManagement />}
           {activeTab === "qr-generation" && <QRGenerationComponent />}
           {activeTab === "transfer" && <TransferOwnership />}
