@@ -24,6 +24,7 @@ import {
 import Link from "next/link";
 import { authRoutes } from "@/utils"
 import { useClerk } from "@clerk/nextjs"
+import { consumerRoutes } from "@/utils"
 
 export default function ConsumerProfile() {
 
@@ -99,8 +100,8 @@ export default function ConsumerProfile() {
               <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Link href="/scan">
-                <Button variant="outline">
+              <Link href={consumerRoutes.scan}>
+                <Button variant="outline" className="cursor-pointer">
                   <Scan className="h-4 w-4 mr-2" />
                   Scan Medicine
                 </Button>

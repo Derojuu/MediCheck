@@ -1,4 +1,3 @@
-
 export enum UserRole {
   ORGANIZATION_MEMBER = "ORGANIZATION_MEMBER",
   CONSUMER = "CONSUMER",
@@ -206,5 +205,3 @@ export interface CounterfeitReport {
   createdAt: Date;
   updatedAt: Date;
 }
-
-
