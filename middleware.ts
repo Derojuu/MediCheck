@@ -35,16 +35,11 @@ export default clerkMiddleware(async (auth, req) => {
     [key: string]: unknown;
   };
   
-  console.log("session", sessionClaims)
   const publicMetadata = sessionClaims?.publicMetadata as
     | PublicMetadata
     | undefined;
   const role = publicMetadata?.role;
   const orgType = publicMetadata?.organizationType;
-
-  // ✅ Debug logs (REMOVE in production)
-  console.log("User Role:", role);
-  console.log("Organization Type:", orgType);
 
   // ✅ Consumer routes → only for consumers
   if (pathname.startsWith("/consumer") && role !== UserRole.CONSUMER) {
@@ -76,4 +71,3 @@ export const config = {
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)|api/auth|api/register|api/public).*)",
   ],
 };
-

@@ -1,14 +1,35 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { Camera, QrCode, CheckCircle, AlertTriangle, XCircle, ArrowLeft, MessageCircle } from "lucide-react"
+import { useState } from "react"
+import { QrCode, CheckCircle, AlertTriangle, XCircle, ArrowLeft, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { QRScanner } from "@/components/qr-scanner"
 import Link from "next/link"
 
+// Type definitions
+interface ScanResult {
+  id: string
+  status: string
+  drugName: string
+  batchId: string
+  manufacturer: string
+  expiryDate: string
+  verificationScore: number
+  safetyRating: string
+  aiRecommendation: string
+  sideEffects: string[]
+  dosage: string
+}
+
+interface ChatMessage {
+  type: 'user' | 'ai'
+  content: string
+}
+
 // Mock scan results for consumers
-const mockConsumerResults = [
+const mockConsumerResults: ScanResult[] = [
   {
     id: "consumer-genuine-1",
     status: "genuine",
@@ -38,56 +59,74 @@ const mockConsumerResults = [
 ]
 
 export default function ConsumerScanPage() {
-  const [isScanning, setIsScanning] = useState(false)
-  const [scanResult, setScanResult] = useState(null)
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [showAIChat, setShowAIChat] = useState(false)
-  const [chatMessages, setChatMessages] = useState([])
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useState("")
-  const videoRef = useRef(null)
+  const [lastScanTime, setLastScanTime] = useState<string>("")
 
-  const startScan = async () => {
-    setIsScanning(true)
-    setScanResult(null)
-
-    // Simulate camera access
-    try {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-        }
-      }
-    } catch (error) {
-      console.log("Camera access denied or not available")
-    }
-
-    // Simulate scan delay
-    setTimeout(() => {
-      const randomResult = mockConsumerResults[Math.floor(Math.random() * mockConsumerResults.length)]
-      setScanResult(randomResult)
-      setIsScanning(false)
-
-      // Stop camera
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks()
-        tracks.forEach((track) => track.stop())
-      }
-    }, 3000)
+  // Handle QR code scan results
+  const handleQRScan = (qrData: string) => {
+    console.log('QR Code scanned:', qrData)
+    
+    // Process the QR data and generate result
+    const result = processQRCodeData(qrData)
+    setScanResult(result)
+    setLastScanTime(new Date().toLocaleTimeString())
   }
 
-  const stopScan = () => {
-    setIsScanning(false)
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = videoRef.current.srcObject.getTracks()
-      tracks.forEach((track) => track.stop())
+  // Handle QR scanner errors
+  const handleQRError = (error: string) => {
+    console.error('QR Scanner error:', error)
+    // You could show an error message to the user here
+  }
+
+  // Process QR code data and return a scan result
+  const processQRCodeData = (qrData: string): ScanResult => {
+    // In a real app, you would send this to your backend API
+    // For now, we'll simulate based on the QR data content
+    
+    try {
+      // Try to parse JSON data
+      const parsedData = JSON.parse(qrData)
+      
+      if (parsedData.drugName && parsedData.batchId) {
+        // Real medicine data
+        return {
+          id: `scan-${Date.now()}`,
+          status: parsedData.status || "genuine",
+          drugName: parsedData.drugName,
+          batchId: parsedData.batchId,
+          manufacturer: parsedData.manufacturer || "Unknown Manufacturer",
+          expiryDate: parsedData.expiryDate || "Unknown",
+          verificationScore: parsedData.verificationScore || 95,
+          safetyRating: parsedData.safetyRating || "Safe to Use",
+          aiRecommendation: parsedData.aiRecommendation || "This medication appears to be authentic. Follow prescribed dosage.",
+          sideEffects: parsedData.sideEffects || ["Consult healthcare provider"],
+          dosage: parsedData.dosage || "Follow prescription instructions",
+        }
+      }
+    } catch (e) {
+      // Not JSON, treat as plain text or demo data
+    }
+
+    // For demo purposes, return a random result based on QR content
+    const isDemo = qrData.includes('demo') || qrData.includes('test')
+    const randomResult = mockConsumerResults[Math.floor(Math.random() * mockConsumerResults.length)]
+    
+    return {
+      ...randomResult,
+      id: `scan-${Date.now()}`,
+      // Add the scanned QR data for reference
+      batchId: qrData.length > 20 ? qrData.substring(0, 20) + '...' : qrData
     }
   }
 
   const sendChatMessage = () => {
     if (!chatInput.trim()) return
 
-    const userMessage = { type: "user", content: chatInput }
-    const aiResponse = {
+    const userMessage: ChatMessage = { type: "user", content: chatInput }
+    const aiResponse: ChatMessage = {
       type: "ai",
       content: `Based on your scan of ${scanResult?.drugName}, I recommend following the prescribed dosage. ${scanResult?.aiRecommendation}`,
     }
@@ -96,7 +135,7 @@ export default function ConsumerScanPage() {
     setChatInput("")
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "genuine":
         return "text-emerald-600 bg-emerald-50 border-emerald-200"
@@ -109,7 +148,7 @@ export default function ConsumerScanPage() {
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "genuine":
         return <CheckCircle className="w-5 h-5" />
@@ -154,52 +193,27 @@ export default function ConsumerScanPage() {
               </CardHeader>
 
               <CardContent className="space-y-6">
-                {/* Camera/Scanner View */}
-                <div className="relative aspect-video bg-slate-900 rounded-xl overflow-hidden">
-                  {isScanning ? (
-                    <div className="relative w-full h-full">
-                      <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                      {/* Scanning Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-48 h-48 border-2 border-cyan-400 rounded-lg relative">
-                          <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-lg"></div>
-                          <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-lg"></div>
-                          <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-lg"></div>
-                          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-cyan-400 rounded-br-lg"></div>
-                        </div>
-                      </div>
-                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                        <div className="bg-black/50 text-white px-4 py-2 rounded-full text-sm">
-                          Scanning medication...
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-center space-y-4">
-                        <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto">
-                          <Camera className="w-12 h-12 text-slate-400" />
-                        </div>
-                        <p className="text-slate-400">Position medication QR code in frame</p>
-                      </div>
-                    </div>
-                  )}
+                {/* QR Scanner */}
+                <div className="flex justify-center">
+                  <QRScanner
+                    onScan={handleQRScan}
+                    onError={handleQRError}
+                    width={400}
+                    height={300}
+                    facingMode="environment"
+                    autoStart={true}
+                    className="mx-auto"
+                  />
                 </div>
 
-                {/* Scan Controls */}
-                <div className="flex justify-center">
-                  {!isScanning ? (
-                    <Button
-                      onClick={startScan}
-                      className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-700 hover:to-emerald-700 cursor-pointer"
-                    >
-                      <Camera className="w-5 h-5 mr-2" />
-                      Scan Medication
-                    </Button>
-                  ) : (
-                    <Button onClick={stopScan} variant="outline" className="px-8 py-3 cursor-pointer bg-transparent">
-                      Stop Scan
-                    </Button>
+                {/* Instructions */}
+                <div className="text-center space-y-2">
+                  <p className="text-slate-600">Position the medication QR code within the scanning area</p>
+                  <p className="text-sm text-slate-500">Make sure the QR code is clearly visible and well-lit</p>
+                  {lastScanTime && (
+                    <p className="text-sm text-green-600 font-medium">
+                      ✓ Last scanned at {lastScanTime}
+                    </p>
                   )}
                 </div>
 

@@ -1,219 +1,317 @@
-import React, { useState, Component } from 'react'
-import {
-    QrCode,
-    Download,
-    Copy,
-    Printer,
-    Upload,
-    Check,
-    Smartphone,
-    Package,
-    X,
-} from 'lucide-react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import QRCode from 'react-qr-code';
+import QRCodeLib from 'qrcode';
+import { jsPDF } from 'jspdf';
+import { QrCode, Download, Check, Upload } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { toast } from 'react-toastify';
+import { MedicationBatch, MedicationUnit } from '@/utils';
 
 const QRGenerationComponent = () => {
-    const [selectedBatch, setSelectedBatch] = useState('')
-    const [quantity, setQuantity] = useState(100)
-    const [generatedCodes, setGeneratedCodes] = useState<boolean>(false)
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-    // Mock batch data
-    const batches = [
-        {
-            id: 'BAT12345',
-            name: 'Amoxicillin 500mg',
-        },
-        {
-            id: 'BAT23456',
-            name: 'Paracetamol 650mg',
-        },
-        {
-            id: 'BAT34567',
-            name: 'Lisinopril 10mg',
-        },
-        {
-            id: 'BAT45678',
-            name: 'Metformin 500mg',
-        },
-        {
-            id: 'BAT56789',
-            name: 'Atorvastatin 20mg',
-        },
-    ]
-    const handleGenerate = () => {
-        // In a real app, this would call an API to generate QR codes
-        setGeneratedCodes(true)
-        setShowSuccessMessage(true)
-        setTimeout(() => {
-            setShowSuccessMessage(false)
-        }, 3000)
-    }
-    const handleReset = () => {
-        setSelectedBatch('')
-        setQuantity(100)
-        setGeneratedCodes(false)
-    }
+
+    const [batches, setBatches] = useState<MedicationBatch[]>([]);
+
+    const [selectedBatchId, setSelectedBatchId] = useState('');
+
+    const [selectedBatch, setSelectedBatch] = useState<MedicationBatch | null>(null);
+
+    const [units, setUnits] = useState<MedicationUnit[]>([]);
+
+    const [quantity, setQuantity] = useState(0);
+
+    const [generatedCodes, setGeneratedCodes] = useState(false);
+
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    const [loadingBatches, setLoadingBatches] = useState(false);
+
+    useEffect(() => {
+
+        const getAllBatches = async () => {
+            try {
+                setLoadingBatches(true);
+                const res = await fetch('/api/batches', { cache: 'no-store' });
+                if (!res.ok) throw new Error('Failed to fetch batches');
+                const formattedResponse = await res.json();
+                const data: MedicationBatch[] = formattedResponse;
+                setBatches(data);
+            }
+            catch (e) {
+                toast.error(e instanceof Error ? e.message : String(e));
+            }
+            finally {
+                setLoadingBatches(false);
+            }
+        };
+
+        getAllBatches();
+
+    }, []);
+
+    // When dropdown changes, record the selected batch (but don't fetch units yet)
+
+    useEffect(() => {
+        const getAllUnitsUnderSelectedBatch = async () => {
+            const b = batches.find(batch => batch.id === selectedBatchId) || null;
+            setSelectedBatch(b);
+            const res = await fetch(`/api/batches/${selectedBatchId}/units`, { cache: 'no-store' });
+            if (!res.ok) throw new Error('Failed to fetch batches');
+            const formattedUnitsResponse = await res.json();
+            // 
+            setQuantity(formattedUnitsResponse.length)
+        };
+
+        getAllUnitsUnderSelectedBatch();
+    }, [selectedBatchId]);
+
+    const handleGenerate = async () => {
+        if (!selectedBatch) return;
+        setIsGenerating(true);
+        try {
+            // Fetch the units for the selected batch
+            const res = await fetch(`/api/batches/${selectedBatch.id}/units`, { cache: 'no-store' });
+            if (!res.ok) throw new Error('Failed to fetch units');
+            const data: MedicationUnit[] = await res.json();
+            setUnits(data);
+            setQuantity(data.length); // lock to actual unit count
+            setGeneratedCodes(true);
+            setShowSuccessMessage(true);
+            setTimeout(() => setShowSuccessMessage(false), 2500);
+        }
+        catch (e) {
+            toast.error(e instanceof Error ? e.message : String(e));
+        }
+        finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const handleDownloadAll = async () => {
+        if (!selectedBatch) return;
+
+        const pdf = new jsPDF('p', 'mm', 'a4', true);
+        // Hidden container to avoid Tailwind/oklch parsing
+        const hiddenContainer = document.createElement('div');
+        hiddenContainer.style.position = 'absolute';
+        hiddenContainer.style.top = '-9999px';
+        hiddenContainer.style.left = '-9999px';
+        document.body.appendChild(hiddenContainer);
+
+        // First page: Batch QR (value = batch.batchId token from DB)
+        hiddenContainer.innerHTML = '';
+        const batchContainer = document.createElement('div');
+        batchContainer.style.width = '600px';
+        batchContainer.style.height = '800px';
+        batchContainer.style.padding = '30px';
+        batchContainer.style.backgroundColor = '#fff';
+        batchContainer.style.textAlign = 'center';
+        batchContainer.style.display = 'flex';
+        batchContainer.style.flexDirection = 'column';
+        batchContainer.style.justifyContent = 'center';
+        batchContainer.style.alignItems = 'center';
+
+        const batchTitle = document.createElement('div');
+        batchTitle.style.fontSize = '28px';
+        batchTitle.style.fontWeight = 'bold';
+        batchTitle.style.marginBottom = '20px';
+        batchTitle.innerText = `Batch: ${selectedBatch.drugName}`;
+
+        const batchQrCanvas = document.createElement('canvas');
+        await QRCodeLib.toCanvas(batchQrCanvas, selectedBatch.batchId, { width: 200 });
+
+        batchContainer.appendChild(batchTitle);
+        batchContainer.appendChild(batchQrCanvas);
+        hiddenContainer.appendChild(batchContainer);
+
+        let canvas = await html2canvas(batchContainer, { scale: 1, backgroundColor: '#ffffff' });
+        let imgData = canvas.toDataURL('image/jpeg', 0.7);
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+
+        // Unit pages
+        for (let i = 0; i < units.length; i++) {
+            hiddenContainer.innerHTML = '';
+            const container = document.createElement('div');
+            container.style.width = '600px';
+            container.style.height = '800px';
+            container.style.padding = '30px';
+            container.style.backgroundColor = '#fff';
+            container.style.textAlign = 'center';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.justifyContent = 'center';
+            container.style.alignItems = 'center';
+
+            const unitLabel = document.createElement('div');
+            unitLabel.style.fontSize = '20px';
+            unitLabel.style.marginBottom = '15px';
+            unitLabel.innerText = `Unit ${i + 1} of ${units.length}`;
+
+            const qrCanvas = document.createElement('canvas');
+            // Encode the real unit serialNumber (from DB)
+            await QRCodeLib.toCanvas(qrCanvas, units[i].serialNumber, { width: 150 });
+
+            container.appendChild(unitLabel);
+            container.appendChild(qrCanvas);
+            hiddenContainer.appendChild(container);
+
+            canvas = await html2canvas(container, { scale: 1, backgroundColor: '#ffffff' });
+            imgData = canvas.toDataURL('image/jpeg', 0.7);
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+        }
+
+        document.body.removeChild(hiddenContainer);
+        pdf.save(`batch-${selectedBatch.batchId}-all-units.pdf`);
+    };
+
+    const handleExportCSV = () => {
+        if (!selectedBatch) return;
+        const headers = ['Type', 'Code'];
+        const rows: string[][] = [
+            ['Batch', selectedBatch.batchId],
+            ...units.map(u => ['Unit', u.serialNumber]),
+        ];
+        const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `batch-${selectedBatch.batchId}-qrcodes.csv`);
+        link.click();
+    };
+
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
             <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-800">
-                    QR/NFC Code Generation
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-800">QR Code Generation</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                    Generate secure, blockchain-linked QR codes and NFC tags for your
-                    batches
+                    Generate and download QR codes for existing product batches
                 </p>
             </div>
+
             <div className="p-6">
                 {showSuccessMessage && (
                     <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded flex items-center">
                         <Check size={20} className="mr-2" />
-                        QR and NFC codes successfully generated and linked to the blockchain
+                        QR codes loaded from batch successfully!
                     </div>
                 )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Left: Settings */}
                     <div>
                         <h3 className="text-md font-semibold mb-4">Generation Settings</h3>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-gray-700 font-medium mb-2">
-                                    Select Batch
-                                </label>
+                                <label className="block text-gray-700 font-medium mb-2">Select Batch</label>
                                 <select
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                                    value={selectedBatch}
-                                    onChange={(e) => setSelectedBatch(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                                    value={selectedBatchId}
+                                    onChange={e => setSelectedBatchId(e.target.value)}
+                                    disabled={loadingBatches}
                                 >
-                                    <option value="">Select a batch</option>
-                                    {batches.map((batch) => (
-                                        <option key={batch.id} value={batch.id}>
-                                            {batch.id} - {batch.name}
+                                    <option value="">{loadingBatches ? 'Loading…' : 'Select a batch'}</option>
+                                    {batches.map(b => (
+                                        <option key={b.id} value={b.id}>
+                                            {b.drugName} — {b.batchId.slice(0, 8)}…
                                         </option>
                                     ))}
                                 </select>
                             </div>
+
                             <div>
                                 <label className="block text-gray-700 font-medium mb-2">
-                                    Number of Codes to Generate
+                                    Number of Codes
                                 </label>
                                 <input
                                     type="number"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
                                     value={quantity}
-                                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                                    min="1"
-                                    max="10000"
+                                    disabled
                                 />
                                 <p className="text-xs text-gray-500 mt-1">
-                                    Generate between 1 and 10,000 codes at once
+                                    This matches the number of units created for the selected batch.
                                 </p>
                             </div>
-                            <div>
-                                <label className="block text-gray-700 font-medium mb-2">
-                                    Code Type
-                                </label>
-                                <div className="flex space-x-4">
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            className="rounded text-blue-600 mr-2"
-                                            checked
-                                        />
-                                        <span>QR Codes</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            className="rounded text-blue-600 mr-2"
-                                            checked
-                                        />
-                                        <span>NFC Tags</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-gray-700 font-medium mb-2">
-                                    Security Level
-                                </label>
-                                <select className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
-                                    <option value="high">High - 256-bit encryption</option>
-                                    <option value="medium">Medium - 128-bit encryption</option>
-                                    <option value="standard">Standard - 64-bit encryption</option>
-                                </select>
-                            </div>
+
                             <div className="pt-4">
                                 <button
                                     onClick={handleGenerate}
-                                    disabled={!selectedBatch || quantity <= 0}
+                                    disabled={!selectedBatchId || isGenerating}
                                     className={`w-full px-4 py-2 rounded-md font-medium flex items-center justify-center
-                    ${!selectedBatch || quantity <= 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                    ${!selectedBatchId || isGenerating ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
                                 >
-                                    <QrCode size={18} className="mr-2" />
-                                    Generate Codes
+                                    {isGenerating ? (
+                                        <>
+                                            <div className="spinner mr-2"></div>
+                                            Loading from DB…
+                                        </>
+                                    ) : (
+                                        <>
+                                            <QrCode size={18} className="mr-2" />
+                                            Generate Codes
+                                        </>
+                                    )}
                                 </button>
-                                {generatedCodes && (
-                                    <button
-                                        onClick={handleReset}
-                                        className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                                    >
-                                        Reset & Generate New Codes
-                                    </button>
-                                )}
                             </div>
                         </div>
                     </div>
+
+                    {/* Right: Preview & Download */}
                     <div>
                         <h3 className="text-md font-semibold mb-4">Preview & Download</h3>
+
                         {!generatedCodes ? (
                             <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 flex flex-col items-center justify-center text-gray-500">
                                 <QrCode size={48} strokeWidth={1} />
-                                <p className="mt-4">
-                                    Select a batch and generate codes to preview
-                                </p>
+                                <p className="mt-4">Select a batch and click “Generate Codes”.</p>
                             </div>
                         ) : (
                             <div>
-                                <div className="bg-gray-50 rounded-lg p-4 mb-4 flex justify-between items-start">
+                                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                                    {/* Batch QR Code */}
+                                    {selectedBatch && (
+                                        <div className="text-center mb-6">
+                                            <p className="font-medium text-lg mb-2">Batch QR Code</p>
+                                            <QRCode value={selectedBatch.batchId} size={128} />
+                                            <p className="text-sm text-gray-600 mt-1">{selectedBatch.drugName}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Units */}
                                     <div>
-                                        <p className="font-medium">Batch: {selectedBatch}</p>
-                                        <p className="text-sm text-gray-600">
-                                            {quantity} codes generated
-                                        </p>
-                                        <p className="text-sm text-gray-600">
-                                            Blockchain linked: Yes
-                                        </p>
-                                    </div>
-                                    <div className="bg-white p-2 border border-gray-200 rounded-md">
-                                        <QrCode size={64} />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center">
-                                        <Download size={16} className="mr-1" />
-                                        Download PDF
-                                    </button>
-                                    <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center">
-                                        <Copy size={16} className="mr-1" />
-                                        Copy to Clipboard
-                                    </button>
-                                    <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center">
-                                        <Printer size={16} className="mr-1" />
-                                        Print Codes
-                                    </button>
-                                    <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center">
-                                        <Upload size={16} className="mr-1" />
-                                        Export CSV
-                                    </button>
-                                </div>
-                                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-3 flex items-start">
-                                    <Smartphone size={20} className="text-blue-600 mr-2 mt-0.5" />
-                                    <div>
-                                        <p className="text-sm font-medium text-blue-800">
-                                            NFC Tags Ready for Programming
-                                        </p>
-                                        <p className="text-xs text-blue-600">
-                                            Use the MediVerify NFC Programmer app to program your
-                                            physical NFC tags
-                                        </p>
+                                        <div className="flex flex-wrap gap-2 items-center justify-between mb-3">
+                                            <p className="font-medium">Unit QR Codes</p>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={handleDownloadAll}
+                                                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
+                                                >
+                                                    <Download size={14} className="mr-1" />
+                                                    Download All
+                                                </button>
+                                                <button
+                                                    onClick={handleExportCSV}
+                                                    className="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 flex items-center justify-center"
+                                                >
+                                                    <Upload size={14} className="mr-1" />
+                                                    Export CSV
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-3 gap-4 overflow-y-auto h-[50vh]">
+                                            {units.map((u, idx) => (
+                                                <div key={u.id} className="flex flex-col items-center p-2 border rounded bg-white">
+                                                    <QRCode value={u.serialNumber} size={80} />
+                                                    <p className="text-xs text-gray-500 mt-1">Unit {idx + 1}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -221,26 +319,23 @@ const QRGenerationComponent = () => {
                     </div>
                 </div>
             </div>
-            {generatedCodes && (
-                <div className="p-4 border-t border-gray-200 bg-gray-50">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                        <div className="flex items-center mb-2 sm:mb-0">
-                            <Package size={18} className="text-gray-600 mr-2" />
-                            <span className="text-sm text-gray-600">
-                                <span className="font-medium">{quantity}</span> codes are ready
-                                for application to products
-                            </span>
-                        </div>
-                        <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center justify-center">
-                            <Check size={16} className="mr-1" />
-                            Mark as Applied
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
-    )
-}
 
+            <style jsx>{`
+        .spinner {
+          border: 2px solid #f3f3f3;
+          border-top: 2px solid #3498db;
+          border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+        </div>
+    );
+};
 
 export default QRGenerationComponent;
