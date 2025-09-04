@@ -7,8 +7,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 
+interface ChatMessage {
+  type: "user" | "ai"
+  content: string
+}
+
+interface ScanResult {
+  id: string
+  status: "genuine" | "suspicious" | "fake"
+  drugName: string
+  batchId: string
+  manufacturer: string
+  expiryDate: string
+  verificationScore: number
+  safetyRating: string
+  aiRecommendation: string
+  sideEffects: string[]
+  dosage: string
+}
+
 // Mock scan results for consumers
-const mockConsumerResults = [
+const mockConsumerResults: ScanResult[] = [
   {
     id: "consumer-genuine-1",
     status: "genuine",
@@ -39,11 +58,11 @@ const mockConsumerResults = [
 
 export default function ConsumerScanPage() {
   const [isScanning, setIsScanning] = useState(false)
-  const [scanResult, setScanResult] = useState(null)
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [showAIChat, setShowAIChat] = useState(false)
-  const [chatMessages, setChatMessages] = useState([])
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useState("")
-  const videoRef = useRef(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   const startScan = async () => {
     setIsScanning(true)
@@ -69,8 +88,8 @@ export default function ConsumerScanPage() {
 
       // Stop camera
       if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks()
-        tracks.forEach((track) => track.stop())
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+        tracks.forEach((track: MediaStreamTrack) => track.stop())
       }
     }, 3000)
   }
@@ -78,16 +97,16 @@ export default function ConsumerScanPage() {
   const stopScan = () => {
     setIsScanning(false)
     if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = videoRef.current.srcObject.getTracks()
-      tracks.forEach((track) => track.stop())
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+      tracks.forEach((track: MediaStreamTrack) => track.stop())
     }
   }
 
   const sendChatMessage = () => {
     if (!chatInput.trim()) return
 
-    const userMessage = { type: "user", content: chatInput }
-    const aiResponse = {
+    const userMessage: ChatMessage = { type: "user", content: chatInput }
+    const aiResponse: ChatMessage = {
       type: "ai",
       content: `Based on your scan of ${scanResult?.drugName}, I recommend following the prescribed dosage. ${scanResult?.aiRecommendation}`,
     }
@@ -96,7 +115,7 @@ export default function ConsumerScanPage() {
     setChatInput("")
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "genuine":
         return "text-emerald-600 bg-emerald-50 border-emerald-200"
@@ -109,7 +128,7 @@ export default function ConsumerScanPage() {
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "genuine":
         return <CheckCircle className="w-5 h-5" />
@@ -129,15 +148,15 @@ export default function ConsumerScanPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link href="/consumer/profile" className="p-2 hover:bg-white rounded-lg transition-colors cursor-pointer">
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
+              <ArrowLeft className="w-5 h-5 text-primary" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Verify Your Medication</h1>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Verify Your Medication</h1>
               <p className="text-slate-600">Scan to check authenticity and get AI guidance</p>
             </div>
           </div>
-          <Button variant="outline" onClick={() => setShowAIChat(!showAIChat)} className="cursor-pointer">
-            <MessageCircle className="w-4 h-4 mr-2" />
+          <Button variant="outline" onClick={() => setShowAIChat(!showAIChat)} className="cursor-pointer border-primary/20 hover:border-primary/40 hover:bg-primary/5">
+            <MessageCircle className="w-4 h-4 mr-2 text-primary" />
             AI Assistant
           </Button>
         </div>
@@ -145,11 +164,11 @@ export default function ConsumerScanPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Scanner Section */}
           <div className="lg:col-span-2">
-            <Card className="border-0 shadow-xl">
+            <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="flex items-center justify-center space-x-2">
-                  <QrCode className="w-6 h-6 text-cyan-600" />
-                  <span>Medication Scanner</span>
+                <CardTitle className="flex items-center justify-center space-x-2 font-bold">
+                  <QrCode className="w-6 h-6 text-primary" />
+                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Medication Scanner</span>
                 </CardTitle>
               </CardHeader>
 
@@ -191,13 +210,13 @@ export default function ConsumerScanPage() {
                   {!isScanning ? (
                     <Button
                       onClick={startScan}
-                      className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-700 hover:to-emerald-700 cursor-pointer"
+                      className="px-8 py-3 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                       <Camera className="w-5 h-5 mr-2" />
                       Scan Medication
                     </Button>
                   ) : (
-                    <Button onClick={stopScan} variant="outline" className="px-8 py-3 cursor-pointer bg-transparent">
+                    <Button onClick={stopScan} variant="outline" className="px-8 py-3 cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
                       Stop Scan
                     </Button>
                   )}
@@ -205,11 +224,11 @@ export default function ConsumerScanPage() {
 
                 {/* Scan Result */}
                 {scanResult && (
-                  <Card className="border border-slate-200">
+                  <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                     <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span>Verification Result</span>
-                        <Badge className={`${getStatusColor(scanResult.status)} border`}>
+                      <CardTitle className="flex items-center justify-between font-bold">
+                        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Verification Result</span>
+                        <Badge className={`${getStatusColor(scanResult.status)} border-primary/20`}>
                           {getStatusIcon(scanResult.status)}
                           <span className="ml-2 capitalize">{scanResult.status}</span>
                         </Badge>
@@ -237,23 +256,23 @@ export default function ConsumerScanPage() {
                       </div>
 
                       {/* Safety Information */}
-                      <div className={`p-4 rounded-lg border ${getStatusColor(scanResult.status)}`}>
-                        <h4 className="font-medium mb-2">Safety Assessment</h4>
+                      <div className={`p-4 rounded-lg border-2 border-primary/10 bg-gradient-to-r from-primary/5 to-accent/5 ${getStatusColor(scanResult.status)}`}>
+                        <h4 className="font-bold mb-2">Safety Assessment</h4>
                         <p className="text-sm">{scanResult.safetyRating}</p>
                       </div>
 
                       {/* Dosage Information */}
                       <div className="space-y-2">
-                        <h4 className="font-medium text-slate-900">Recommended Dosage</h4>
+                        <h4 className="font-bold text-slate-900">Recommended Dosage</h4>
                         <p className="text-sm text-slate-600">{scanResult.dosage}</p>
                       </div>
 
                       {/* Side Effects */}
                       <div className="space-y-2">
-                        <h4 className="font-medium text-slate-900">Possible Side Effects</h4>
+                        <h4 className="font-bold text-slate-900">Possible Side Effects</h4>
                         <div className="flex flex-wrap gap-2">
-                          {scanResult.sideEffects.map((effect, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
+                          {scanResult.sideEffects.map((effect: string, index: number) => (
+                            <Badge key={index} variant="outline" className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5">
                               {effect}
                             </Badge>
                           ))}
@@ -268,11 +287,11 @@ export default function ConsumerScanPage() {
 
           {/* AI Chat Assistant */}
           <div className={`${showAIChat ? "block" : "hidden lg:block"}`}>
-            <Card className="border-0 shadow-xl h-full">
+            <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <MessageCircle className="w-5 h-5 text-cyan-600" />
-                  <span>AI Health Assistant</span>
+                <CardTitle className="flex items-center space-x-2 font-bold">
+                  <MessageCircle className="w-5 h-5 text-primary" />
+                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI Health Assistant</span>
                 </CardTitle>
               </CardHeader>
 
@@ -285,11 +304,13 @@ export default function ConsumerScanPage() {
                       <p className="text-sm">Ask me anything about your medication!</p>
                     </div>
                   ) : (
-                    chatMessages.map((message, index) => (
+                    chatMessages.map((message: ChatMessage, index: number) => (
                       <div key={index} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
                         <div
                           className={`max-w-xs p-3 rounded-lg ${
-                            message.type === "user" ? "bg-cyan-600 text-white" : "bg-slate-100 text-slate-900"
+                            message.type === "user" 
+                              ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg" 
+                              : "bg-gradient-to-r from-primary/5 to-accent/5 text-slate-900 border border-primary/10"
                           }`}
                         >
                           <p className="text-sm">{message.content}</p>
@@ -307,18 +328,18 @@ export default function ConsumerScanPage() {
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && sendChatMessage()}
                     placeholder="Ask about dosage, side effects..."
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+                    className="flex-1 px-3 py-2 border-2 border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary/40 text-sm hover:border-primary/30 transition-colors duration-200"
                   />
-                  <Button onClick={sendChatMessage} size="sm" className="cursor-pointer">
+                  <Button onClick={sendChatMessage} size="sm" className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg">
                     Send
                   </Button>
                 </div>
 
                 {/* AI Recommendation */}
                 {scanResult && (
-                  <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
-                    <h4 className="font-medium text-cyan-900 mb-2">AI Recommendation</h4>
-                    <p className="text-sm text-cyan-800">{scanResult.aiRecommendation}</p>
+                  <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/20 rounded-lg p-4 hover:shadow-md transition-all duration-200">
+                    <h4 className="font-bold text-primary mb-2">AI Recommendation</h4>
+                    <p className="text-sm text-slate-800">{scanResult.aiRecommendation}</p>
                   </div>
                 )}
               </CardContent>

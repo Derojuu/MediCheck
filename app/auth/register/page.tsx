@@ -172,24 +172,24 @@ export default function RegisterPage() {
         return (
           <>
             <div>
-              <Label htmlFor="companyName">Company Name</Label>
+              <Label htmlFor="companyName" className="font-medium text-foreground">Company Name</Label>
               <Input
                 id="companyName"
                 value={formData.companyName}
                 onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                 placeholder="Enter company name"
-                className="cursor-pointer"
+                className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="rcNumber">RC Number (Registration Certificate)</Label>
+              <Label htmlFor="rcNumber" className="font-medium text-foreground">RC Number (Registration Certificate)</Label>
               <Input
                 id="rcNumber"
                 value={formData.rcNumber}
                 onChange={(e) => setFormData({ ...formData, rcNumber: e.target.value })}
                 placeholder="Enter RC number"
-                className="cursor-pointer"
+                className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                 required
               />
             </div>
@@ -446,16 +446,27 @@ export default function RegisterPage() {
   return (
 
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b bg-card/50 backdrop-blur-sm">
+      {/* Navigation - Updated to match landing page */}
+      <nav className="border-b bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
+          <div className="flex justify-between items-center h-20">
+            <Link href="/" className="flex items-center space-x-4">
+              <div className="relative group cursor-pointer">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div className="relative bg-gradient-to-r from-primary to-accent p-2 rounded-xl">
+                  <Shield className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-2xl text-foreground">MedChain</span>
+                <span className="text-xs text-muted-foreground font-mono">Blockchain Verified</span>
+              </div>
             </Link>
             <Link href="/">
-              <Button variant="ghost" className="cursor-pointer">
+              <Button 
+                variant="outline"
+                className="cursor-pointer bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Home
               </Button>
@@ -464,28 +475,38 @@ export default function RegisterPage() {
         </div>
       </nav>
 
-      <div className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
+      {/* Main Content with matching background effects */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
+
+        <div className="relative max-w-2xl mx-auto animate-slide-in-up">
           {!accountType ? (
 
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="font-montserrat font-bold text-2xl">Choose Account Type</CardTitle>
-                <CardDescription>Select the type of account that best describes your role</CardDescription>
+            <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl">
+              <CardHeader className="text-center pb-8">
+                <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Choose Account Type
+                </CardTitle>
+                <CardDescription className="text-muted-foreground mt-2 text-lg">
+                  Select the type of account that best describes your role
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
 
                 <div
-                  className="p-6 border-2 border-dashed border-border hover:border-primary cursor-pointer rounded-lg transition-colors"
+                  className="p-8 border-2 border-dashed border-primary/30 hover:border-primary/60 bg-gradient-to-r from-primary/5 to-accent/5 hover:from-primary/10 hover:to-accent/10 cursor-pointer rounded-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl group"
                   onClick={() => setAccountType("organization")}
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg flex items-center justify-center group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300">
                       <Building2 className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-montserrat font-semibold text-lg">Organization</h3>
-                      <p className="text-muted-foreground">
+                      <h3 className="font-bold text-xl text-foreground">Organization</h3>
+                      <p className="text-muted-foreground text-sm mt-1">
                         Manufacturer, Drug Distributor, Hospital, Pharmacy, or Regulator
                       </p>
                     </div>
@@ -493,16 +514,16 @@ export default function RegisterPage() {
                 </div>
 
                 <div
-                  className="p-6 border-2 border-dashed border-border hover:border-primary cursor-pointer rounded-lg transition-colors"
+                  className="p-8 border-2 border-dashed border-primary/30 hover:border-primary/60 bg-gradient-to-r from-accent/5 to-primary/5 hover:from-accent/10 hover:to-primary/10 cursor-pointer rounded-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl group"
                   onClick={() => setAccountType("consumer")}
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-r from-accent/20 to-primary/20 rounded-lg flex items-center justify-center group-hover:from-accent/30 group-hover:to-primary/30 transition-all duration-300">
                       <User className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-montserrat font-semibold text-lg">Consumer/Patient</h3>
-                      <p className="text-muted-foreground">Verify medications and access AI assistance</p>
+                      <h3 className="font-bold text-xl text-foreground">Consumer/Patient</h3>
+                      <p className="text-muted-foreground text-sm mt-1">Verify medications and access AI assistance</p>
                     </div>
                   </div>
                 </div>
@@ -512,20 +533,20 @@ export default function RegisterPage() {
 
           ) :
           (
-            <Card>
+            <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="font-montserrat font-bold text-2xl">
+                    <CardTitle className="font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                       {accountType === "organization" ? "Organization Registration" : "Consumer Registration"}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-muted-foreground mt-2">
                       {accountType === "organization"
                         ? "Register your organization to start managing medication verification"
                         : "Create your consumer account for medication verification"}
                     </CardDescription>
                   </div>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                     Step {step} of {accountType === "organization" ? "2" : "1"}
                   </Badge>
                 </div>
@@ -568,7 +589,7 @@ export default function RegisterPage() {
                           <Button
                             type="button"
                             onClick={() => setStep(2)}
-                            className="w-full cursor-pointer"
+                            className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg"
                             disabled={!formData.organizationType}
                           >
                             Continue
@@ -661,16 +682,16 @@ export default function RegisterPage() {
                               type="button"
                               variant="outline"
                               onClick={() => setStep(1)}
-                              className="flex-1 cursor-pointer"
+                              className="flex-1 bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
                             >
                               Back
                             </Button>
                             <Button
                               type="submit"
-                              className="flex-1 cursor-pointer"
+                              className="flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg"
                               disabled={isLoading}
                             >
-                                {isLoading ? "Loading..." : "Submit Application"}
+                                {isLoading ? "Creating Account..." : "Submit Application"}
                             </Button>
                           </div>
                         </div>
@@ -681,84 +702,84 @@ export default function RegisterPage() {
                   {accountType === "consumer" && (
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="fullName">Full Name</Label>
+                        <Label htmlFor="fullName" className="font-medium text-foreground">Full Name</Label>
                         <Input
                           id="fullName"
                           value={formData.fullName}
                           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                           placeholder="Enter your full name"
-                          className="cursor-pointer"
+                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="contactEmail">Email Address</Label>
+                        <Label htmlFor="contactEmail" className="font-medium text-foreground">Email Address</Label>
                         <Input
                           id="contactEmail"
                           type="email"
                           value={formData.contactEmail}
                           onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
                           placeholder="Enter your email"
-                          className="cursor-pointer"
+                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="contactPhone">Phone Number</Label>
+                        <Label htmlFor="contactPhone" className="font-medium text-foreground">Phone Number</Label>
                         <Input
                           id="contactPhone"
                           type="tel"
                           value={formData.contactPhone}
                           onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
                           placeholder="Enter your phone number"
-                          className="cursor-pointer"
+                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                        <Label htmlFor="dateOfBirth" className="font-medium text-foreground">Date of Birth</Label>
                         <Input
                           id="dateOfBirth"
                           type="date"
                           value={formData.dateOfBirth}
                           onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                          className="cursor-pointer"
+                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="address">Address</Label>
+                        <Label htmlFor="address" className="font-medium text-foreground">Address</Label>
                         <Textarea
                           id="address"
                           value={formData.address}
                           onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                           placeholder="Enter your address"
                           rows={3}
-                          className="cursor-pointer"
+                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="password">Password *</Label>
+                        <Label htmlFor="password" className="font-medium text-foreground">Password *</Label>
                         <Input
                           id="password"
                           type="password"
                           value={formData.password}
                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           placeholder="Create a password"
-                          className="cursor-pointer"
+                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="confirmPassword">Confirm Password</Label>
+                        <Label htmlFor="confirmPassword" className="font-medium text-foreground">Confirm Password</Label>
                         <Input
                           id="confirmPassword"
                           type="password"
                           value={formData.confirmPassword}
                           onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                           placeholder="Confirm your password"
-                          className="cursor-pointer"
+                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
                           required
                         />
                       </div>
@@ -769,24 +790,28 @@ export default function RegisterPage() {
                           onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: !!checked })}
                           className="cursor-pointer"
                         />
-                        <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer">
+                        <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer font-medium text-foreground">
                           I agree to the Terms and Condition
                         </Label>
                       </div>
                       <Button
                         type="submit"
-                        className="w-full cursor-pointer"
+                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg"
                         disabled={isLoading}
                       >
-                        {isLoading ? "Loading..." : "Create Account"}
+                        {isLoading ? "Creating Account..." : "Create Account"}
                       </Button>
                     </div>
                   )}
                     
                 </form>
 
-                <div className="mt-6 text-center">
-                  <Button variant="ghost" onClick={() => setAccountType(null)} className="cursor-pointer">
+                <div className="mt-8 text-center">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setAccountType(null)} 
+                    className="cursor-pointer bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
+                  >
                     Choose Different Account Type
                   </Button>
                 </div>
@@ -795,7 +820,7 @@ export default function RegisterPage() {
             </Card>
           )}
         </div>
-      </div>
+      </section>
     </div>
   )
 }

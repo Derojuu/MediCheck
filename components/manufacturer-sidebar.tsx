@@ -35,6 +35,7 @@ export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSid
     { id: "products", label: "Product Catalog", icon: Factory },
     { id: "quality", label: "Quality Control", icon: FlaskConical },
     { id: "transfers", label: "Batch Transfers", icon: Truck },
+    { id: "transport", label: "Transport Management", icon: Truck },
     { id: "qr-generator", label: "QR Generator", icon: QrCode },
     { id: "team", label: "Team Management", icon: Users },
     { id: "reports", label: "Reports", icon: BarChart3 },

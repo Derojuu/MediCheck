@@ -97,16 +97,16 @@ export default function ScanPage() {
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
+              <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MedChain</span>
             </Link>
             <div className="flex items-center space-x-4">
               <Link href="/auth/register">
-                <Button variant="outline" className="cursor-pointer bg-transparent">
+                <Button variant="outline" className="cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
                   Create Account
                 </Button>
               </Link>
               <Link href="/auth/login">
-                <Button className="cursor-pointer">Sign In</Button>
+                <Button className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">Sign In</Button>
               </Link>
             </div>
           </div>
@@ -117,21 +117,21 @@ export default function ScanPage() {
         <div className="text-center mb-8">
           <Link
             href="/"
-            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 cursor-pointer"
+            className="inline-flex items-center text-muted-foreground hover:text-primary mb-4 cursor-pointer transition-colors duration-200"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
-          <h1 className="font-montserrat font-bold text-3xl text-foreground mb-2">Verify Your Medicine</h1>
+          <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">Verify Your Medicine</h1>
           <p className="text-muted-foreground">Scan the QR code or NFC tag on your medication packaging</p>
         </div>
 
         {!scanResult ? (
-          <Card className="max-w-2xl mx-auto">
+          <Card className="max-w-2xl mx-auto border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center">
-                <QrCode className="h-6 w-6 mr-2" />
-                Medicine Scanner
+              <CardTitle className="flex items-center justify-center font-bold">
+                <QrCode className="h-6 w-6 mr-2 text-primary" />
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Medicine Scanner</span>
               </CardTitle>
               <CardDescription>Position your medication's QR code or NFC tag in the scanner area</CardDescription>
             </CardHeader>

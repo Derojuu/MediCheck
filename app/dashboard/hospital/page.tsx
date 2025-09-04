@@ -78,11 +78,11 @@ export default function HospitalDashboard() {
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="font-montserrat font-bold text-3xl text-foreground">Hospital Dashboard</h1>
-                  <p className="text-muted-foreground">Welcome to Lagos University Teaching Hospital</p>
+                  <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hospital Dashboard</h1>
+                  <p className="text-muted-foreground mt-2">Welcome to Lagos University Teaching Hospital</p>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Badge variant="secondary" className="px-3 py-1">
+                  <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
                     <Building2 className="h-4 w-4 mr-2" />
                     Hospital
                   </Badge>
@@ -91,36 +91,36 @@ export default function HospitalDashboard() {
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Medications</CardTitle>
-                    <Package className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Medications</CardTitle>
+                    <Package className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalMedications.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-foreground">{stats.totalMedications.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-accent">+12%</span> from last month
+                      <span className="text-accent font-medium">+12%</span> from last month
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Verified Today</CardTitle>
-                    <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Verified Today</CardTitle>
+                    <CheckCircle className="h-4 w-4 text-green-500" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stats.verifiedToday}</div>
+                    <div className="text-2xl font-bold text-foreground">{stats.verifiedToday}</div>
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-primary">+5</span> more than yesterday
+                      <span className="text-primary font-medium">+5</span> more than yesterday
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Pending Verifications</CardTitle>
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Pending Verifications</CardTitle>
+                    <Clock className="h-4 w-4 text-orange-500" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-orange-600">{stats.pendingVerifications}</div>
@@ -128,15 +128,15 @@ export default function HospitalDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Alerts</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Alerts</CardTitle>
                     <AlertTriangle className="h-4 w-4 text-destructive" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-destructive">{stats.alerts}</div>
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-destructive">+1</span> this week
+                      <span className="text-destructive font-medium">+1</span> this week
                     </p>
                   </CardContent>
                 </Card>
@@ -144,10 +144,10 @@ export default function HospitalDashboard() {
 
               {/* Recent Activity */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
+                <Card className="glass-effect border-2 border-primary/20 shadow-xl backdrop-blur-xl">
                   <CardHeader>
-                    <CardTitle className="font-montserrat">Recent Verifications</CardTitle>
-                    <CardDescription>Latest medication verification activities</CardDescription>
+                    <CardTitle className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recent Verifications</CardTitle>
+                    <CardDescription className="text-muted-foreground">Latest medication verification activities</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
