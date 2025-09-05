@@ -22,3 +22,16 @@ export type ManufacturerTab =
   | "team"
   | "reports"
   | "settings";
+
+
+export interface ProductProps {
+  name: string;
+  description: string;
+  category: string;
+  dosageForm: string;
+  strength: string;
+  activeIngredients: string[];
+  nafdacNumber: string;
+  shelfLifeMonths: number;
+  storageConditions: string;
+}

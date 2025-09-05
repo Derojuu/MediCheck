@@ -10,7 +10,8 @@ import {
     Truck,
     FlaskConical,
 } from "lucide-react";
-import { ManufacturerTab } from "@/utils"
+import { ManufacturerTab } from "@/utils";
+import { dummyTransfers } from "@/database";
 
 const ManufacturerMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React.SetStateAction<ManufacturerTab>> }) => {
 
@@ -20,39 +21,6 @@ const ManufacturerMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React
         pendingQuality: 0,
         recentTransfers: 0,
     })
-
-    const dummyTransfers = [
-        {
-            id: "T001",
-            batchNumber: "PTC-2024-001",
-            productName: "Paracetamol 500mg",
-            fromEntity: "PharmaTech Industries",
-            toEntity: "MediDistrib Lagos",
-            quantity: 1500,
-            transferDate: "2024-09-01",
-            status: "Completed"
-        },
-        {
-            id: "T002",
-            batchNumber: "PTC-2024-003",
-            productName: "Lisinopril 10mg",
-            fromEntity: "PharmaTech Industries",
-            toEntity: "City Hospital Pharmacy",
-            quantity: 3000,
-            transferDate: "2024-08-30",
-            status: "Completed"
-        },
-        {
-            id: "T003",
-            batchNumber: "PTC-2024-005",
-            productName: "Aspirin 75mg",
-            fromEntity: "PharmaTech Industries",
-            toEntity: "HealthPlus Pharmacy",
-            quantity: 5000,
-            transferDate: "2024-09-02",
-            status: "Pending"
-        }
-    ]
 
     const [recentTransfers, setRecentTransfers] = useState(dummyTransfers)
 

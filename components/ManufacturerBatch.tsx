@@ -18,9 +18,9 @@ import {
     XCircle,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { MedicationBatchProp } from "@/utils"
+import { MedicationBatchProp } from "@/utils";
+import { dummyProducts } from "@/database"
 
-import { mockProducts } from "@/lib/manufacturer-data";
 
 const ManufacturerBatch = () => {
 
@@ -39,7 +39,7 @@ const ManufacturerBatch = () => {
         storageInstructions: "",
     })
 
-    const [products, setProducts] = useState(mockProducts)
+    const [products, setProducts] = useState(dummyProducts)
 
     const [searchQuery, setSearchQuery] = useState("")
 
@@ -80,52 +80,55 @@ const ManufacturerBatch = () => {
     })
 
     const getStatusColor = (status: string) => {
-    switch (status) {
-        case "READY_FOR_DISPATCH":
-        return "default"
-        case "MANUFACTURING":
-        return "secondary"
-        case "IN_TRANSIT":
-        return "outline"
-        case "DELIVERED":
-        return "default"
-        case "EXPIRED":
-        return "destructive"
-        default:
-        return "secondary"
-    }
+        // use enum value instead of hardcoding
+        switch (status) {
+            case "READY_FOR_DISPATCH":
+            return "default"
+            case "MANUFACTURING":
+            return "secondary"
+            case "IN_TRANSIT":
+            return "outline"
+            case "DELIVERED":
+            return "default"
+            case "EXPIRED":
+            return "destructive"
+            default:
+            return "secondary"
+        }
     }
 
     const getStatusIcon = (status: string) => {
-    switch (status) {
-        case "READY_FOR_DISPATCH":
-        case "DELIVERED":
-        return <CheckCircle className="h-4 w-4" />
-        case "MANUFACTURING":
-        case "IN_TRANSIT":
-        return <Clock className="h-4 w-4" />
-        case "EXPIRED":
-        return <XCircle className="h-4 w-4" />
-        default:
-        return <Clock className="h-4 w-4" />
-    }
+        // use enum value instead of hardcoding
+        switch (status) {
+            case "READY_FOR_DISPATCH":
+            case "DELIVERED":
+            return <CheckCircle className="h-4 w-4" />
+            case "MANUFACTURING":
+            case "IN_TRANSIT":
+            return <Clock className="h-4 w-4" />
+            case "EXPIRED":
+            return <XCircle className="h-4 w-4" />
+            default:
+            return <Clock className="h-4 w-4" />
+        }
     }
 
     const getStatusDisplay = (status: string) => {
-    switch (status) {
-        case "READY_FOR_DISPATCH":
-        return "Ready for Dispatch"
-        case "MANUFACTURING":
-        return "Manufacturing"
-        case "IN_TRANSIT":
-        return "In Transit"
-        case "DELIVERED":
-        return "Delivered"
-        case "EXPIRED":
-        return "Expired"
-        default:
-        return status
-    }
+        // use enum value instead of hardcoding
+        switch (status) {
+            case "READY_FOR_DISPATCH":
+            return "Ready for Dispatch"
+            case "MANUFACTURING":
+            return "Manufacturing"
+            case "IN_TRANSIT":
+            return "In Transit"
+            case "DELIVERED":
+            return "Delivered"
+            case "EXPIRED":
+            return "Expired"
+            default:
+            return status
+        }
     }
     
     return (
@@ -135,6 +138,7 @@ const ManufacturerBatch = () => {
                     <h1 className="font-montserrat font-bold text-3xl text-foreground">Batch Management</h1>
                     <p className="text-muted-foreground">Create, view, and manage product batches</p>
                 </div>
+                {/* create batch dialog */}
                 <Dialog open={isCreateBatchOpen} onOpenChange={setIsCreateBatchOpen}>
                     <DialogTrigger asChild>
                         <Button>
