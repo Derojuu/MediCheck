@@ -5,7 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { QRScanner } from "@/components/qr-scanner"
+import { QRScanner } from "@/components/qr-scanner";
+import { publicRoutes, authRoutes } from "@/utils";
+import { useUser } from "@clerk/nextjs";
+import { getRedirectPath } from "@/utils";
 import {
   Shield,
   Scan,
@@ -22,8 +25,16 @@ import {
 import Link from "next/link"
 
 export default function ScanPage() {
-  const [scanResult, setScanResult] = useState<any>(null)
-  const [isScanning, setIsScanning] = useState(false)
+  
+  const [scanResult, setScanResult] = useState<any>(null);
+
+  const [isScanning, setIsScanning] = useState(false);
+
+  const { user, isSignedIn } = useUser();
+
+  const role = user?.publicMetadata.role as string | undefined;
+
+  const organizationType = user?.publicMetadata.organizationType as string | undefined;
 
   // Handle QR code scan results
   const handleQRScan = (qrData: string) => {
@@ -194,20 +205,32 @@ export default function ScanPage() {
       <nav className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href={publicRoutes.home} className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
               <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MedChain</span>
             </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/register">
-                <Button variant="outline" className="cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
-                  Create Account
-                </Button>
-              </Link>
-              <Link href="/auth/login">
-                <Button className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">Sign In</Button>
-              </Link>
-            </div>
+            {isSignedIn ?
+              (
+                <Link
+                  href={getRedirectPath(role, organizationType)}
+                  className="inline-block rounded-xl bg-accent px-6 py-2 text-white font-semibold shadow-md hover:shadow-lg hover:bg-accent/90 transition-all duration-200"
+                >
+                  Dashboard
+                </Link>
+              )
+              :
+              (
+                <div className="flex items-center space-x-4">
+                  <Link href={authRoutes.register}>
+                    <Button variant="outline" className="cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
+                      Create Account
+                    </Button>
+                  </Link>
+                  <Link href={authRoutes.login}>
+                    <Button className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">Sign In</Button>
+                  </Link>
+                </div>
+              )}
           </div>
         </div>
       </nav>
@@ -215,7 +238,7 @@ export default function ScanPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
           <Link
-            href="/"
+            href={publicRoutes.home}
             className="inline-flex items-center text-muted-foreground hover:text-primary mb-4 cursor-pointer transition-colors duration-200"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

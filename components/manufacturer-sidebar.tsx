@@ -19,11 +19,12 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useClerk } from "@clerk/nextjs"
-import { authRoutes } from "@/utils"
+import { authRoutes } from "@/utils";
+import { ManufacturerTab } from "@/utils"
 
 interface ManufacturerSidebarProps {
   activeTab: string
-  setActiveTab: (tab: string) => void
+  setActiveTab: (tab: ManufacturerTab) => void
 }
 
 export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSidebarProps) {
@@ -75,7 +76,7 @@ export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSid
               key={item.id}
               variant={activeTab === item.id ? "secondary" : "ghost"}
               className="w-full justify-start cursor-pointer"
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => setActiveTab(item.id as ManufacturerTab)}
             >
               <Icon className="h-4 w-4 mr-3" />
               {item.label}

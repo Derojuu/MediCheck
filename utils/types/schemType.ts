@@ -1,10 +1,10 @@
-export enum UserRole {
+export enum UserRoleEnum {
   ORGANIZATION_MEMBER = "ORGANIZATION_MEMBER",
   CONSUMER = "CONSUMER",
   SUPER_ADMIN = "SUPER_ADMIN",
 }
 
-export enum OrganizationType {
+export enum OrganizationTypeEnum {
   MANUFACTURER = "MANUFACTURER",
   DRUG_DISTRIBUTOR = "DRUG_DISTRIBUTOR",
   HOSPITAL = "HOSPITAL",
@@ -12,7 +12,7 @@ export enum OrganizationType {
   REGULATOR = "REGULATOR",
 }
 
-export enum BatchStatus {
+export enum BatchStatusEnum {
   MANUFACTURING = "MANUFACTURING",
   READY_FOR_DISPATCH = "READY_FOR_DISPATCH",
   IN_TRANSIT = "IN_TRANSIT",
@@ -21,7 +21,7 @@ export enum BatchStatus {
   EXPIRED = "EXPIRED",
 }
 
-export enum UnitStatus {
+export enum UnitStatusEnum {
   IN_STOCK = "IN_STOCK",
   DISPATCHED = "DISPATCHED",
   SOLD = "SOLD",
@@ -29,7 +29,7 @@ export enum UnitStatus {
   LOST = "LOST",
 }
 
-export enum TransferStatus {
+export enum TransferStatusEnum {
   PENDING = "PENDING",
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
@@ -37,7 +37,7 @@ export enum TransferStatus {
   CANCELLED = "CANCELLED",
 }
 
-export enum ScanResult {
+export enum ScanResultEnum {
   GENUINE = "GENUINE",
   COUNTERFEIT = "COUNTERFEIT",
   SUSPICIOUS = "SUSPICIOUS",
@@ -45,7 +45,7 @@ export enum ScanResult {
   EXPIRED = "EXPIRED",
 }
 
-export enum ReportType {
+export enum ReportTypeEnum {
   COUNTERFEIT_DETECTED = "COUNTERFEIT_DETECTED",
   PACKAGING_ISSUE = "PACKAGING_ISSUE",
   EXPIRY_MISMATCH = "EXPIRY_MISMATCH",
@@ -53,14 +53,14 @@ export enum ReportType {
   SUSPICIOUS_ACTIVITY = "SUSPICIOUS_ACTIVITY",
 }
 
-export enum SeverityLevel {
+export enum SeverityLevelEnum {
   LOW = "LOW",
   MEDIUM = "MEDIUM",
   HIGH = "HIGH",
   CRITICAL = "CRITICAL",
 }
 
-export enum ReportStatus {
+export enum ReportStatusEnum {
   PENDING = "PENDING",
   INVESTIGATING = "INVESTIGATING",
   RESOLVED = "RESOLVED",
@@ -70,16 +70,16 @@ export enum ReportStatus {
 
 // ✅ Model Interfaces
 
-export interface User {
+export interface UserProp {
   id: string;
-  userRole: UserRole;
+  userRole: UserRoleEnum;
   clerkUserId: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface Consumer {
+export interface ConsumerProp {
   id: string;
   userId: string;
   fullName: string;
@@ -92,10 +92,10 @@ export interface Consumer {
   updatedAt: Date;
 }
 
-export interface Organization {
+export interface OrganizationProp {
   id: string;
   adminId: string;
-  organizationType: OrganizationType;
+  organizationType: OrganizationTypeEnum;
   companyName: string;
   contactEmail: string;
   contactPhone?: string | null;
@@ -117,7 +117,7 @@ export interface Organization {
   updatedAt: Date;
 }
 
-export interface TeamMember {
+export interface TeamMemberProp {
   id: string;
   userId: string;
   organizationId: string;
@@ -133,7 +133,7 @@ export interface TeamMember {
   updatedAt: Date;
 }
 
-export interface MedicationBatch {
+export interface MedicationBatchProp {
   id: string;
   batchId: string;
   organizationId: string;
@@ -144,45 +144,53 @@ export interface MedicationBatch {
   expiryDate: Date;
   storageInstructions?: string | null;
   currentLocation?: string | null;
-  status: BatchStatus;
+  status: BatchStatusEnum;
   qrCodeData?: string | null;
   blockchainHash?: string | null;
   createdAt: Date;
   updatedAt: Date;
+  transportTracking?: {
+    trackingNumber: string;
+    estimatedDelivery: Date;
+    currentGPS: string;
+    transportMethod: string;
+    route: string;
+    lastUpdate: Date;
+  };
 }
 
-export interface MedicationUnit {
+export interface MedicationUnitProp {
   id: string;
   batchId: string;
   serialNumber: string;
   qrCode?: string | null;
   currentLocation?: string | null;
-  status: UnitStatus;
+  status: UnitStatusEnum;
   blockchainHash?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface OwnershipTransfer {
+export interface OwnershipTransferProp {
   id: string;
   batchId: string;
   fromOrgId: string;
   toOrgId: string;
   transferDate: Date;
-  status: TransferStatus;
+  status: TransferStatusEnum;
   blockchainHash?: string | null;
   notes?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface ScanHistory {
+export interface ScanHistoryProp {
   id: string;
   batchId: string;
   consumerId?: string | null;
   scanLocation?: string | null;
   scanDate: Date;
-  scanResult: ScanResult;
+  scanResult: ScanResultEnum;
   ipAddress?: string | null;
   deviceInfo?: string | null;
   latitude?: number | null;
@@ -190,16 +198,16 @@ export interface ScanHistory {
   createdAt: Date;
 }
 
-export interface CounterfeitReport {
+export interface CounterfeitReportProp {
   id: string;
   batchId?: string | null;
   reporterId: string;
-  reportType: ReportType;
-  severity: SeverityLevel;
+  reportType: ReportTypeEnum;
+  severity: SeverityLevelEnum;
   description: string;
   location?: string | null;
   evidence: string[];
-  status: ReportStatus;
+  status: ReportStatusEnum;
   investigatorId?: string | null;
   resolution?: string | null;
   createdAt: Date;
