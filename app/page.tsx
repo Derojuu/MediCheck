@@ -1,7 +1,10 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
+import { publicRoutes, authRoutes } from "@/utils";
+import { useUser } from "@clerk/nextjs";
+import { getRedirectPath } from "@/utils";
 import {
   Shield,
   Scan,
@@ -17,11 +20,22 @@ import {
   TrendingUp,
   Star,
   Award,
+  LogOut,
   Sparkles,
 } from "lucide-react"
 import Link from "next/link"
+import { useClerk } from "@clerk/nextjs"
 
 export default function HomePage() {
+
+  const { user, isSignedIn } = useUser();
+
+  const { signOut } = useClerk();
+
+  const role = user?.publicMetadata.role as string | undefined;
+
+  const organizationType = user?.publicMetadata.organizationType as string | undefined;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -36,7 +50,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-serif font-bold text-2xl text-foreground">MedChain</span>
+                <span className="font-bold text-2xl text-foreground">MedChain</span>
                 <span className="text-xs text-muted-foreground font-mono">Blockchain Verified</span>
               </div>
             </div>
@@ -63,22 +77,46 @@ export default function HomePage() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all duration-300 group-hover:w-full"></span>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/login">
-                <Button
-                  variant="outline"
-                  className="cursor-pointer bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
-                >
-                  Login
-                </Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-medium px-6 py-2.5 animate-pulse-glow">
-                  Get Started
-                  <Sparkles className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
+            {/* auth */}
+            {isSignedIn ?
+              (
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="ghost"
+                    className=" justify-start cursor-pointer bg-accent text-white"
+                    onClick={() => signOut({ redirectUrl: authRoutes.login })}
+                  >
+                    <LogOut className="h-4 w-4 mr-3" />
+                    Sign Out
+                  </Button>
+                  <Link
+                    href={getRedirectPath(role, organizationType)}
+                    className="inline-block rounded-xl bg-accent px-6 py-2 text-white font-semibold shadow-md hover:shadow-lg hover:bg-accent/90 transition-all duration-200"
+                  >
+                    Dashboard
+                  </Link>
+                </div>
+              )
+              :
+              (
+                <div className="flex items-center space-x-4">
+                  <Link href={authRoutes.login}>
+                    <Button
+                      variant="outline"
+                      className="cursor-pointer bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href={authRoutes.register}>
+                    <Button className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-medium px-6 py-2.5 animate-pulse-glow">
+                      Get Started
+                      <Sparkles className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            {/*  */}
           </div>
         </div>
       </nav>
@@ -99,7 +137,7 @@ export default function HomePage() {
             Enterprise-Grade Blockchain Security
           </Badge>
 
-          <h1 className="font-serif font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-foreground mb-10 leading-[0.9]">
+          <h1 className="font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-foreground mb-10 leading-[0.9]">
             Verify Any Medicine
             <span className="text-gradient block mt-4 animate-fade-in-scale">Instantly & Securely</span>
           </h1>
@@ -110,7 +148,7 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mb-16">
-            <Link href="/consumer/scan">
+            <Link href={publicRoutes.scan}>
               <Button
                 size="lg"
                 className="text-xl px-12 py-8 cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-500 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 group font-semibold rounded-2xl"
@@ -120,7 +158,7 @@ export default function HomePage() {
                 <ChevronRight className="h-6 w-6 ml-3 group-hover:translate-x-2 transition-transform duration-300" />
               </Button>
             </Link>
-            <Link href="/auth/register">
+            <Link href={authRoutes.register}>
               <Button
                 variant="outline"
                 size="lg"
@@ -176,7 +214,7 @@ export default function HomePage() {
               <Star className="h-4 w-4 mr-2" />
               Complete Enterprise Solution
             </Badge>
-            <h2 className="font-serif font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
+            <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
               Complete Medication
               <span className="text-gradient block mt-2">Traceability Ecosystem</span>
             </h2>
@@ -192,7 +230,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Building2 className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Manufacturers</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Manufacturers</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -207,7 +245,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Globe className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Distributors</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Distributors</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -222,7 +260,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Pill className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Pharmacies</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Pharmacies</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -237,7 +275,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Users className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Patients</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Patients</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -255,25 +293,25 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 1M+
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Medications Verified Daily</div>
             </div>
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 500+
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Enterprise Partners</div>
             </div>
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 99.9%
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Accuracy Guarantee</div>
             </div>
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 24/7
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Global Uptime</div>
@@ -294,7 +332,7 @@ export default function HomePage() {
               <div className="mx-auto w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center mb-12 shadow-2xl animate-pulse-glow">
                 <QrCode className="h-12 w-12 text-white" />
               </div>
-              <h2 className="font-serif font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
+              <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
                 Ready to Verify
                 <span className="text-gradient block mt-4">Your Medicine?</span>
               </h2>
@@ -302,7 +340,7 @@ export default function HomePage() {
                 Scan any QR code or NFC tag on your medication packaging to instantly verify authenticity and access
                 <span className="text-primary font-medium"> complete supply chain intelligence</span>
               </p>
-              <Link href="/consumer/scan">
+              <Link href={publicRoutes.scan}>
                 <Button
                   size="lg"
                   className="text-2xl px-16 py-10 cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-500 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 group font-semibold rounded-2xl"
@@ -329,7 +367,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-serif font-bold text-3xl text-foreground">MedChain</span>
+                <span className="font-bold text-3xl text-foreground">MedChain</span>
                 <span className="text-sm text-muted-foreground font-mono">Enterprise Blockchain Security</span>
               </div>
             </div>

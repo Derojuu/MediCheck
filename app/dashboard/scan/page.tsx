@@ -18,8 +18,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 
+interface ScanResult {
+  id: string
+  status: "genuine" | "suspicious" | "fake"
+  drugName: string
+  batchId: string
+  manufacturer: string
+  expiryDate: string
+  verificationScore: number
+  blockchainHash: string | null
+  scanTime: string
+}
+
 // Mock scan results
-const mockScanResults = [
+const mockScanResults: ScanResult[] = [
   {
     id: "genuine-1",
     status: "genuine",
@@ -57,10 +69,10 @@ const mockScanResults = [
 
 export default function ScanPage() {
   const [isScanning, setIsScanning] = useState(false)
-  const [scanResult, setScanResult] = useState(null)
-  const [scanHistory, setScanHistory] = useState([])
-  const [scanMethod, setScanMethod] = useState("qr") // 'qr' or 'nfc'
-  const videoRef = useRef(null)
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null)
+  const [scanHistory, setScanHistory] = useState<ScanResult[]>([])
+  const [scanMethod, setScanMethod] = useState<"qr" | "nfc">("qr")
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   const startScan = async () => {
     setIsScanning(true)
@@ -87,8 +99,8 @@ export default function ScanPage() {
 
       // Stop camera
       if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks()
-        tracks.forEach((track) => track.stop())
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+        tracks.forEach((track: MediaStreamTrack) => track.stop())
       }
     }, 3000)
   }
@@ -96,12 +108,12 @@ export default function ScanPage() {
   const stopScan = () => {
     setIsScanning(false)
     if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = videoRef.current.srcObject.getTracks()
-      tracks.forEach((track) => track.stop())
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+      tracks.forEach((track: MediaStreamTrack) => track.stop())
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "genuine":
         return "text-emerald-600 bg-emerald-50 border-emerald-200"
@@ -114,7 +126,7 @@ export default function ScanPage() {
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "genuine":
         return <CheckCircle className="w-5 h-5" />
@@ -137,26 +149,26 @@ export default function ScanPage() {
               href="/dashboard/organization"
               className="p-2 hover:bg-white rounded-lg transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
+              <ArrowLeft className="w-5 h-5 text-primary" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Medication Scanner</h1>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Medication Scanner</h1>
               <p className="text-slate-600">Verify medication authenticity instantly</p>
             </div>
           </div>
-          <Button variant="outline" className="cursor-pointer bg-transparent">
-            <History className="w-4 h-4 mr-2" />
+          <Button variant="outline" className="cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
+            <History className="w-4 h-4 mr-2 text-primary" />
             Scan History
           </Button>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Scanner Section */}
-          <Card className="border-0 shadow-xl">
+          <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="flex items-center justify-center space-x-2">
-                <QrCode className="w-6 h-6 text-cyan-600" />
-                <span>Scanner</span>
+              <CardTitle className="flex items-center justify-center space-x-2 text-lg font-bold">
+                <QrCode className="w-6 h-6 text-primary" />
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Scanner</span>
               </CardTitle>
 
               {/* Scan Method Toggle */}
@@ -165,18 +177,18 @@ export default function ScanPage() {
                   variant={scanMethod === "qr" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setScanMethod("qr")}
-                  className="cursor-pointer"
+                  className="cursor-pointer border-primary/20 hover:border-primary/40"
                 >
-                  <QrCode className="w-4 h-4 mr-2" />
+                  <QrCode className="w-4 h-4 mr-2 text-primary" />
                   QR Code
                 </Button>
                 <Button
                   variant={scanMethod === "nfc" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setScanMethod("nfc")}
-                  className="cursor-pointer"
+                  className="cursor-pointer border-primary/20 hover:border-primary/40"
                 >
-                  <Smartphone className="w-4 h-4 mr-2" />
+                  <Smartphone className="w-4 h-4 mr-2 text-primary" />
                   NFC
                 </Button>
               </div>
@@ -225,13 +237,13 @@ export default function ScanPage() {
                 {!isScanning ? (
                   <Button
                     onClick={startScan}
-                    className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-700 hover:to-emerald-700 cursor-pointer"
+                    className="px-8 py-3 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     <Camera className="w-5 h-5 mr-2" />
                     Start Scan
                   </Button>
                 ) : (
-                  <Button onClick={stopScan} variant="outline" className="px-8 py-3 cursor-pointer bg-transparent">
+                  <Button onClick={stopScan} variant="outline" className="px-8 py-3 cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
                     Stop Scan
                   </Button>
                 )}
@@ -242,10 +254,10 @@ export default function ScanPage() {
           {/* Results Section */}
           <div className="space-y-6">
             {scanResult && (
-              <Card className="border-0 shadow-xl">
+              <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Scan Result</span>
+                  <CardTitle className="flex items-center justify-between font-bold">
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Scan Result</span>
                     <Badge className={`${getStatusColor(scanResult.status)} border`}>
                       {getStatusIcon(scanResult.status)}
                       <span className="ml-2 capitalize">{scanResult.status}</span>
@@ -295,10 +307,10 @@ export default function ScanPage() {
 
                   {/* Blockchain Verification */}
                   {scanResult.blockchainHash && (
-                    <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                      <h4 className="font-medium text-slate-900">Blockchain Verification</h4>
+                    <div className="bg-gradient-to-r from-primary/5 to-accent/5 border-2 border-primary/10 rounded-lg p-4 space-y-2">
+                      <h4 className="font-bold text-slate-900">Blockchain Verification</h4>
                       <p className="text-xs font-mono text-slate-600 break-all">{scanResult.blockchainHash}</p>
-                      <div className="flex items-center space-x-2 text-sm text-emerald-600">
+                      <div className="flex items-center space-x-2 text-sm text-primary">
                         <CheckCircle className="w-4 h-4" />
                         <span>Verified on blockchain</span>
                       </div>
@@ -307,12 +319,12 @@ export default function ScanPage() {
 
                   {/* Action Buttons */}
                   <div className="flex space-x-3">
-                    <Button variant="outline" size="sm" className="cursor-pointer bg-transparent">
-                      <Download className="w-4 h-4 mr-2" />
+                    <Button variant="outline" size="sm" className="cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
+                      <Download className="w-4 h-4 mr-2 text-primary" />
                       Export
                     </Button>
-                    <Button variant="outline" size="sm" className="cursor-pointer bg-transparent">
-                      <Share2 className="w-4 h-4 mr-2" />
+                    <Button variant="outline" size="sm" className="cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
+                      <Share2 className="w-4 h-4 mr-2 text-primary" />
                       Share
                     </Button>
                   </div>
@@ -322,14 +334,14 @@ export default function ScanPage() {
 
             {/* Recent Scans */}
             {scanHistory.length > 0 && (
-              <Card className="border-0 shadow-xl">
+              <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
-                  <CardTitle>Recent Scans</CardTitle>
+                  <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recent Scans</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {scanHistory.slice(0, 5).map((scan, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    {scanHistory.slice(0, 5).map((scan: ScanResult, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10 rounded-lg hover:shadow-md transition-all duration-200">
                         <div className="flex items-center space-x-3">
                           {getStatusIcon(scan.status)}
                           <div>
@@ -337,7 +349,7 @@ export default function ScanPage() {
                             <p className="text-xs text-slate-600">{scan.batchId}</p>
                           </div>
                         </div>
-                        <Badge variant="outline" className={getStatusColor(scan.status)}>
+                        <Badge variant="outline" className={`${getStatusColor(scan.status)} border-primary/20`}>
                           {scan.status}
                         </Badge>
                       </div>

@@ -7,17 +7,17 @@ import { jsPDF } from 'jspdf';
 import { QrCode, Download, Check, Upload } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { toast } from 'react-toastify';
-import { MedicationBatch, MedicationUnit } from '@/utils';
+import { MedicationBatchProp, MedicationUnitProp } from '@/utils';
 
 const QRGenerationComponent = () => {
 
-    const [batches, setBatches] = useState<MedicationBatch[]>([]);
+    const [batches, setBatches] = useState<MedicationBatchProp[]>([]);
 
     const [selectedBatchId, setSelectedBatchId] = useState('');
 
-    const [selectedBatch, setSelectedBatch] = useState<MedicationBatch | null>(null);
+    const [selectedBatch, setSelectedBatch] = useState<MedicationBatchProp | null>(null);
 
-    const [units, setUnits] = useState<MedicationUnit[]>([]);
+    const [units, setUnits] = useState<MedicationUnitProp[]>([]);
 
     const [quantity, setQuantity] = useState(0);
 
@@ -37,7 +37,7 @@ const QRGenerationComponent = () => {
                 const res = await fetch('/api/batches', { cache: 'no-store' });
                 if (!res.ok) throw new Error('Failed to fetch batches');
                 const formattedResponse = await res.json();
-                const data: MedicationBatch[] = formattedResponse;
+                const data: MedicationBatchProp[] = formattedResponse;
                 setBatches(data);
             }
             catch (e) {
@@ -75,7 +75,7 @@ const QRGenerationComponent = () => {
             // Fetch the units for the selected batch
             const res = await fetch(`/api/batches/${selectedBatch.id}/units`, { cache: 'no-store' });
             if (!res.ok) throw new Error('Failed to fetch units');
-            const data: MedicationUnit[] = await res.json();
+            const data: MedicationUnitProp[] = await res.json();
             setUnits(data);
             setQuantity(data.length); // lock to actual unit count
             setGeneratedCodes(true);

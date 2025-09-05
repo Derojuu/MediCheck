@@ -82,20 +82,25 @@ export default function TeamMemberDashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b bg-card/50 backdrop-blur-sm">
+      <nav className="border-b bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
+              <div className="relative group cursor-pointer">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div className="relative bg-gradient-to-r from-primary to-accent p-2 rounded-xl">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MedChain</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Badge variant="secondary">
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                 <Building2 className="h-4 w-4 mr-2" />
                 {userProfile.organizationType}
               </Badge>
               <Link href="/auth/login">
-                <Button variant="outline">Sign Out</Button>
+                <Button variant="outline" className="bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60">Sign Out</Button>
               </Link>
             </div>
           </div>
@@ -105,8 +110,8 @@ export default function TeamMemberDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-montserrat font-bold text-3xl text-foreground">Team Member Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {userProfile.name}</p>
+          <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Team Member Dashboard</h1>
+          <p className="text-muted-foreground mt-2">Welcome back, {userProfile.name}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
