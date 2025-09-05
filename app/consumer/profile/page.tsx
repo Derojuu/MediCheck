@@ -97,21 +97,21 @@ export default function ConsumerProfile() {
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="font-montserrat font-bold text-xl text-foreground">MedChain</span>
+              <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MedChain</span>
             </Link>
             <div className="flex items-center space-x-4">
               <Link href={consumerRoutes.scan}>
-                <Button variant="outline" className="cursor-pointer">
-                  <Scan className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="border-primary/20 hover:border-primary/40 hover:bg-primary/5">
+                  <Scan className="h-4 w-4 mr-2 text-primary" />
                   Scan Medicine
                 </Button>
               </Link>
               <Button 
                 variant="ghost"
-                className="cursor-pointer"
+                className="cursor-pointer hover:bg-primary/5"
                 onClick={() => signOut({ redirectUrl: authRoutes.login })}
               >
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="h-4 w-4 mr-2 text-primary" />
                 Sign Out
               </Button>
             </div>
@@ -121,7 +121,7 @@ export default function ConsumerProfile() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="font-montserrat font-bold text-3xl text-foreground">My Profile</h1>
+          <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">My Profile</h1>
           <p className="text-muted-foreground">Manage your account and view your medication verification history</p>
         </div>
 
@@ -135,11 +135,11 @@ export default function ConsumerProfile() {
 
           <TabsContent value="profile" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2">
+              <Card className="lg:col-span-2 border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Profile Information
+                  <CardTitle className="flex items-center font-bold">
+                    <User className="h-5 w-5 mr-2 text-primary" />
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Profile Information</span>
                   </CardTitle>
                   <CardDescription>Update your personal information and preferences</CardDescription>
                 </CardHeader>
@@ -158,13 +158,13 @@ export default function ConsumerProfile() {
                     <Label htmlFor="language">Preferred Language</Label>
                     <Input id="language" value={userProfile.language} />
                   </div>
-                  <Button>Update Profile</Button>
+                  <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">Update Profile</Button>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
-                  <CardTitle>Account Statistics</CardTitle>
+                  <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Account Statistics</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-center">
@@ -186,7 +186,7 @@ export default function ConsumerProfile() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Verified Medicines:</span>
-                      <span className="font-medium text-green-600">13</span>
+                      <span className="font-medium text-primary">13</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Warnings:</span>

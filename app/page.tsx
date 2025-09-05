@@ -36,7 +36,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-serif font-bold text-2xl text-foreground">MedChain</span>
+                <span className="font-bold text-2xl text-foreground">MedChain</span>
                 <span className="text-xs text-muted-foreground font-mono">Blockchain Verified</span>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function HomePage() {
             Enterprise-Grade Blockchain Security
           </Badge>
 
-          <h1 className="font-serif font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-foreground mb-10 leading-[0.9]">
+          <h1 className="font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-foreground mb-10 leading-[0.9]">
             Verify Any Medicine
             <span className="text-gradient block mt-4 animate-fade-in-scale">Instantly & Securely</span>
           </h1>
@@ -176,7 +176,7 @@ export default function HomePage() {
               <Star className="h-4 w-4 mr-2" />
               Complete Enterprise Solution
             </Badge>
-            <h2 className="font-serif font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
+            <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
               Complete Medication
               <span className="text-gradient block mt-2">Traceability Ecosystem</span>
             </h2>
@@ -192,7 +192,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Building2 className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Manufacturers</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Manufacturers</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -207,7 +207,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Globe className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Distributors</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Distributors</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -222,7 +222,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Pill className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Pharmacies</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Pharmacies</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -237,7 +237,7 @@ export default function HomePage() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
                   <Users className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="font-serif font-bold text-2xl mb-4">Patients</CardTitle>
+                <CardTitle className="font-bold text-2xl mb-4">Patients</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed text-lg">
@@ -255,25 +255,25 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 1M+
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Medications Verified Daily</div>
             </div>
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 500+
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Enterprise Partners</div>
             </div>
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 99.9%
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Accuracy Guarantee</div>
             </div>
             <div className="group cursor-pointer">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 group-hover:text-gradient transition-all duration-500">
                 24/7
               </div>
               <div className="text-base sm:text-lg text-muted-foreground font-medium">Global Uptime</div>
@@ -294,7 +294,7 @@ export default function HomePage() {
               <div className="mx-auto w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center mb-12 shadow-2xl animate-pulse-glow">
                 <QrCode className="h-12 w-12 text-white" />
               </div>
-              <h2 className="font-serif font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
+              <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
                 Ready to Verify
                 <span className="text-gradient block mt-4">Your Medicine?</span>
               </h2>
@@ -329,7 +329,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-serif font-bold text-3xl text-foreground">MedChain</span>
+                <span className="font-bold text-3xl text-foreground">MedChain</span>
                 <span className="text-sm text-muted-foreground font-mono">Enterprise Blockchain Security</span>
               </div>
             </div>

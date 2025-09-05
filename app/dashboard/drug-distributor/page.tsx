@@ -80,11 +80,11 @@ export default function DrugDistributorDashboard() {
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="font-montserrat font-bold text-3xl text-foreground">Distributor Dashboard</h1>
-                  <p className="text-muted-foreground">Welcome to MedDistribute Nigeria Ltd - Wholesaler</p>
+                  <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Distributor Dashboard</h1>
+                  <p className="text-muted-foreground mt-2">Welcome to MedDistribute Nigeria Ltd - Wholesaler</p>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Badge variant="secondary" className="px-3 py-1">
+                  <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
                     <Building2 className="h-4 w-4 mr-2" />
                     Distributor
                   </Badge>
@@ -93,10 +93,10 @@ export default function DrugDistributorDashboard() {
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Active Shipments</CardTitle>
-                    <Truck className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Active Shipments</CardTitle>
+                    <Truck className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.activeShipments}</div>
@@ -106,48 +106,48 @@ export default function DrugDistributorDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Inventory Items</CardTitle>
-                    <Package className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Inventory Items</CardTitle>
+                    <Package className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.inventoryItems.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-primary">+8%</span> growth
+                      <span className="text-accent">+8%</span> growth
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Partner Facilities</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Partner Facilities</CardTitle>
+                    <Users className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.partnerFacilities}</div>
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-primary">+5</span> new partners
+                      <span className="text-accent">+5</span> new partners
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
+                    <Clock className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-orange-600">{stats.pendingOrders}</div>
+                    <div className="text-2xl font-bold text-primary">{stats.pendingOrders}</div>
                     <p className="text-xs text-muted-foreground">Awaiting processing</p>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Low Stock Alert */}
-              <Card className="border-red-200 bg-red-50">
+              <Card className="border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-red-800">
+                  <CardTitle className="flex items-center gap-2 text-red-800 font-bold">
                     <AlertTriangle className="w-5 h-5" />
                     Critical Stock Alerts
                   </CardTitle>
@@ -166,7 +166,7 @@ export default function DrugDistributorDashboard() {
                           </p>
                           <Badge variant="destructive">{item.status}</Badge>
                         </div>
-                        <Button size="sm" className="ml-2" onClick={() => alert(`Reordering ${item.reorderAmount} units of ${item.name}...`)}>
+                        <Button size="sm" className="ml-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg" onClick={() => alert(`Reordering ${item.reorderAmount} units of ${item.name}...`)}>
                           Reorder
                         </Button>
                       </div>
@@ -177,9 +177,9 @@ export default function DrugDistributorDashboard() {
 
               {/* Recent Activity */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
+                <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader>
-                    <CardTitle className="font-montserrat">Recent Shipments</CardTitle>
+                    <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recent Shipments</CardTitle>
                     <CardDescription>Latest distribution activities</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -213,19 +213,19 @@ export default function DrugDistributorDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader>
-                    <CardTitle className="font-montserrat">Quick Actions</CardTitle>
+                    <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Quick Actions</CardTitle>
                     <CardDescription>Common distribution tasks and shortcuts</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button className="w-full justify-start" onClick={handleTrackShipment}>
+                    <Button className="w-full justify-start bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg" onClick={handleTrackShipment}>
                       <Truck className="h-4 w-4 mr-2" />
                       Track Shipment
                     </Button>
                     <Button
                       variant="outline"
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5"
                       onClick={handleManageInventory}
                     >
                       <Package className="h-4 w-4 mr-2" />

@@ -120,11 +120,11 @@ export default function RegulatorDashboard() {
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="font-montserrat font-bold text-3xl text-foreground">Regulator Dashboard</h1>
-                  <p className="text-muted-foreground">NAFDAC - Drug Enforcement Division</p>
+                  <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Regulator Dashboard</h1>
+                  <p className="text-muted-foreground mt-2">NAFDAC - Drug Enforcement Division</p>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Badge variant="secondary" className="px-3 py-1">
+                  <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
                     <Building2 className="h-4 w-4 mr-2" />
                     Regulator
                   </Badge>
@@ -133,20 +133,20 @@ export default function RegulatorDashboard() {
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Active Investigations</CardTitle>
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Active Investigations</CardTitle>
+                    <Eye className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{stats.activeInvestigations}</div>
+                    <div className="text-2xl font-bold text-foreground">{stats.activeInvestigations}</div>
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-accent">+3</span> from last month
+                      <span className="text-accent font-medium">+3</span> from last month
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Compliance Checks</CardTitle>
                     <CheckCircle className="h-4 w-4 text-muted-foreground" />
@@ -159,7 +159,7 @@ export default function RegulatorDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
                     <Clock className="h-4 w-4 text-muted-foreground" />
