@@ -10,14 +10,14 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:seed:mockaroo": "tsx prisma/seed-mockaroo.ts",
     "db:studio": "prisma studio"
   },
   "prisma": {
-    "seed": "tsx prisma/seed-mockaroo.ts"
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.8",
+    "@hashgraphonline/standards-sdk": "^0.0.188",
     "@hookform/resolvers": "^3.10.0",
     "@prisma/client": "^6.15.0",
     "@prisma/extension-accelerate": "^2.0.2",
