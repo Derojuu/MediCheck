@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -18,17 +18,17 @@ import {
     XCircle,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { MedicationBatchProp } from "@/utils"
+import { dummyProducts } from "@/database"
+import { MedicationBatchInfoProps } from "@/utils"
 
-import { mockProducts } from "@/lib/manufacturer-data";
 
-const ManufacturerBatch = () => {
+const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; allBatches: MedicationBatchInfoProps[]; loadBatches: () => void }) => {
 
     const [isCreateBatchOpen, setIsCreateBatchOpen] = useState(false);
 
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [batches, setBatches] = useState<MedicationBatchProp[]>([])
+    const [batches, setBatches] = useState<MedicationBatchInfoProps[]>(allBatches);
 
     const [newBatch, setNewBatch] = useState({
         drugName: "",
@@ -37,27 +37,53 @@ const ManufacturerBatch = () => {
         manufacturingDate: "",
         expiryDate: "",
         storageInstructions: "",
-    })
+    });
 
-    const [products, setProducts] = useState(mockProducts)
+    const [products, setProducts] = useState(dummyProducts);
 
-    const [searchQuery, setSearchQuery] = useState("")
+    const [searchQuery, setSearchQuery] = useState("");
 
-    const [isTransferOpen, setIsTransferOpen] = useState(false)
+    const [isTransferOpen, setIsTransferOpen] = useState(false);
 
-    const [selectedBatch, setSelectedBatch] = useState<any>(null)
+    const [selectedBatch, setSelectedBatch] = useState<any>(null);
 
-    const [organizations, setOrganizations] = useState<any[]>([])
+    const [organizations, setOrganizations] = useState<any[]>([]);
 
-    const handleCreateBatch = async () => {
+    useEffect(() => {
+        setBatches(allBatches)
+    }, [allBatches])
 
+    const handleCreateBatch = async (e: React.FormEvent) => {
+        
+        e.preventDefault();
+        
         setIsLoading(true)
 
+        if (!orgId) return;
+
         try {
+
             if (!newBatch?.drugName || !newBatch?.batchSize || !newBatch.manufacturingDate || !newBatch.expiryDate) {
                 toast.info("Please fill in all required fields")
                 return
-            }
+            };
+
+            const res = await fetch("/api/batches", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...newBatch, organizationId: orgId }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error);
+
+            toast.success("Batch created successfully!");
+
+            setIsCreateBatchOpen(false);
+
+            loadBatches()
+
         }
         catch (error) {
             toast("Error creating batch. Please try again.")
@@ -80,52 +106,55 @@ const ManufacturerBatch = () => {
     })
 
     const getStatusColor = (status: string) => {
-    switch (status) {
-        case "READY_FOR_DISPATCH":
-        return "default"
-        case "MANUFACTURING":
-        return "secondary"
-        case "IN_TRANSIT":
-        return "outline"
-        case "DELIVERED":
-        return "default"
-        case "EXPIRED":
-        return "destructive"
-        default:
-        return "secondary"
-    }
+        // use enum value instead of hardcoding
+        switch (status) {
+            case "READY_FOR_DISPATCH":
+            return "default"
+            case "MANUFACTURING":
+            return "secondary"
+            case "IN_TRANSIT":
+            return "outline"
+            case "DELIVERED":
+            return "default"
+            case "EXPIRED":
+            return "destructive"
+            default:
+            return "secondary"
+        }
     }
 
     const getStatusIcon = (status: string) => {
-    switch (status) {
-        case "READY_FOR_DISPATCH":
-        case "DELIVERED":
-        return <CheckCircle className="h-4 w-4" />
-        case "MANUFACTURING":
-        case "IN_TRANSIT":
-        return <Clock className="h-4 w-4" />
-        case "EXPIRED":
-        return <XCircle className="h-4 w-4" />
-        default:
-        return <Clock className="h-4 w-4" />
-    }
+        // use enum value instead of hardcoding
+        switch (status) {
+            case "READY_FOR_DISPATCH":
+            case "DELIVERED":
+            return <CheckCircle className="h-4 w-4" />
+            case "MANUFACTURING":
+            case "IN_TRANSIT":
+            return <Clock className="h-4 w-4" />
+            case "EXPIRED":
+            return <XCircle className="h-4 w-4" />
+            default:
+            return <Clock className="h-4 w-4" />
+        }
     }
 
     const getStatusDisplay = (status: string) => {
-    switch (status) {
-        case "READY_FOR_DISPATCH":
-        return "Ready for Dispatch"
-        case "MANUFACTURING":
-        return "Manufacturing"
-        case "IN_TRANSIT":
-        return "In Transit"
-        case "DELIVERED":
-        return "Delivered"
-        case "EXPIRED":
-        return "Expired"
-        default:
-        return status
-    }
+        // use enum value instead of hardcoding
+        switch (status) {
+            case "READY_FOR_DISPATCH":
+            return "Ready for Dispatch"
+            case "MANUFACTURING":
+            return "Manufacturing"
+            case "IN_TRANSIT":
+            return "In Transit"
+            case "DELIVERED":
+            return "Delivered"
+            case "EXPIRED":
+            return "Expired"
+            default:
+            return status
+        }
     }
     
     return (
@@ -135,6 +164,7 @@ const ManufacturerBatch = () => {
                     <h1 className="font-montserrat font-bold text-3xl text-foreground">Batch Management</h1>
                     <p className="text-muted-foreground">Create, view, and manage product batches</p>
                 </div>
+                {/* create batch dialog */}
                 <Dialog open={isCreateBatchOpen} onOpenChange={setIsCreateBatchOpen}>
                     <DialogTrigger asChild>
                         <Button>
@@ -147,77 +177,79 @@ const ManufacturerBatch = () => {
                             <DialogTitle>Create New Batch</DialogTitle>
                             <DialogDescription>Create a new manufacturing batch</DialogDescription>
                         </DialogHeader>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="product">Product</Label>
-                                <Select
-                                    value={newBatch.drugName}
-                                    onValueChange={(value) => setNewBatch({ ...newBatch, drugName: value })}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select product" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {products.map((product) => (
-                                            <SelectItem key={product.name} value={product.name}>
-                                                {product.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                        <form onSubmit={handleCreateBatch} method="post">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="product">Product</Label>
+                                    <Select
+                                        value={newBatch.drugName}
+                                        onValueChange={(value) => setNewBatch({ ...newBatch, drugName: value })}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select product" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {products.map((product) => (
+                                                <SelectItem key={product.name} value={product.name}>
+                                                    {product.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="quantity">Batch Size</Label>
+                                    <Input
+                                        id="quantity"
+                                        type="number"
+                                        placeholder="Enter quantity"
+                                        value={newBatch.batchSize}
+                                        onChange={(e) => setNewBatch({ ...newBatch, batchSize: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="production-date">Production Date</Label>
+                                    <Input
+                                        id="production-date"
+                                        type="date"
+                                        value={newBatch.manufacturingDate}
+                                        onChange={(e) => setNewBatch({ ...newBatch, manufacturingDate: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="expiry-date">Expiry Date</Label>
+                                    <Input
+                                        id="expiry-date"
+                                        type="date"
+                                        value={newBatch.expiryDate}
+                                        onChange={(e) => setNewBatch({ ...newBatch, expiryDate: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-2 space-y-2">
+                                    <Label htmlFor="composition">Composition</Label>
+                                    <Textarea
+                                        id="composition"
+                                        placeholder="Enter composition details"
+                                        value={newBatch.composition}
+                                        onChange={(e) => setNewBatch({ ...newBatch, composition: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-span-2 space-y-2">
+                                    <Label htmlFor="notes">Storage Instructions</Label>
+                                    <Textarea
+                                        id="notes"
+                                        placeholder="Enter storage requirements"
+                                        value={newBatch.storageInstructions}
+                                        onChange={(e) => setNewBatch({ ...newBatch, storageInstructions: e.target.value })}
+                                    />
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="quantity">Batch Size</Label>
-                                <Input
-                                    id="quantity"
-                                    type="number"
-                                    placeholder="Enter quantity"
-                                    value={newBatch.batchSize}
-                                    onChange={(e) => setNewBatch({ ...newBatch, batchSize: e.target.value })}
-                                />
+                            <div className="flex justify-end space-x-2 mt-4">
+                                <Button variant="outline" onClick={() => setIsCreateBatchOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button>{isLoading ? "Creating..." : "Create Batch"}</Button>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="production-date">Production Date</Label>
-                                <Input
-                                    id="production-date"
-                                    type="date"
-                                    value={newBatch.manufacturingDate}
-                                    onChange={(e) => setNewBatch({ ...newBatch, manufacturingDate: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="expiry-date">Expiry Date</Label>
-                                <Input
-                                    id="expiry-date"
-                                    type="date"
-                                    value={newBatch.expiryDate}
-                                    onChange={(e) => setNewBatch({ ...newBatch, expiryDate: e.target.value })}
-                                />
-                            </div>
-                            <div className="col-span-2 space-y-2">
-                                <Label htmlFor="composition">Composition</Label>
-                                <Textarea
-                                    id="composition"
-                                    placeholder="Enter composition details"
-                                    value={newBatch.composition}
-                                    onChange={(e) => setNewBatch({ ...newBatch, composition: e.target.value })}
-                                />
-                            </div>
-                            <div className="col-span-2 space-y-2">
-                                <Label htmlFor="notes">Storage Instructions</Label>
-                                <Textarea
-                                    id="notes"
-                                    placeholder="Enter storage requirements"
-                                    value={newBatch.storageInstructions}
-                                    onChange={(e) => setNewBatch({ ...newBatch, storageInstructions: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                        <div className="flex justify-end space-x-2 mt-4">
-                            <Button variant="outline" onClick={() => setIsCreateBatchOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleCreateBatch}>Create Batch</Button>
-                        </div>
+                        </form>
                     </DialogContent>
                 </Dialog>
             </div>
@@ -260,8 +292,8 @@ const ManufacturerBatch = () => {
                                 <TableRow key={batch.batchId}>
                                     <TableCell className="font-medium">{batch.batchId}</TableCell>
                                     <TableCell>{batch.drugName}</TableCell>
-                                    <TableCell>{batch.manufacturingDate.toISOString().split('T')[0]}</TableCell>
-                                    <TableCell>{batch.expiryDate.toISOString().split('T')[0]}</TableCell>
+                                    <TableCell>{new Date(batch.manufacturingDate).toISOString().split("T")[0]}</TableCell>
+                                    <TableCell>{ new Date(batch.expiryDate).toISOString().split("T")[0] }</TableCell>
                                     <TableCell>{batch.batchSize.toLocaleString()}</TableCell>
                                     <TableCell>
                                         <Badge variant={getStatusColor(batch.status)} className="flex items-center gap-1">

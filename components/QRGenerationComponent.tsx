@@ -7,19 +7,20 @@ import { jsPDF } from 'jspdf';
 import { QrCode, Download, Check, Upload } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { toast } from 'react-toastify';
-import { MedicationBatchProp, MedicationUnitProp } from '@/utils';
+import { MedicationBatchInfoProps, MedicationUnitProp } from '@/utils';
 
-const QRGenerationComponent = () => {
 
-    const [batches, setBatches] = useState<MedicationBatchProp[]>([]);
+const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoProps[] }) => {
+
+    const [batches, setBatches] = useState<MedicationBatchInfoProps[]>(allBatches);
 
     const [selectedBatchId, setSelectedBatchId] = useState('');
 
-    const [selectedBatch, setSelectedBatch] = useState<MedicationBatchProp | null>(null);
+    const [selectedBatch, setSelectedBatch] = useState<MedicationBatchInfoProps | null>(null);
 
     const [units, setUnits] = useState<MedicationUnitProp[]>([]);
 
-    const [quantity, setQuantity] = useState(0);
+    const [quantity, setQuantity] = useState<number>(0);
 
     const [generatedCodes, setGeneratedCodes] = useState(false);
 
@@ -27,46 +28,13 @@ const QRGenerationComponent = () => {
 
     const [isGenerating, setIsGenerating] = useState(false);
 
-    const [loadingBatches, setLoadingBatches] = useState(false);
-
     useEffect(() => {
-
-        const getAllBatches = async () => {
-            try {
-                setLoadingBatches(true);
-                const res = await fetch('/api/batches', { cache: 'no-store' });
-                if (!res.ok) throw new Error('Failed to fetch batches');
-                const formattedResponse = await res.json();
-                const data: MedicationBatchProp[] = formattedResponse;
-                setBatches(data);
-            }
-            catch (e) {
-                toast.error(e instanceof Error ? e.message : String(e));
-            }
-            finally {
-                setLoadingBatches(false);
-            }
-        };
-
-        getAllBatches();
-
-    }, []);
+        console.log(selectedBatchId)
+        setQuantity(batches.find(b => b.id === selectedBatchId)?._count.medicationUnits || 0);
+        setSelectedBatch(batches.find(b => b.id === selectedBatchId) || null);
+    }, [selectedBatchId])
 
     // When dropdown changes, record the selected batch (but don't fetch units yet)
-
-    useEffect(() => {
-        const getAllUnitsUnderSelectedBatch = async () => {
-            const b = batches.find(batch => batch.id === selectedBatchId) || null;
-            setSelectedBatch(b);
-            const res = await fetch(`/api/batches/${selectedBatchId}/units`, { cache: 'no-store' });
-            if (!res.ok) throw new Error('Failed to fetch batches');
-            const formattedUnitsResponse = await res.json();
-            // 
-            setQuantity(formattedUnitsResponse.length)
-        };
-
-        getAllUnitsUnderSelectedBatch();
-    }, [selectedBatchId]);
 
     const handleGenerate = async () => {
         if (!selectedBatch) return;
@@ -77,7 +45,6 @@ const QRGenerationComponent = () => {
             if (!res.ok) throw new Error('Failed to fetch units');
             const data: MedicationUnitProp[] = await res.json();
             setUnits(data);
-            setQuantity(data.length); // lock to actual unit count
             setGeneratedCodes(true);
             setShowSuccessMessage(true);
             setTimeout(() => setShowSuccessMessage(false), 2500);
@@ -195,7 +162,11 @@ const QRGenerationComponent = () => {
 
             <div className="p-6">
                 {showSuccessMessage && (
-                    <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded flex items-center">
+                    <div
+                        className={`
+                            mb-6 bg-green-50 border border-green-200text-green-700 px-4 py-3 rounded flex items-center`
+                        }
+                    >
                         <Check size={20} className="mr-2" />
                         QR codes loaded from batch successfully!
                     </div>
@@ -212,9 +183,8 @@ const QRGenerationComponent = () => {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-md"
                                     value={selectedBatchId}
                                     onChange={e => setSelectedBatchId(e.target.value)}
-                                    disabled={loadingBatches}
                                 >
-                                    <option value="">{loadingBatches ? 'Loading…' : 'Select a batch'}</option>
+                                    <option value="">Select a batch</option>
                                     {batches.map(b => (
                                         <option key={b.id} value={b.id}>
                                             {b.drugName} — {b.batchId.slice(0, 8)}…
@@ -243,7 +213,11 @@ const QRGenerationComponent = () => {
                                     onClick={handleGenerate}
                                     disabled={!selectedBatchId || isGenerating}
                                     className={`w-full px-4 py-2 rounded-md font-medium flex items-center justify-center
-                    ${!selectedBatchId || isGenerating ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                                        ${!selectedBatchId || isGenerating ?
+                                            'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                            :
+                                            'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`
+                                        }
                                 >
                                     {isGenerating ? (
                                         <>
@@ -268,7 +242,7 @@ const QRGenerationComponent = () => {
                         {!generatedCodes ? (
                             <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 flex flex-col items-center justify-center text-gray-500">
                                 <QrCode size={48} strokeWidth={1} />
-                                <p className="mt-4">Select a batch and click “Generate Codes”.</p>
+                                <p className="mt-4 text-center">Select a batch and click “Generate Codes”.</p>
                             </div>
                         ) : (
                             <div>
@@ -304,14 +278,18 @@ const QRGenerationComponent = () => {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-3 gap-4 overflow-y-auto h-[50vh]">
+                                        <div className="grid grid-cols-3 gap-4 overflow-y-auto h-[50vh] items-start">
                                             {units.map((u, idx) => (
-                                                <div key={u.id} className="flex flex-col items-center p-2 border rounded bg-white">
+                                                <div
+                                                    key={u.id}
+                                                    className="flex flex-col items-center text-center p-2 border rounded bg-white"
+                                                >
                                                     <QRCode value={u.serialNumber} size={80} />
                                                     <p className="text-xs text-gray-500 mt-1">Unit {idx + 1}</p>
                                                 </div>
                                             ))}
                                         </div>
+
                                     </div>
                                 </div>
                             </div>

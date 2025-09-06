@@ -44,7 +44,7 @@ export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSid
   ]
 
   return (
-    <div className="w-64 bg-sidebar border-r border-sidebar-border">
+    <div className="w-64 bg-sidebar relative border-r border-sidebar-border">
       <div className="p-6">
         <Link href="/" className="flex items-center space-x-2">
           <Shield className="h-8 w-8 text-sidebar-primary" />
@@ -68,7 +68,7 @@ export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSid
         </div>
       </div>
 
-      <nav className="px-4 space-y-1">
+      <nav className="px-4 space-y-1 overflow-y-auto h-[50vh]">
         {menuItems.map((item) => {
           const Icon = item.icon
           return (

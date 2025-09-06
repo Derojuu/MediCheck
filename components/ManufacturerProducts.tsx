@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 import { ProductProps } from "@/utils";
-import { mockProducts } from "@/lib/manufacturer-data"
+// import { mockProducts } from "@/lib/manufacturer-data"
+import { dummyProducts } from "@/database";
 
 const ManufacturerProducts = () => {
 
-    const [products, setProducts] = useState<ProductProps[]>(mockProducts)
+    const [products, setProducts] = useState<ProductProps[]>(dummyProducts)
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -23,7 +25,7 @@ const ManufacturerProducts = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockProducts.map((product, index) => (
+                {products.map((product, index) => (
                     <Card key={index}>
                         <CardHeader>
                             <CardTitle className="text-lg">{product.name}</CardTitle>
