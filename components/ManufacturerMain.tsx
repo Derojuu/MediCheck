@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -22,7 +22,7 @@ const ManufacturerMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React
         recentTransfers: 0,
     })
 
-    const [recentTransfers, setRecentTransfers] = useState(dummyTransfers)
+    const [recentTransfers, setRecentTransfers] = useState(dummyTransfers);
 
     return (
         <div className="space-y-8">

@@ -14,18 +14,18 @@ export async function POST(req: Request) {
         console.log("Received data:", data);
 
         const {
-        clerkUserId,
-        accountType,
-        organizationType,
-        companyName,
-        contactEmail,
-        contactPhone,
-        address,
-        country,
-        state,
-        contactPersonName,
-        fullName,
-        dateOfBirth,
+            clerkUserId,
+            accountType,
+            organizationType,
+            companyName,
+            contactEmail,
+            contactPhone,
+            address,
+            country,
+            state,
+            contactPersonName,
+            fullName,
+            dateOfBirth,
         } = data;
 
         const clerk = await clerkClient();

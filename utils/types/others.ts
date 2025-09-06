@@ -1,3 +1,5 @@
+
+import { MedicationBatchProp } from "./schemType"
 export interface ProductProps {
   name: string
   description: string
@@ -34,4 +36,10 @@ export interface ProductProps {
   nafdacNumber: string;
   shelfLifeMonths: number;
   storageConditions: string;
+}
+
+export interface MedicationBatchInfoProps extends MedicationBatchProp {
+  _count: {
+    medicationUnits: number;
+  };
 }

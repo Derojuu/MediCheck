@@ -1,15 +1,15 @@
-// /app/api/batches/id/units/route.ts
+// /app/api/batches/[orgId]/units/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 interface Params {
-  params: { id: string };
+  params: { orgId: string };
 }
 
 export async function GET(req: Request, { params }: Params) {
   try {
     const units = await prisma.medicationUnit.findMany({
-      where: { batchId: params.id },
+      where: { batchId: params.orgId },
       orderBy: { createdAt: "asc" },
     });
 

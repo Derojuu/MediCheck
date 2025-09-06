@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 // components import 
 import { ManufacturerSidebar } from "@/components/manufacturer-sidebar";
 import { TeamManagement } from "@/components/team-management";
@@ -13,11 +13,79 @@ import ManufacturerBatch from "@/components/ManufacturerBatch";
 import ManufacturerTransfers from "@/components/ManufacturerTransfers";
 import ManufacturerMain from "@/components/ManufacturerMain"
 // 
-import { ManufacturerTab } from "@/utils"
+import { ManufacturerTab } from "@/utils";
+import { toast } from "react-toastify";
+import { MedicationBatchInfoProps } from "@/utils";
 
 export default function ManufacturerDashboard() {
 
-  const [activeTab, setActiveTab] = useState<ManufacturerTab>("dashboard")
+  const [activeTab, setActiveTab] = useState<ManufacturerTab>("dashboard");
+
+  const [orgId, setOrgId] = useState("");
+
+  const [batches, setBatches] = useState <MedicationBatchInfoProps[]>([]);
+
+  const [orgLoading, setOrgLoading] = useState(true);
+
+  const [batchesLoading, setBatchesLoading] = useState(false);
+
+  // 1️⃣ Fetch orgId
+  useEffect(() => {
+
+    const loadOrg = async () => {
+
+      setOrgLoading(true);
+      try {
+        const res = await fetch("/api/organizations/me");
+        const data = await res.json();
+        setOrgId(data.organizationId);
+      }
+      catch (err) {
+        toast.error(`Failed to fetch org: ${err instanceof Error ? err.message : String(err)}`);
+      }
+      finally {
+        setOrgLoading(false);
+      }
+    };
+
+    loadOrg();
+
+  }, []);
+
+  const loadBatches = async () => {
+
+    setBatchesLoading(true);
+    try {
+      const res = await fetch(`/api/batches/${orgId}`);
+      const data = await res.json();
+      setBatches(data);
+      toast.success("Fetched batches");
+    }
+    catch (err) {
+      toast.error(`Failed to fetch batches: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    finally {
+      setBatchesLoading(false);
+    }
+  };
+
+  // 2️⃣ Fetch batches when orgId is ready
+  useEffect(() => {
+
+    if (!orgId) return;
+
+    loadBatches();
+
+  }, [orgId]);
+
+  // 3️⃣ Guard rendering while loading
+  if (orgLoading || batchesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600 animate-pulse">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -33,7 +101,7 @@ export default function ManufacturerDashboard() {
           )}
 
           {activeTab === "batches" && (
-            <ManufacturerBatch />
+            <ManufacturerBatch orgId={orgId} allBatches={batches} loadBatches={loadBatches} />
           )}
 
           {activeTab === "products" && (
@@ -53,7 +121,7 @@ export default function ManufacturerDashboard() {
           )}
 
           {activeTab === "qr-generator" && (
-            <QRGenerationComponent />
+            <QRGenerationComponent allBatches={batches} />
           )}
 
           {activeTab === "team" && (
@@ -72,6 +140,7 @@ export default function ManufacturerDashboard() {
           )}
         </div>
       </main>
+
     </div>
   )
 }

@@ -21,4 +21,3 @@ export const orgnaizationRoutes: Record<string, string> = {
   pharmacy: "/dashboard/pharmacy",
   regulator: "/dashboard/regulator",
 };
-
