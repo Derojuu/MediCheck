@@ -186,8 +186,8 @@ export async function validateTransfer(
       errors.push("Cannot transfer expired batch");
     }
 
-    // Validate quantity
-    const availableUnits = batch.medicationUnits?.length || batch.batchSize;
+    // Validate quantity - safely access medicationUnits
+    const availableUnits = (batch as any).medicationUnits?.length || batch.batchSize;
     if (quantity && quantity > availableUnits) {
       errors.push(`Insufficient units. Available: ${availableUnits}, Requested: ${quantity}`);
     }

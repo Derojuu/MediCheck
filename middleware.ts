@@ -23,10 +23,10 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next();
   }
 
-  // ✅ If user is NOT signed in, redirect to login
-  if (!userId) {
-    return NextResponse.redirect(new URL(authRoutes.login, req.url));
-  }
+  // // ✅ If user is NOT signed in, redirect to login
+  // if (!userId) {
+  //   return NextResponse.redirect(new URL(authRoutes.login, req.url));
+  // }
 
   // ✅ Extract user role & organization type from metadata
   type PublicMetadata = {
