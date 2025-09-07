@@ -9,6 +9,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+  experimental: {
+    serverExternalPackages: ["@hashgraph/sdk", "@hashgraph/hedera-agent-kit"],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push("@hashgraph/sdk", "@hashgraph/hedera-agent-kit");
+    }
+    return config;
+  },
+};
 
-export default nextConfig
+export default nextConfig;

@@ -168,8 +168,7 @@ export interface MedicationUnitProp {
   currentLocation?: string | null;
   status: UnitStatusEnum;
   blockchainHash?: string | null;
-  registryTopicId?: string;  
-  registrySeq?: number;    
+  registrySequence?: number;    
   currentOwner: string  
   createdAt: Date;
   updatedAt: Date;

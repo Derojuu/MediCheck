@@ -136,8 +136,7 @@ model MedicationUnit {
   blockchainHash  String?                        // Optional for blockchain verification
   createdAt       DateTime    @default(now())    // Auto set on creation
   // ✅ On-chain footprint for this specific unit
-  registryTopicId String?  // same as batch’s registryTopicId (redundant but helps queries)
-  registrySeq     Int?     // sequence number of the unit’s registration on-chain
+  registrySequence     Int?     // sequence number of the unit’s registration on-chain
   updatedAt       DateTime    @updatedAt         // Auto updated on changes
   currentOwner    String      @default("system")    // Hedera account ID of owner
 
