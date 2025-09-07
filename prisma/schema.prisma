@@ -111,6 +111,9 @@ model MedicationBatch {
   status              BatchStatus         @default(MANUFACTURING)
   qrCodeData          String?
   blockchainHash      String?
+  // ✅ Hedera registry for this batch
+  registryTopicId     String?          // HCS topic ID where all units are registered
+
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
@@ -132,7 +135,10 @@ model MedicationUnit {
   status          UnitStatus  @default(IN_STOCK) // Enum for tracking unit state
   blockchainHash  String?                        // Optional for blockchain verification
   createdAt       DateTime    @default(now())    // Auto set on creation
+  // ✅ On-chain footprint for this specific unit
+  registrySequence     Int?     // sequence number of the unit’s registration on-chain
   updatedAt       DateTime    @updatedAt         // Auto updated on changes
+  currentOwner    String      @default("system")    // Hedera account ID of owner
 
   // Relation back to MedicationBatch
   batch           MedicationBatch @relation(fields: [batchId], references: [id])

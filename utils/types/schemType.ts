@@ -147,6 +147,7 @@ export interface MedicationBatchProp {
   status: BatchStatusEnum;
   qrCodeData?: string | null;
   blockchainHash?: string | null;
+  registryTopicId?: string;  
   createdAt: Date;
   updatedAt: Date;
   transportTracking?: {
@@ -167,6 +168,8 @@ export interface MedicationUnitProp {
   currentLocation?: string | null;
   status: UnitStatusEnum;
   blockchainHash?: string | null;
+  registrySequence?: number;    
+  currentOwner: string  
   createdAt: Date;
   updatedAt: Date;
 }
