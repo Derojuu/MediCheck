@@ -1,3 +1,4 @@
+// /lib/qrPayload.ts
 import crypto from "crypto";
 
 interface QRPayload {

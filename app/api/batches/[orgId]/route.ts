@@ -3,11 +3,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { orgId: string } }
+  _request: Request,
+  { params }: { params: Promise<{ orgId: string }> } // <- note Promise
 ) {
   try {
-    const { orgId } = params;
+    
+    const { orgId } = await params; // ✅ must await
 
     const org = await prisma.organization.findUnique({
       where: { id: orgId },

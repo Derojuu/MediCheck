@@ -2,9 +2,9 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Playfair_Display, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { ClerkProvider } from '@clerk/nextjs';
-import { ToastContainer } from 'react-toastify';
+import { ThemeProvider } from "@/components/theme-provider";
+import { ClerkWrapper } from "@/components/ClerkWrapper";
+import { ToastWrapper } from "@/components/ToastWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,20 +34,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable} antialiased`}>
-      <body>
-        
+    <html lang="en" suppressHydrationWarning>
+      <body className="..." suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <ToastContainer />
-          <ClerkProvider>
+          <ClerkWrapper>
+            <ToastWrapper />
             {children}
-          </ClerkProvider>
+          </ClerkWrapper>
         </ThemeProvider>
       </body>
     </html>
+
   )
 }
