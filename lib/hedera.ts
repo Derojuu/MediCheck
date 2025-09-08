@@ -2,7 +2,7 @@
 
 'use server'; // force server-only execution
 
-// import { HCS2Client, HCS2RegistryType } from "@hashgraphonline/standards-sdk";
+import { HCS2Client, HCS2RegistryType } from "@hashgraphonline/standards-sdk";
 
 // Temporarily disabled Hedera integration - package not installed
 // Uncomment after installing: npm install @hashgraphonline/standards-sdk

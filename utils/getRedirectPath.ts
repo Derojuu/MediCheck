@@ -1,13 +1,16 @@
 import { orgnaizationRoutes, consumerRoutes, publicRoutes } from "@/utils";
 
 export function getRedirectPath(role?: string, orgType?: string) {
-    if (role === "CONSUMER") {
+
+    console.log(role, orgType);
+
+    if (role === "CONSUMER" && !orgType) {
         return consumerRoutes.profile;
     }
 
-    if (role === "ORGANIZATION_MEMBER") {
+    else if (role === "ORGANIZATION_MEMBER" && orgType){
         const lowerOrgType = orgType?.toLowerCase();
-        return orgnaizationRoutes[lowerOrgType || "organization"] || publicRoutes.unauthorized;
+        return orgnaizationRoutes[lowerOrgType];
     }
 
     return publicRoutes.unauthorized; 

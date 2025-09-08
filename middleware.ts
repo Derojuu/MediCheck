@@ -4,9 +4,7 @@ import { authRoutes, publicRoutes, orgnaizationRoutes } from "./utils";
 import { UserRole } from "./lib/generated/prisma";
 
 export default clerkMiddleware(async (auth, req) => {
-
   const { userId, sessionClaims } = await auth();
-  
   const pathname = req.nextUrl.pathname;
 
   // ✅ Public pages that do NOT require authentication
@@ -19,14 +17,14 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // ✅ Allow home page ("/") ONLY if user is not logged in
-  if (pathname === publicRoutes.home) {
+  if (pathname === publicRoutes.home && !userId) {
     return NextResponse.next();
   }
 
-  // // ✅ If user is NOT signed in, redirect to login
-  // if (!userId) {
-  //   return NextResponse.redirect(new URL(authRoutes.login, req.url));
-  // }
+  // ✅ If user is NOT signed in, redirect to login (for protected routes)
+  if (!userId) {
+    return NextResponse.redirect(new URL(authRoutes.login, req.url));
+  }
 
   // ✅ Extract user role & organization type from metadata
   type PublicMetadata = {
@@ -34,12 +32,15 @@ export default clerkMiddleware(async (auth, req) => {
     organizationType?: string;
     [key: string]: unknown;
   };
-  
+
   const publicMetadata = sessionClaims?.publicMetadata as
     | PublicMetadata
     | undefined;
   const role = publicMetadata?.role;
   const orgType = publicMetadata?.organizationType;
+
+  console.log("User Role:", role);  
+  console.log("Organization Type:", orgType);
 
   // ✅ Consumer routes → only for consumers
   if (pathname.startsWith("/consumer") && role !== UserRole.CONSUMER) {
@@ -48,7 +49,6 @@ export default clerkMiddleware(async (auth, req) => {
 
   // ✅ Organization routes → only for organization members
   if (pathname.startsWith("/dashboard")) {
-
     if (role !== UserRole.ORGANIZATION_MEMBER) {
       return NextResponse.redirect(new URL(publicRoutes.unauthorized, req.url));
     }
