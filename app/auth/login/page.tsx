@@ -44,6 +44,7 @@ export default function LoginPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
+        toast.success("Successfully signed in!");
       }
 
     }
