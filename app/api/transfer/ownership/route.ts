@@ -24,6 +24,31 @@ export async function POST(req: Request) {
       );
     }
 
+    // Verify batch exists
+    const batch = await prisma.medicationBatch.findUnique({
+      where: { batchId }
+    });
+
+    if (!batch) {
+      return NextResponse.json(
+        { error: "Batch not found" },
+        { status: 404 }
+      );
+    }
+
+    // Verify organizations exist
+    const [fromOrg, toOrg] = await Promise.all([
+      prisma.organization.findUnique({ where: { id: fromOrgId } }),
+      prisma.organization.findUnique({ where: { id: toOrgId } })
+    ]);
+
+    if (!fromOrg || !toOrg) {
+      return NextResponse.json(
+        { error: "One or both organizations not found" },
+        { status: 404 }
+      );
+    }
+
     // Create transfer ownership record - simple insertion into OwnershipTransfer table
     const transfer = await prisma.ownershipTransfer.create({
       data: {
@@ -86,19 +111,23 @@ export async function GET(req: Request) {
           select: {
             batchId: true,
             drugName: true,
-            batchSize: true
+            batchSize: true,
+            manufacturingDate: true,
+            expiryDate: true
           }
         },
         fromOrg: {
           select: {
             companyName: true,
-            organizationType: true
+            organizationType: true,
+            contactEmail: true
           }
         },
         toOrg: {
           select: {
             companyName: true,
-            organizationType: true
+            organizationType: true,
+            contactEmail: true
           }
         }
       },
@@ -120,6 +149,7 @@ export async function GET(req: Request) {
       // Direction from logged-in organization perspective
       direction: transfer.fromOrgId === organizationId ? 'OUTGOING' : 'INCOMING',
       requiresApproval: transfer.status === 'PENDING',
+      canApprove: transfer.toOrgId === organizationId && transfer.status === 'PENDING',
       
       // Include related data
       batch: transfer.batch,

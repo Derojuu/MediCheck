@@ -38,8 +38,13 @@ export default clerkMiddleware(async (auth, req) => {
   const publicMetadata = sessionClaims?.publicMetadata as
     | PublicMetadata
     | undefined;
+  
   const role = publicMetadata?.role;
   const orgType = publicMetadata?.organizationType;
+
+  // 🐛 DEBUG: Log role and organization type
+  console.log("🎭 Role from metadata:", role);
+  console.log("🏢 Organization type from metadata:", orgType);
 
   // ✅ Consumer routes → only for consumers
   if (pathname.startsWith("/consumer") && role !== UserRole.CONSUMER) {
@@ -48,7 +53,6 @@ export default clerkMiddleware(async (auth, req) => {
 
   // ✅ Organization routes → only for organization members
   if (pathname.startsWith("/dashboard")) {
-
     if (role !== UserRole.ORGANIZATION_MEMBER) {
       return NextResponse.redirect(new URL(publicRoutes.unauthorized, req.url));
     }

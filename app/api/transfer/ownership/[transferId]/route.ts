@@ -30,11 +30,11 @@ export async function PUT(
       );
     }
 
-    // Validate status values
-    const validStatuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED'];
-    if (!validStatuses.includes(status)) {
+    // Validate status values - using enum values from Prisma
+    const validStatuses = Object.values(TransferStatus);
+    if (!validStatuses.includes(status as TransferStatus)) {
       return NextResponse.json(
-        { error: "Invalid status. Must be one of: " + validStatuses.join(', ') },
+        { error: `Invalid status. Valid values: ${validStatuses.join(', ')}` },
         { status: 400 }
       );
     }
@@ -59,12 +59,16 @@ export async function PUT(
       );
     }
 
+    const previousStatus = transfer.status;
+
     // Update transfer status in OwnershipTransfer table
     const updatedTransfer = await prisma.ownershipTransfer.update({
       where: { id: transferId },
       data: {
         status: status as TransferStatus,
-        notes: notes || transfer.notes
+        notes: notes || transfer.notes,
+        // Set transferDate when status becomes COMPLETED
+        transferDate: status === TransferStatus.COMPLETED ? new Date() : transfer.transferDate
       }
     });
 
@@ -72,7 +76,7 @@ export async function PUT(
       success: true,
       message: "Transfer status updated successfully",
       transferId: updatedTransfer.id,
-      previousStatus: transfer.status,
+      previousStatus,
       newStatus: updatedTransfer.status
     }, { status: 200 });
 
@@ -130,7 +134,20 @@ export async function GET(
     }
 
     return NextResponse.json({
-      transfer
+      transfer: {
+        id: transfer.id,
+        batchId: transfer.batchId,
+        fromOrgId: transfer.fromOrgId,
+        toOrgId: transfer.toOrgId,
+        status: transfer.status,
+        notes: transfer.notes,
+        transferDate: transfer.transferDate,
+        createdAt: transfer.createdAt,
+        updatedAt: transfer.updatedAt,
+        batch: transfer.batch,
+        fromOrg: transfer.fromOrg,
+        toOrg: transfer.toOrg
+      }
     }, { status: 200 });
 
   } catch (error) {
