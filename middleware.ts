@@ -4,9 +4,7 @@ import { authRoutes, publicRoutes, orgnaizationRoutes } from "./utils";
 import { UserRole } from "./lib/generated/prisma";
 
 export default clerkMiddleware(async (auth, req) => {
-
   const { userId, sessionClaims } = await auth();
-  
   const pathname = req.nextUrl.pathname;
 
   // ✅ Public pages that do NOT require authentication
@@ -19,14 +17,14 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // ✅ Allow home page ("/") ONLY if user is not logged in
-  if (pathname === publicRoutes.home) {
+  if (pathname === publicRoutes.home && !userId) {
     return NextResponse.next();
   }
 
-  // // ✅ If user is NOT signed in, redirect to login
-  // if (!userId) {
-  //   return NextResponse.redirect(new URL(authRoutes.login, req.url));
-  // }
+  // ✅ If user is NOT signed in, redirect to login (for protected routes)
+  if (!userId) {
+    return NextResponse.redirect(new URL(authRoutes.login, req.url));
+  }
 
   // ✅ Extract user role & organization type from metadata
   type PublicMetadata = {
@@ -34,7 +32,7 @@ export default clerkMiddleware(async (auth, req) => {
     organizationType?: string;
     [key: string]: unknown;
   };
-  
+
   const publicMetadata = sessionClaims?.publicMetadata as
     | PublicMetadata
     | undefined;
@@ -45,6 +43,24 @@ export default clerkMiddleware(async (auth, req) => {
   // 🐛 DEBUG: Log role and organization type
   console.log("🎭 Role from metadata:", role);
   console.log("🏢 Organization type from metadata:", orgType);
+
+  let role = publicMetadata?.role;
+  let orgType = publicMetadata?.organizationType;
+
+  // Fallback to cookie if metadata is missing
+  if (!role || !orgType) {
+    const cookie = req.cookies.get("user_fallback");
+    if (cookie) {
+      try {
+        const { role: cRole, organizationType: cOrg } = JSON.parse(
+          cookie.value
+        );
+        console.log(role || cRole, orgType || cOrg);
+        role = role || cRole;
+        orgType = orgType || cOrg;
+      } catch {}
+    }
+  }
 
   // ✅ Consumer routes → only for consumers
   if (pathname.startsWith("/consumer") && role !== UserRole.CONSUMER) {
