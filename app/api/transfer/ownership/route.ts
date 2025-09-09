@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     // Create transfer ownership record - simple insertion into OwnershipTransfer table
     const transfer = await prisma.ownershipTransfer.create({
       data: {
-        batchId,
+        batchId: batch.id, // Use the database ID, not the batchId string
         fromOrgId,
         toOrgId,
         status: TransferStatus.PENDING,

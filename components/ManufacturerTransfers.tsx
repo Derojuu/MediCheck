@@ -12,6 +12,40 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { Plus, ArrowUpRight, ArrowDownLeft, RefreshCw } from "lucide-react";
 
+// Mock organization data for destination dropdown
+const mockOrganizations = [
+  {
+    id: "org-001",
+    companyName: "MedCorp Distributors",
+    organizationType: "DRUG_DISTRIBUTOR"
+  },
+  {
+    id: "org-002", 
+    companyName: "City General Hospital",
+    organizationType: "HOSPITAL"
+  },
+  {
+    id: "org-003",
+    companyName: "QuickCare Pharmacy",
+    organizationType: "PHARMACY"
+  },
+  {
+    id: "org-004",
+    companyName: "HealthLink Distributors", 
+    organizationType: "DRUG_DISTRIBUTOR"
+  },
+  {
+    id: "org-005",
+    companyName: "Metro Medical Center",
+    organizationType: "HOSPITAL"
+  },
+  {
+    id: "org-006",
+    companyName: "WellCare Pharmacy Chain",
+    organizationType: "PHARMACY"
+  }
+];
+
 interface Transfer {
   id: string;
   batchId: string;
@@ -58,12 +92,23 @@ interface Batch {
 
 interface ManufacturerTransfersProps {
   orgId?: string;
-  allBatches?: Batch[];
+  allBatches?: {
+    id: string;
+    batchId: string;
+    drugName: string;
+    batchSize: number;
+    manufacturingDate: Date;
+    expiryDate: Date;
+    status: string;
+    _count: {
+      medicationUnits: number;
+    };
+  }[];
 }
 
 const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps) => {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>(mockOrganizations);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [updating, setUpdating] = useState("");
@@ -76,6 +121,14 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
     toOrgId: "",
     notes: ""
   });
+
+  // Transform allBatches to the expected format
+  const availableBatches = allBatches?.map(batch => ({
+    id: batch.id,
+    batchId: batch.batchId,
+    drugName: batch.drugName,
+    batchSize: batch.batchSize
+  })).filter(batch => batch.batchId && batch.drugName) || [];
 
   // Fetch current organization ID if not provided
   useEffect(() => {
@@ -100,8 +153,9 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
     if (currentOrgId) {
       console.log("Current org ID:", currentOrgId);
       console.log("All batches:", allBatches);
+      console.log("Available batches:", availableBatches);
+      console.log("Mock organizations loaded:", mockOrganizations);
       loadTransfers();
-      loadOrganizations();
     }
   }, [currentOrgId, allBatches]);
 
@@ -126,21 +180,26 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
     }
   };
 
-  const loadOrganizations = async () => {
-    try {
-      console.log("Loading organizations...");
-      const res = await fetch("/api/organizations");
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Organizations loaded:", data.organizations);
-        setOrganizations(data.organizations || []);
-      } else {
-        console.error("Failed to load organizations:", res.status);
-      }
-    } catch (error) {
-      console.error("Failed to load organizations:", error);
-    }
-  };
+  // Load organizations function (commented out - using mock data)
+  // const loadOrganizations = async () => {
+  //   try {
+  //     console.log("Loading organizations...");
+  //     const res = await fetch("/api/organizations");
+  //     const data = await res.json();
+  //     console.log("Organizations API response:", data);
+      
+  //     if (res.ok) {
+  //       console.log("Organizations loaded successfully:", data.organizations);
+  //       setOrganizations(data.organizations || []);
+  //     } else {
+  //       console.error("Failed to load organizations:", res.status, data);
+  //       toast.error("Failed to load organizations");
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to load organizations:", error);
+  //     toast.error("Failed to load organizations");
+  //   }
+  // };
 
   const createTransfer = async () => {
     if (!newTransfer.batchId || !newTransfer.toOrgId) {
@@ -247,16 +306,16 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
         </div>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button disabled={!currentOrgId}>
+            <Button disabled={!currentOrgId || !availableBatches.length}>
               <Plus className="h-4 w-4 mr-2" />
               Create Transfer
-              {(!allBatches || allBatches.length === 0) && " (No batches)"}
+              {!availableBatches.length && " (No batches)"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Transfer</DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-wrap">
                 Transfer batch ownership to another organization
               </DialogDescription>
             </DialogHeader>
@@ -267,12 +326,12 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                   value={newTransfer.batchId} 
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, batchId: value }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a batch" />
                   </SelectTrigger>
                   <SelectContent>
-                    {allBatches && allBatches.length > 0 ? (
-                      allBatches.map((batch) => (
+                    {availableBatches && availableBatches.length > 0 ? (
+                      availableBatches.map((batch) => (
                         <SelectItem key={batch.batchId} value={batch.batchId}>
                           {batch.batchId} - {batch.drugName} ({batch.batchSize} units)
                         </SelectItem>
@@ -284,8 +343,8 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                     )}
                   </SelectContent>
                 </Select>
-                {(!allBatches || allBatches.length === 0) && (
-                  <p className="text-sm text-muted-foreground">No batches available for transfer</p>
+                {!availableBatches.length && (
+                  <p className="text-sm text-muted-foreground text-wrap">No batches available for transfer</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -294,7 +353,7 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                   value={newTransfer.toOrgId} 
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, toOrgId: value }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select destination organization" />
                   </SelectTrigger>
                   <SelectContent>
@@ -313,8 +372,10 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                     )}
                   </SelectContent>
                 </Select>
-                {organizations && organizations.filter(org => org.id !== currentOrgId).length === 0 && (
-                  <p className="text-sm text-muted-foreground">No other organizations available</p>
+                {organizations.filter(org => org.id !== currentOrgId).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-wrap">
+                    {organizations.length === 0 ? "Loading organizations..." : "No other organizations available"}
+                  </p>
                 )}
               </div>
               <div className="space-y-2">

@@ -36,13 +36,6 @@ export default clerkMiddleware(async (auth, req) => {
   const publicMetadata = sessionClaims?.publicMetadata as
     | PublicMetadata
     | undefined;
-  
-  const role = publicMetadata?.role;
-  const orgType = publicMetadata?.organizationType;
-
-  // 🐛 DEBUG: Log role and organization type
-  console.log("🎭 Role from metadata:", role);
-  console.log("🏢 Organization type from metadata:", orgType);
 
   let role = publicMetadata?.role;
   let orgType = publicMetadata?.organizationType;
