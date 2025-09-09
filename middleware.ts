@@ -36,11 +36,24 @@ export default clerkMiddleware(async (auth, req) => {
   const publicMetadata = sessionClaims?.publicMetadata as
     | PublicMetadata
     | undefined;
-  const role = publicMetadata?.role;
-  const orgType = publicMetadata?.organizationType;
 
-  console.log("User Role:", role);  
-  console.log("Organization Type:", orgType);
+  let role = publicMetadata?.role;
+  let orgType = publicMetadata?.organizationType;
+
+  // Fallback to cookie if metadata is missing
+  if (!role || !orgType) {
+    const cookie = req.cookies.get("user_fallback");
+    if (cookie) {
+      try {
+        const { role: cRole, organizationType: cOrg } = JSON.parse(
+          cookie.value
+        );
+        console.log(role || cRole, orgType || cOrg);
+        role = role || cRole;
+        orgType = orgType || cOrg;
+      } catch {}
+    }
+  }
 
   // ✅ Consumer routes → only for consumers
   if (pathname.startsWith("/consumer") && role !== UserRole.CONSUMER) {
