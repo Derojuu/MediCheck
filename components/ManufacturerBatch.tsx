@@ -21,6 +21,44 @@ import { toast } from "react-toastify";
 import { dummyProducts } from "@/database"
 import { MedicationBatchInfoProps } from "@/utils"
 
+// Mock organization data for transfer destination dropdown
+const mockOrganizations = [
+    {
+        id: "org-001",
+        companyName: "MedCorp Distributors",
+        organizationType: "DRUG_DISTRIBUTOR"
+    },
+    {
+        id: "org-002", 
+        companyName: "City General Hospital",
+        organizationType: "HOSPITAL"
+    },
+    {
+        id: "org-003",
+        companyName: "QuickCare Pharmacy",
+        organizationType: "PHARMACY"
+    },
+    {
+        id: "org-004",
+        companyName: "HealthLink Distributors", 
+        organizationType: "DRUG_DISTRIBUTOR"
+    },
+    {
+        id: "org-005",
+        companyName: "Metro Medical Center",
+        organizationType: "HOSPITAL"
+    },
+    {
+        id: "org-006",
+        companyName: "WellCare Pharmacy Chain",
+        organizationType: "PHARMACY"
+    },
+    {
+        id: "org-007",
+        companyName: "National Health Regulator",
+        organizationType: "REGULATOR"
+    }
+];
 
 const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; allBatches: MedicationBatchInfoProps[]; loadBatches: () => void }) => {
 
@@ -47,7 +85,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
 
     const [selectedBatch, setSelectedBatch] = useState<any>(null);
 
-    const [organizations, setOrganizations] = useState<any[]>([]);
+    const [organizations, setOrganizations] = useState<any[]>(mockOrganizations);
 
     useEffect(() => {
         setBatches(allBatches)
@@ -260,75 +298,80 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                     <CardDescription>All manufacturing batches and their current status</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex gap-4 mb-6">
+                    <div className="flex flex-col sm:flex-row gap-4 mb-6">
                         <div className="flex-1">
                             <Input
                                 placeholder="Search batches by ID or product name..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full"
                             />
                         </div>
-                        <Button variant="outline">
+                        <Button variant="outline" className="w-full sm:w-auto">
                             <Search className="h-4 w-4 mr-2" />
                             Search
                         </Button>
                     </div>
 
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Batch ID</TableHead>
-                                <TableHead>Product</TableHead>
-                                <TableHead>Production Date</TableHead>
-                                <TableHead>Expiry Date</TableHead>
-                                <TableHead>Batch Size</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Current Location</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredBatches.map((batch) => (
-                                <TableRow key={batch.batchId}>
-                                    <TableCell className="font-medium">{batch.batchId}</TableCell>
-                                    <TableCell>{batch.drugName}</TableCell>
-                                    <TableCell>{new Date(batch.manufacturingDate).toISOString().split("T")[0]}</TableCell>
-                                    <TableCell>{ new Date(batch.expiryDate).toISOString().split("T")[0] }</TableCell>
-                                    <TableCell>{batch.batchSize.toLocaleString()}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={getStatusColor(batch.status)} className="flex items-center gap-1">
-                                            {getStatusIcon(batch.status)}
-                                            {getStatusDisplay(batch.status)}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{batch.currentLocation}</TableCell>
-                                    <TableCell>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => alert(`Viewing details for ${batch.batchId}\n\nComposition: ${batch.composition}\nStorage: ${batch.storageInstructions}\nQR Code: ${batch.qrCodeData}`)}
-                                            >
-                                                <Eye className="h-4 w-4 mr-1" />
-                                                View
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                onClick={() => {
-                                                    setSelectedBatch(batch)
-                                                    setIsTransferOpen(true)
-                                                }}
-                                                disabled={batch.status === "DELIVERED" || batch.status === "IN_TRANSIT"}
-                                            >
-                                                <ArrowUpRight className="h-4 w-4 mr-1" />
-                                                Transfer
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="min-w-[120px]">Batch ID</TableHead>
+                                    <TableHead className="min-w-[150px]">Product</TableHead>
+                                    <TableHead className="min-w-[120px]">Production Date</TableHead>
+                                    <TableHead className="min-w-[120px]">Expiry Date</TableHead>
+                                    <TableHead className="min-w-[100px]">Batch Size</TableHead>
+                                    <TableHead className="min-w-[120px]">Status</TableHead>
+                                    <TableHead className="min-w-[120px]">Location</TableHead>
+                                    <TableHead className="min-w-[140px]">Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredBatches.map((batch) => (
+                                    <TableRow key={batch.batchId}>
+                                        <TableCell className="font-medium">{batch.batchId}</TableCell>
+                                        <TableCell className="font-medium">{batch.drugName}</TableCell>
+                                        <TableCell>{new Date(batch.manufacturingDate).toLocaleDateString()}</TableCell>
+                                        <TableCell>{new Date(batch.expiryDate).toLocaleDateString()}</TableCell>
+                                        <TableCell>{batch.batchSize.toLocaleString()}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={getStatusColor(batch.status)} className="flex items-center gap-1 w-fit">
+                                                {getStatusIcon(batch.status)}
+                                                <span className="text-xs">{getStatusDisplay(batch.status)}</span>
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>{batch.currentLocation || 'Not set'}</TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col sm:flex-row gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => alert(`Viewing details for ${batch.batchId}\n\nComposition: ${batch.composition}\nStorage: ${batch.storageInstructions}\nQR Code: ${batch.qrCodeData}`)}
+                                                    className="w-full sm:w-auto"
+                                                >
+                                                    <Eye className="h-4 w-4 mr-1" />
+                                                    View
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setSelectedBatch(batch)
+                                                        setIsTransferOpen(true)
+                                                    }}
+                                                    disabled={batch.status === "DELIVERED" || batch.status === "IN_TRANSIT"}
+                                                    className="w-full sm:w-auto"
+                                                >
+                                                    <ArrowUpRight className="h-4 w-4 mr-1" />
+                                                    Transfer
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -353,7 +396,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                 <SelectContent>
                                     {organizations.map((org) => (
                                         <SelectItem key={org.id} value={org.id}>
-                                            {org.name} ({org.type})
+                                            {org.companyName} ({org.organizationType})
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

@@ -109,7 +109,7 @@ export default function ManufacturerDashboard() {
           )}
 
           {activeTab === "transfers" && (
-            <ManufacturerTransfers />
+            <ManufacturerTransfers orgId={orgId} allBatches={batches} />
           )}
 
           {activeTab === "quality" && (
