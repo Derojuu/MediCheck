@@ -82,7 +82,11 @@ export async function POST(req: Request) {
     const qrPayloads: any[] = [];
 
     for (let i = 0; i < parseInt(batchSize, 10); i++) {
-      const serialNumber = `UNIT-${batchId}-${nanoid(16)}`;
+      
+      const unitNumber = String(i + 1).padStart(4, "0");
+      const randomSuffix = nanoid(3);
+
+      const serialNumber = `UNIT-${batchId}-${unitNumber}${randomSuffix}`;
 
       const seq = await registerUnitOnBatch(registry.topicId, {
         serialNumber,
@@ -99,6 +103,9 @@ export async function POST(req: Request) {
       const qr = generateQRPayload(serialNumber, batchId, seq, QR_SECRET);
       qrPayloads.push(qr);
     }
+
+    
+    
 
     await prisma.medicationUnit.createMany({ data: unitsData });
 
