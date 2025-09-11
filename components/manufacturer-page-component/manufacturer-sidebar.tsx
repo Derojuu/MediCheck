@@ -8,14 +8,10 @@ import {
   Package,
   Factory,
   QrCode,
-  BarChart3,
   Settings,
   LogOut,
   Building2,
-  FlaskConical,
   Truck,
-  Users,
-  FileText,
 } from "lucide-react"
 import Link from "next/link"
 import { useClerk } from "@clerk/nextjs"
@@ -34,12 +30,12 @@ export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSid
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "batches", label: "Batch Management", icon: Package },
     { id: "products", label: "Product Catalog", icon: Factory },
-    { id: "quality", label: "Quality Control", icon: FlaskConical },
+    // { id: "quality", label: "Quality Control", icon: FlaskConical },
     { id: "transfers", label: "Batch Transfers", icon: Truck },
-    { id: "transport", label: "Transport Management", icon: Truck },
+    // { id: "transport", label: "Transport Management", icon: Truck },
     { id: "qr-generator", label: "QR Generator", icon: QrCode },
-    { id: "team", label: "Team Management", icon: Users },
-    { id: "reports", label: "Reports", icon: BarChart3 },
+    // { id: "team", label: "Team Management", icon: Users },
+    // { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 

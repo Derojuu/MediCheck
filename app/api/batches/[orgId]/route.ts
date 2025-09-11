@@ -7,7 +7,6 @@ export async function GET(
   { params }: { params: Promise<{ orgId: string }> } // <- note Promise
 ) {
   try {
-    
     const { orgId } = await params; // ✅ must await
 
     const org = await prisma.organization.findUnique({

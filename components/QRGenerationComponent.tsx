@@ -187,7 +187,7 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
                                     <option value="">Select a batch</option>
                                     {batches.map(b => (
                                         <option key={b.id} value={b.id}>
-                                            {b.drugName} — {b.batchId.slice(0, 8)}…
+                                            {b.drugName} — {b.batchId.slice(0, 13)}…
                                         </option>
                                     ))}
                                 </select>
@@ -212,7 +212,7 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
                                 <button
                                     onClick={handleGenerate}
                                     disabled={!selectedBatchId || isGenerating}
-                                    className={`w-full px-4 py-2 rounded-md font-medium flex items-center justify-center
+                                    className={`w-full cursor-pointer px-4 py-2 rounded-md font-medium flex items-center justify-center
                                         ${!selectedBatchId || isGenerating ?
                                             'bg-gray-300 text-gray-500 cursor-not-allowed'
                                             :
@@ -251,7 +251,7 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
                                     {selectedBatch && (
                                         <div className="text-center mb-6">
                                             <p className="font-medium text-lg mb-2">Batch QR Code</p>
-                                            <QRCode value={selectedBatch.batchId} size={128} />
+                                            <QRCode value={selectedBatch.qrCodeData || ""} size={128} />
                                             <p className="text-sm text-gray-600 mt-1">{selectedBatch.drugName}</p>
                                         </div>
                                     )}
@@ -284,7 +284,7 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
                                                     key={u.id}
                                                     className="flex flex-col items-center text-center p-2 border rounded bg-white"
                                                 >
-                                                    <QRCode value={u.serialNumber} size={80} />
+                                                    <QRCode value={u.qrCode || ""} size={80} />
                                                     <p className="text-xs text-gray-500 mt-1">Unit {idx + 1}</p>
                                                 </div>
                                             ))}

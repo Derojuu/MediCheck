@@ -23,6 +23,9 @@ export type ManufacturerTab =
   | "qr-generator"
   | "team"
   | "reports"
+  | "inventory"
+  | "alerts"
+  | "qr-scanner"
   | "settings";
 
 
@@ -41,5 +44,37 @@ export interface ProductProps {
 export interface MedicationBatchInfoProps extends MedicationBatchProp {
   _count: {
     medicationUnits: number;
+  };
+}
+
+
+export interface TransferProps {
+  id: string;
+  batchId: string;
+  fromOrgId: string;
+  toOrgId: string;
+  status: string;
+  notes?: string;
+  transferDate: string;
+  createdAt: string;
+  direction: "OUTGOING" | "INCOMING";
+  requiresApproval: boolean;
+  canApprove: boolean;
+  batch: {
+    batchId: string;
+    drugName: string;
+    batchSize: number;
+    manufacturingDate: string;
+    expiryDate: string;
+  };
+  fromOrg: {
+    companyName: string;
+    organizationType: string;
+    contactEmail: string;
+  };
+  toOrg: {
+    companyName: string;
+    organizationType: string;
+    contactEmail: string;
   };
 }

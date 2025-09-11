@@ -5,8 +5,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  url       = env("DATABASE_URL")
+  directUrl = env("POSTGRES_URL")
 }
 
 model User {
@@ -108,21 +108,19 @@ model MedicationBatch {
   expiryDate          DateTime
   storageInstructions String?
   currentLocation     String?
-  status              BatchStatus         @default(MANUFACTURING)
+  status              BatchStatus         @default(CREATED)
   qrCodeData          String?
+  qrSignature         String?
   blockchainHash      String?
   // ✅ Hedera registry for this batch
   registryTopicId     String?          // HCS topic ID where all units are registered
-
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
-
   counterfeitReports  CounterfeitReport[]
   organization        Organization        @relation(fields: [organizationId], references: [id])
   ownershipTransfers  OwnershipTransfer[]
   scanHistory         ScanHistory[]
   medicationUnits     MedicationUnit[]
-
   @@map("medication_batches")
 }
 
@@ -131,6 +129,7 @@ model MedicationUnit {
   batchId         String                         // FK to MedicationBatch
   serialNumber    String      @unique            // Unique identifier per unit
   qrCode          String?                        // Optional QR code for scanning
+  qrSignature     String?
   currentLocation String?                        // Where the unit currently is
   status          UnitStatus  @default(IN_STOCK) // Enum for tracking unit state
   blockchainHash  String?                        // Optional for blockchain verification
@@ -138,7 +137,6 @@ model MedicationUnit {
   // ✅ On-chain footprint for this specific unit
   registrySequence     Int?     // sequence number of the unit’s registration on-chain
   updatedAt       DateTime    @updatedAt         // Auto updated on changes
-  currentOwner    String      @default("system")    // Hedera account ID of owner
 
   // Relation back to MedicationBatch
   batch           MedicationBatch @relation(fields: [batchId], references: [id])
@@ -243,12 +241,13 @@ enum OrganizationType {
 }
 
 enum BatchStatus {
-  MANUFACTURING
-  READY_FOR_DISPATCH
+  CREATED
   IN_TRANSIT
   DELIVERED
+  FLAGGED
   RECALLED
   EXPIRED
+  BULLY
 }
 
 enum UnitStatus {

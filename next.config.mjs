@@ -9,17 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // experimental: {
-  //   serverExternalPackages: ["@hashgraphonline/standards-sdk", "@hashgraph/hedera-agent-kit"],
-  // },
-  // webpack: (config, { isServer }) => {
-  //   if (isServer) {
-  //     config.externals.push("@hashgraph/sdk", "@hashgraph/hedera-agent-kit");
-  //   }
-  //   return config;
-  // },
+  // Moved from experimental to top-level config
+  serverExternalPackages: ["@hashgraphonline/standards-sdk"],
   experimental: {
-    serverComponentsExternalPackages: ["@hashgraphonline/standards-sdk"],
+    // Keep this empty or remove it if you don't have other experimental features
   },
   webpack: (config, { isServer }) => {
     if (isServer) {

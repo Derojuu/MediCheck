@@ -1,6 +1,5 @@
 // /lib/hedera.ts
-
-'use server'; // force server-only execution
+"use server"; 
 
 import { HCS2Client, HCS2RegistryType } from "@hashgraphonline/standards-sdk";
 
@@ -38,4 +37,3 @@ export async function registerUnitOnBatch(
 
   return response.sequenceNumber; // 🟢 safe now
 }
-

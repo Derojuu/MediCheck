@@ -1,17 +1,17 @@
 "use client"
 import { useState, useEffect } from "react"
 // components import 
-import { ManufacturerSidebar } from "@/components/manufacturer-sidebar";
+import { ManufacturerSidebar } from "@/components/manufacturer-page-component/manufacturer-sidebar";
 import { TeamManagement } from "@/components/team-management";
 import QRGenerationComponent from "@/components/QRGenerationComponent";
-import ManufacturerReports from "@/components/ManufacturerReports";
-import ManufacturerSettings from "@/components/ManufacturerSettings";
-import ManufacturerTransport from "@/components/ManufacturerTransport";
-import ManufacturerQuality from "@/components/ManufacturerQuality";
-import ManufacturerProducts from "@/components/ManufacturerProducts";
-import ManufacturerBatch from "@/components/ManufacturerBatch";
-import ManufacturerTransfers from "@/components/ManufacturerTransfers";
-import ManufacturerMain from "@/components/ManufacturerMain"
+import ManufacturerReports from "@/components/manufacturer-page-component/ManufacturerReports";
+import ManufacturerSettings from "@/components/manufacturer-page-component/ManufacturerSettings";
+import ManufacturerTransport from "@/components/manufacturer-page-component/ManufacturerTransport";
+import ManufacturerQuality from "@/components/manufacturer-page-component/ManufacturerQuality";
+import ManufacturerProducts from "@/components/manufacturer-page-component/ManufacturerProducts";
+import ManufacturerBatch from "@/components/manufacturer-page-component/ManufacturerBatch";
+import Transfers from "@/components/Transfers";
+import ManufacturerMain from "@/components/manufacturer-page-component/ManufacturerMain"
 // 
 import { ManufacturerTab } from "@/utils";
 import { toast } from "react-toastify";
@@ -23,7 +23,7 @@ export default function ManufacturerDashboard() {
 
   const [orgId, setOrgId] = useState("");
 
-  const [batches, setBatches] = useState <MedicationBatchInfoProps[]>([]);
+  const [batches, setBatches] = useState<MedicationBatchInfoProps[]>([]);
 
   const [orgLoading, setOrgLoading] = useState(true);
 
@@ -78,6 +78,7 @@ export default function ManufacturerDashboard() {
 
   }, [orgId]);
 
+
   // 3️⃣ Guard rendering while loading
   if (orgLoading || batchesLoading) {
     return (
@@ -109,7 +110,7 @@ export default function ManufacturerDashboard() {
           )}
 
           {activeTab === "transfers" && (
-            <ManufacturerTransfers />
+            <Transfers orgId={orgId} allBatches={batches} loadBatches={loadBatches} />
           )}
 
           {activeTab === "quality" && (

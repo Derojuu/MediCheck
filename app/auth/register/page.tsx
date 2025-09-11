@@ -81,10 +81,6 @@ export default function RegisterPage() {
 
     try {
 
-      console.log({
-        emailAddress: formData.contactEmail,
-        password: formData.password,
-      })
       // 1. Create user in Clerk
       const result = await signUp.create({
         emailAddress: formData.contactEmail,
@@ -446,7 +442,6 @@ export default function RegisterPage() {
   return (
 
     <div className="min-h-screen bg-background">
-      {/* <div id="clerk-captcha" style={{ display: "none" }} /> */}
       {/* Navigation - Updated to match landing page */}
       <nav className="border-b bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -569,13 +564,7 @@ export default function RegisterPage() {
                               <SelectTrigger className="cursor-pointer">
                                 <SelectValue placeholder="Select organization type" />
                               </SelectTrigger>
-                              <SelectContent>
-                                {/* {organizationTypes.map((type) => (
-                                  <SelectItem key={type} value={type}>
-                                    {type}
-                                  </SelectItem>
-                                ))} */}
-                                  
+                              <SelectContent>                                  
                                 {Object.entries(ORG_TYPE_MAP).map(([key, value]: [string, string]) => (
                                   <SelectItem key={key} value={key}>
                                     {value}
@@ -677,6 +666,10 @@ export default function RegisterPage() {
                             <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer">
                               I agree to the Terms and Conditions
                             </Label>
+                          </div>
+                          <div>
+                            {/* CAPTCHA element for Clerk Smart CAPTCHA */}
+                            <div id="clerk-captcha"></div>
                           </div>
                           <div className="flex space-x-4">
                             <Button
@@ -794,6 +787,10 @@ export default function RegisterPage() {
                         <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer font-medium text-foreground">
                           I agree to the Terms and Condition
                         </Label>
+                      </div>
+                      <div>
+                        {/* CAPTCHA element for Clerk Smart CAPTCHA */}
+                        <div id="clerk-captcha"></div>
                       </div>
                       <Button
                         type="submit"

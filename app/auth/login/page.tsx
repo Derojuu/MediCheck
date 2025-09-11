@@ -44,6 +44,7 @@ export default function LoginPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
+        toast.success("Successfully signed in!");
       }
 
     }
@@ -75,6 +76,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* CAPTCHA element for Clerk Smart CAPTCHA */}
+      <div id="clerk-captcha"></div>
       {/* Navigation - Updated to match landing page */}
       <nav className="border-b bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
