@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { TransferStatus } from "@/lib/generated/prisma";
+import { BatchStatus } from "@/lib/generated/prisma";
 
 export const runtime = "nodejs";
 
@@ -9,12 +10,7 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const {
-      batchId,
-      fromOrgId,
-      toOrgId,
-      notes
-    } = body;
+    const { batchId, fromOrgId, toOrgId, notes } = body;
 
     // Basic validation
     if (!batchId || !fromOrgId || !toOrgId) {
@@ -26,21 +22,19 @@ export async function POST(req: Request) {
 
     // Verify batch exists
     const batch = await prisma.medicationBatch.findUnique({
-      where: { batchId }
+      where: { batchId },
     });
 
     if (!batch) {
-      return NextResponse.json(
-        { error: "Batch not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Batch not found" }, { status: 404 });
     }
 
     // Verify organizations exist
     const [fromOrg, toOrg] = await Promise.all([
       prisma.organization.findUnique({ where: { id: fromOrgId } }),
-      prisma.organization.findUnique({ where: { id: toOrgId } })
+      prisma.organization.findUnique({ where: { id: toOrgId } }),
     ]);
+
 
     if (!fromOrg || !toOrg) {
       return NextResponse.json(
@@ -52,21 +46,31 @@ export async function POST(req: Request) {
     // Create transfer ownership record - simple insertion into OwnershipTransfer table
     const transfer = await prisma.ownershipTransfer.create({
       data: {
-        batchId: batch.id, // Use the database ID, not the batchId string
+        batchId: batch.id,
         fromOrgId,
         toOrgId,
         status: TransferStatus.PENDING,
-        notes: notes || null
-      }
+        notes: notes || null,
+      },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Transfer ownership created successfully",
-      transferId: transfer.id,
-      status: transfer.status
-    }, { status: 201 });
+    // ✅ Update batch status to IN_TRANSIT
+    await prisma.medicationBatch.update({
+      where: { id: batch.id },
+      data: {
+        status: BatchStatus.IN_TRANSIT
+      },
+    });
 
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Transfer ownership created successfully",
+        transferId: transfer.id,
+        status: transfer.status,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Transfer Creation Error:", error);
     return NextResponse.json(
@@ -75,6 +79,7 @@ export async function POST(req: Request) {
     );
   }
 }
+
 
 // GET - Get all transfers where organization is sender OR receiver
 export async function GET(req: Request) {

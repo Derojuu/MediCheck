@@ -53,7 +53,7 @@ const ManufacturerProducts = () => {
                                     <Badge variant="outline">{product.strength}</Badge>
                                 </div>
                                 <div className="pt-2">
-                                    <Button size="sm" className="w-full" onClick={() => alert(`Managing ${product.name}...`)}>
+                                    <Button size="sm" className="w-full cursor-pointer" onClick={() => alert(`Managing ${product.name}...`)}>
                                         Manage Product
                                     </Button>
                                 </div>

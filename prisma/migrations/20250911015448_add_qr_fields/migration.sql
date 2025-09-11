@@ -5,7 +5,7 @@ CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_MEMBER', 'CONSUMER', 'SUP
 CREATE TYPE "public"."OrganizationType" AS ENUM ('MANUFACTURER', 'DRUG_DISTRIBUTOR', 'HOSPITAL', 'PHARMACY', 'REGULATOR');
 
 -- CreateEnum
-CREATE TYPE "public"."BatchStatus" AS ENUM ('MANUFACTURING', 'READY_FOR_DISPATCH', 'IN_TRANSIT', 'DELIVERED', 'RECALLED', 'EXPIRED');
+CREATE TYPE "public"."BatchStatus" AS ENUM ('CREATED', 'IN_TRANSIT', 'DELIVERED', 'FLAGGED', 'RECALLED', 'EXPIRED', 'BULLY');
 
 -- CreateEnum
 CREATE TYPE "public"."UnitStatus" AS ENUM ('IN_STOCK', 'DISPATCHED', 'SOLD', 'RETURNED', 'LOST');
@@ -112,9 +112,11 @@ CREATE TABLE "public"."medication_batches" (
     "expiryDate" TIMESTAMP(3) NOT NULL,
     "storageInstructions" TEXT,
     "currentLocation" TEXT,
-    "status" "public"."BatchStatus" NOT NULL DEFAULT 'MANUFACTURING',
+    "status" "public"."BatchStatus" NOT NULL DEFAULT 'CREATED',
     "qrCodeData" TEXT,
+    "qrSignature" TEXT,
     "blockchainHash" TEXT,
+    "registryTopicId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -127,10 +129,12 @@ CREATE TABLE "public"."medication_units" (
     "batchId" TEXT NOT NULL,
     "serialNumber" TEXT NOT NULL,
     "qrCode" TEXT,
+    "qrSignature" TEXT,
     "currentLocation" TEXT,
     "status" "public"."UnitStatus" NOT NULL DEFAULT 'IN_STOCK',
     "blockchainHash" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "registrySequence" INTEGER,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "medication_units_pkey" PRIMARY KEY ("id")

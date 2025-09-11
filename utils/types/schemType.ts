@@ -13,10 +13,10 @@ export enum OrganizationTypeEnum {
 }
 
 export enum BatchStatusEnum {
-  MANUFACTURING = "MANUFACTURING",
-  READY_FOR_DISPATCH = "READY_FOR_DISPATCH",
+  CREATED = "CREATED",
   IN_TRANSIT = "IN_TRANSIT",
   DELIVERED = "DELIVERED",
+  FLAGGED = "FLAGGED",
   RECALLED = "RECALLED",
   EXPIRED = "EXPIRED",
 }
@@ -91,7 +91,6 @@ export interface ConsumerProp {
   createdAt: Date;
   updatedAt: Date;
 }
-
 export interface OrganizationProp {
   id: string;
   adminId: string;
@@ -146,8 +145,9 @@ export interface MedicationBatchProp {
   currentLocation?: string | null;
   status: BatchStatusEnum;
   qrCodeData?: string | null;
+  qrSignature?: string | null;
   blockchainHash?: string | null;
-  registryTopicId?: string;  
+  registryTopicId?: string;
   createdAt: Date;
   updatedAt: Date;
   transportTracking?: {
@@ -159,17 +159,17 @@ export interface MedicationBatchProp {
     lastUpdate: Date;
   };
 }
-
 export interface MedicationUnitProp {
   id: string;
   batchId: string;
   serialNumber: string;
   qrCode?: string | null;
+  qrSignature?: string | null;
   currentLocation?: string | null;
   status: UnitStatusEnum;
   blockchainHash?: string | null;
-  registrySequence?: number;    
-  currentOwner: string  
+  registrySequence?: number;
+  currentOwner: string;
   createdAt: Date;
   updatedAt: Date;
 }

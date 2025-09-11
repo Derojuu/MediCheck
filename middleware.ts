@@ -40,6 +40,9 @@ export default clerkMiddleware(async (auth, req) => {
   let role = publicMetadata?.role;
   let orgType = publicMetadata?.organizationType;
 
+  console.log("middleware code: role FROM CLERK", role);
+  console.log("middleware code: orgType FROM CLERK", orgType);
+
   // Fallback to cookie if metadata is missing
   if (!role || !orgType) {
     const cookie = req.cookies.get("user_fallback");
@@ -48,10 +51,12 @@ export default clerkMiddleware(async (auth, req) => {
         const { role: cRole, organizationType: cOrg } = JSON.parse(
           cookie.value
         );
-        console.log(role || cRole, orgType || cOrg);
-        role = role || cRole;
-        orgType = orgType || cOrg;
-      } catch {}
+        console.log("cookie valuue", cRole, cOrg);
+        role = cRole;
+        orgType = cOrg;
+      } catch {
+        console.log("error occurred while getting value from cookie")
+      }
     }
   }
 

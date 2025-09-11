@@ -20,5 +20,5 @@ export const prisma: ExtendedPrismaClient =
   global.prisma || createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
-  global.prisma = prisma;
+  global.prisma = prisma; 
 }

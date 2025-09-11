@@ -564,13 +564,7 @@ export default function RegisterPage() {
                               <SelectTrigger className="cursor-pointer">
                                 <SelectValue placeholder="Select organization type" />
                               </SelectTrigger>
-                              <SelectContent>
-                                {/* {organizationTypes.map((type) => (
-                                  <SelectItem key={type} value={type}>
-                                    {type}
-                                  </SelectItem>
-                                ))} */}
-                                  
+                              <SelectContent>                                  
                                 {Object.entries(ORG_TYPE_MAP).map(([key, value]: [string, string]) => (
                                   <SelectItem key={key} value={key}>
                                     {value}

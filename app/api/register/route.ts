@@ -31,7 +31,10 @@ export async function POST(req: Request) {
       const clerk = await clerkClient();
 
       const role = accountType === "organization" ? UserRole.ORGANIZATION_MEMBER : UserRole.CONSUMER
+
       const orgType =  accountType === "organization" ? organizationType : null
+
+      console.log("Register api", role, orgType)
       
       await clerk.users.updateUser(clerkUserId, {
         publicMetadata: {
@@ -43,7 +46,7 @@ export async function POST(req: Request) {
       // Set fallback cookie (1 hour expiry)
       (await cookies()).set(
         "user_fallback",
-        JSON.stringify({ role, orgType }),
+        JSON.stringify({ role, organizationType: orgType }),
         {
           httpOnly: true,
           secure: true,

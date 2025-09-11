@@ -5,115 +5,30 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { Plus, ArrowUpRight, ArrowDownLeft, RefreshCw } from "lucide-react";
+import { TransferProps, MedicationBatchInfoProps, OrganizationProp } from "@/utils";
+import { BatchStatus } from "@/lib/generated/prisma";
 
-// Mock organization data for destination dropdown
-const mockOrganizations = [
-  {
-    id: "org-001",
-    companyName: "MedCorp Distributors",
-    organizationType: "DRUG_DISTRIBUTOR"
-  },
-  {
-    id: "org-002", 
-    companyName: "City General Hospital",
-    organizationType: "HOSPITAL"
-  },
-  {
-    id: "org-003",
-    companyName: "QuickCare Pharmacy",
-    organizationType: "PHARMACY"
-  },
-  {
-    id: "org-004",
-    companyName: "HealthLink Distributors", 
-    organizationType: "DRUG_DISTRIBUTOR"
-  },
-  {
-    id: "org-005",
-    companyName: "Metro Medical Center",
-    organizationType: "HOSPITAL"
-  },
-  {
-    id: "org-006",
-    companyName: "WellCare Pharmacy Chain",
-    organizationType: "PHARMACY"
-  }
-];
-
-interface Transfer {
-  id: string;
-  batchId: string;
-  fromOrgId: string;
-  toOrgId: string;
-  status: string;
-  notes?: string;
-  transferDate: string;
-  createdAt: string;
-  direction: 'OUTGOING' | 'INCOMING';
-  requiresApproval: boolean;
-  canApprove: boolean;
-  batch: {
-    batchId: string;
-    drugName: string;
-    batchSize: number;
-    manufacturingDate: string;
-    expiryDate: string;
-  };
-  fromOrg: {
-    companyName: string;
-    organizationType: string;
-    contactEmail: string;
-  };
-  toOrg: {
-    companyName: string;
-    organizationType: string;
-    contactEmail: string;
-  };
-}
-
-interface Organization {
-  id: string;
-  companyName: string;
-  organizationType: string;
-}
-
-interface Batch {
-  id: string;
-  batchId: string;
-  drugName: string;
-  batchSize: number;
-}
-
-interface ManufacturerTransfersProps {
+interface TransfersProps {
   orgId?: string;
-  allBatches?: {
-    id: string;
-    batchId: string;
-    drugName: string;
-    batchSize: number;
-    manufacturingDate: Date;
-    expiryDate: Date;
-    status: string;
-    _count: {
-      medicationUnits: number;
-    };
-  }[];
+  allBatches: MedicationBatchInfoProps[];
+  loadBatches: () => void;
 }
 
-const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps) => {
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [organizations, setOrganizations] = useState<Organization[]>(mockOrganizations);
+const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
+
+  const [transfers, setTransfers] = useState<TransferProps[]>([]);
+  const [organizations, setOrganizations] = useState<OrganizationProp[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [updating, setUpdating] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState(orgId || "");
+
 
   // Create transfer form state
   const [newTransfer, setNewTransfer] = useState({
@@ -122,92 +37,80 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
     notes: ""
   });
 
+
   // Transform allBatches to the expected format
-  const availableBatches = allBatches?.map(batch => ({
-    id: batch.id,
-    batchId: batch.batchId,
-    drugName: batch.drugName,
-    batchSize: batch.batchSize
-  })).filter(batch => batch.batchId && batch.drugName) || [];
+  const availableBatches =
+    allBatches
+      ?.map(batch => ({
+        id: batch.id,
+        batchId: batch.batchId,
+        drugName: batch.drugName,
+        batchSize: batch.batchSize,
+        status: batch.status,
+      }))
+      // 🛑 Exclude batches with IN_TRANSIT status
+      .filter(
+        batch =>
+          batch.batchId &&
+          batch.drugName &&
+          batch.status !== BatchStatus.IN_TRANSIT
+      ) || [];
 
-  // Fetch current organization ID if not provided
-  useEffect(() => {
-    if (!orgId) {
-      const fetchOrgId = async () => {
-        try {
-          const res = await fetch("/api/organizations/me");
-          const data = await res.json();
-          setCurrentOrgId(data.organizationId);
-        } catch (error) {
-          toast.error("Failed to fetch organization ID");
-        }
-      };
-      fetchOrgId();
-    } else {
-      setCurrentOrgId(orgId);
-    }
-  }, [orgId]);
 
-  // Fetch transfers when orgId is available
-  useEffect(() => {
-    if (currentOrgId) {
-      console.log("Current org ID:", currentOrgId);
-      console.log("All batches:", allBatches);
-      console.log("Available batches:", availableBatches);
-      console.log("Mock organizations loaded:", mockOrganizations);
-      loadTransfers();
-    }
-  }, [currentOrgId, allBatches]);
 
   const loadTransfers = async () => {
     if (!currentOrgId) return;
-    
+
     setLoading(true);
+
     try {
       const res = await fetch(`/api/transfer/ownership?organizationId=${currentOrgId}`);
+
       const data = await res.json();
-      
+
       if (res.ok) {
         setTransfers(data.transfers || []);
-      } else {
+      }
+      else {
         toast.error(data.error || "Failed to load transfers");
       }
-    } catch (error) {
+    }
+    catch (error) {
       toast.error("Failed to load transfers");
-      console.error("Load transfers error:", error);
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
 
-  // Load organizations function (commented out - using mock data)
-  // const loadOrganizations = async () => {
-  //   try {
-  //     console.log("Loading organizations...");
-  //     const res = await fetch("/api/organizations");
-  //     const data = await res.json();
-  //     console.log("Organizations API response:", data);
-      
-  //     if (res.ok) {
-  //       console.log("Organizations loaded successfully:", data.organizations);
-  //       setOrganizations(data.organizations || []);
-  //     } else {
-  //       console.error("Failed to load organizations:", res.status, data);
-  //       toast.error("Failed to load organizations");
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to load organizations:", error);
-  //     toast.error("Failed to load organizations");
-  //   }
-  // };
+  const getAllOrganization = async () => {
+    const res = await fetch(`/api/organizations`);
+    const data = await res.json();
+    console.log(data)
+    setOrganizations(data)
+  }
+
+
+  // Fetch transfers once orgId is available
+  useEffect(() => {
+    if (currentOrgId) {
+      console.log("Current org ID:", currentOrgId);
+      loadTransfers();
+      getAllOrganization()
+    }
+
+  }, [currentOrgId, allBatches]);
+
 
   const createTransfer = async () => {
+
     if (!newTransfer.batchId || !newTransfer.toOrgId) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setCreating(true);
+
     try {
       const res = await fetch("/api/transfer/ownership", {
         method: "POST",
@@ -227,16 +130,20 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
         setShowCreateDialog(false);
         setNewTransfer({ batchId: "", toOrgId: "", notes: "" });
         loadTransfers();
-      } else {
+        loadBatches()
+      }
+      else {
         toast.error(data.error || "Failed to create transfer");
       }
-    } catch (error) {
+    }
+    catch (error) {
       toast.error("Failed to create transfer");
-      console.error("Create transfer error:", error);
-    } finally {
+    }
+    finally {
       setCreating(false);
     }
   };
+
 
   const updateTransferStatus = async (transferId: string, status: string, notes?: string) => {
     setUpdating(transferId);
@@ -267,6 +174,7 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
     }
   };
 
+
   const getStatusVariant = (status: string) => {
     switch (status) {
       case "PENDING": return "secondary";
@@ -278,6 +186,7 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
     }
   };
 
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "COMPLETED": return "text-green-600";
@@ -288,9 +197,10 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
     }
   };
 
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex h-screen items-center justify-center p-8">
         <RefreshCw className="h-6 w-6 animate-spin" />
         <span className="ml-2">Loading transfers...</span>
       </div>
@@ -306,7 +216,7 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
         </div>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button disabled={!currentOrgId || !availableBatches.length}>
+            <Button className="cursor-pointer" disabled={!currentOrgId || !availableBatches.length}>
               <Plus className="h-4 w-4 mr-2" />
               Create Transfer
               {!availableBatches.length && " (No batches)"}
@@ -322,8 +232,8 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="batch">Batch</Label>
-                <Select 
-                  value={newTransfer.batchId} 
+                <Select
+                  value={newTransfer.batchId}
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, batchId: value }))}
                 >
                   <SelectTrigger className="w-full">
@@ -349,14 +259,15 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
               </div>
               <div className="space-y-2">
                 <Label htmlFor="organization">To Organization</Label>
-                <Select 
-                  value={newTransfer.toOrgId} 
+                <Select
+                  value={newTransfer.toOrgId}
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, toOrgId: value }))}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select destination organization" />
                   </SelectTrigger>
                   <SelectContent>
+
                     {organizations && organizations.length > 0 ? (
                       organizations
                         .filter(org => org.id !== currentOrgId)
@@ -372,11 +283,9 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                     )}
                   </SelectContent>
                 </Select>
-                {organizations.filter(org => org.id !== currentOrgId).length === 0 && (
-                  <p className="text-sm text-muted-foreground text-wrap">
-                    {organizations.length === 0 ? "Loading organizations..." : "No other organizations available"}
-                  </p>
-                )}
+
+
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="notes">Notes (Optional)</Label>
@@ -466,7 +375,7 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                   <TableHead>To</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
+                  {/* <TableHead>Actions</TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -494,19 +403,19 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                     <TableCell>
                       {new Date(transfer.createdAt).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <div className="flex space-x-2">
                         {transfer.canApprove && transfer.status === 'PENDING' && (
                           <>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               onClick={() => updateTransferStatus(transfer.id, 'IN_PROGRESS')}
                               disabled={updating === transfer.id}
                             >
                               Accept
                             </Button>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="destructive"
                               onClick={() => updateTransferStatus(transfer.id, 'CANCELLED')}
                               disabled={updating === transfer.id}
@@ -516,7 +425,7 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                           </>
                         )}
                         {transfer.status === 'IN_PROGRESS' && transfer.direction === 'OUTGOING' && (
-                          <Button 
+                          <Button
                             size="sm"
                             onClick={() => updateTransferStatus(transfer.id, 'COMPLETED')}
                             disabled={updating === transfer.id}
@@ -528,7 +437,7 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
                           <RefreshCw className="h-4 w-4 animate-spin" />
                         )}
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -540,4 +449,4 @@ const ManufacturerTransfers = ({ orgId, allBatches }: ManufacturerTransfersProps
   );
 };
 
-export default ManufacturerTransfers;
+export default Transfers;

@@ -29,7 +29,7 @@ const mockOrganizations = [
         organizationType: "DRUG_DISTRIBUTOR"
     },
     {
-        id: "org-002", 
+        id: "org-002",
         companyName: "City General Hospital",
         organizationType: "HOSPITAL"
     },
@@ -40,7 +40,7 @@ const mockOrganizations = [
     },
     {
         id: "org-004",
-        companyName: "HealthLink Distributors", 
+        companyName: "HealthLink Distributors",
         organizationType: "DRUG_DISTRIBUTOR"
     },
     {
@@ -92,9 +92,9 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
     }, [allBatches])
 
     const handleCreateBatch = async (e: React.FormEvent) => {
-        
+
         e.preventDefault();
-        
+
         setIsLoading(true)
 
         if (!orgId) return;
@@ -147,17 +147,17 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
         // use enum value instead of hardcoding
         switch (status) {
             case "READY_FOR_DISPATCH":
-            return "default"
+                return "default"
             case "MANUFACTURING":
-            return "secondary"
+                return "secondary"
             case "IN_TRANSIT":
-            return "outline"
+                return "outline"
             case "DELIVERED":
-            return "default"
+                return "default"
             case "EXPIRED":
-            return "destructive"
+                return "destructive"
             default:
-            return "secondary"
+                return "secondary"
         }
     }
 
@@ -166,14 +166,14 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
         switch (status) {
             case "READY_FOR_DISPATCH":
             case "DELIVERED":
-            return <CheckCircle className="h-4 w-4" />
+                return <CheckCircle className="h-4 w-4" />
             case "MANUFACTURING":
             case "IN_TRANSIT":
-            return <Clock className="h-4 w-4" />
+                return <Clock className="h-4 w-4" />
             case "EXPIRED":
-            return <XCircle className="h-4 w-4" />
+                return <XCircle className="h-4 w-4" />
             default:
-            return <Clock className="h-4 w-4" />
+                return <Clock className="h-4 w-4" />
         }
     }
 
@@ -181,20 +181,20 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
         // use enum value instead of hardcoding
         switch (status) {
             case "READY_FOR_DISPATCH":
-            return "Ready for Dispatch"
+                return "Ready for Dispatch"
             case "MANUFACTURING":
-            return "Manufacturing"
+                return "Manufacturing"
             case "IN_TRANSIT":
-            return "In Transit"
+                return "In Transit"
             case "DELIVERED":
-            return "Delivered"
+                return "Delivered"
             case "EXPIRED":
-            return "Expired"
+                return "Expired"
             default:
-            return status
+                return status
         }
     }
-    
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -205,7 +205,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                 {/* create batch dialog */}
                 <Dialog open={isCreateBatchOpen} onOpenChange={setIsCreateBatchOpen}>
                     <DialogTrigger asChild>
-                        <Button>
+                        <Button className="cursor-pointer">
                             <Plus className="h-4 w-4 mr-2" />
                             Create Batch
                         </Button>
@@ -282,10 +282,10 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                 </div>
                             </div>
                             <div className="flex justify-end space-x-2 mt-4">
-                                <Button variant="outline" onClick={() => setIsCreateBatchOpen(false)}>
+                                <Button className="cursor-pointer" variant="outline" onClick={() => setIsCreateBatchOpen(false)}>
                                     Cancel
                                 </Button>
-                                <Button>{isLoading ? "Creating..." : "Create Batch"}</Button>
+                                <Button className="cursor-pointer">{isLoading ? "Creating..." : "Create Batch"}</Button>
                             </div>
                         </form>
                     </DialogContent>
@@ -348,7 +348,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => alert(`Viewing details for ${batch.batchId}\n\nComposition: ${batch.composition}\nStorage: ${batch.storageInstructions}\nQR Code: ${batch.qrCodeData}`)}
-                                                    className="w-full sm:w-auto"
+                                                    className="w-full sm:w-auto cursor-pointer"
                                                 >
                                                     <Eye className="h-4 w-4 mr-1" />
                                                     View
@@ -359,11 +359,12 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                                         setSelectedBatch(batch)
                                                         setIsTransferOpen(true)
                                                     }}
-                                                    disabled={batch.status === "DELIVERED" || batch.status === "IN_TRANSIT"}
-                                                    className="w-full sm:w-auto"
+                                                    // disabled={batch.status === "DELIVERED" || batch.status === "IN_TRANSIT"}
+                                                    disabled={batch.status === "IN_TRANSIT"}
+                                                    className="w-full sm:w-auto cursor-pointer"
                                                 >
                                                     <ArrowUpRight className="h-4 w-4 mr-1" />
-                                                    Transfer
+                                                    {batch.status === "IN_TRANSIT" ? "In Transit": "Transfer"}
                                                 </Button>
                                             </div>
                                         </TableCell>

@@ -1,48 +1,55 @@
-// /lib/qrPayload.ts
 import crypto from "crypto";
 
-interface QRPayload {
+export interface QRPayload {
   s: string; // serialNumber
   b: string; // batchId
   r: number; // registrySequence
-  sig?: string; // optional signature
+  url: string; // URL to verification page
+  sig?: string;
 }
 
-/**
- * Generate a QR payload for a unit.
- */
 export function generateQRPayload(
   serialNumber: string,
   batchId: string,
   registrySequence: number,
-  secret?: string
-): QRPayload {
-  const payload: QRPayload = {
-    s: serialNumber,
-    b: batchId,
-    r: registrySequence,
-  };
+  secret: string,
+  baseUrl: string
+) {
+  // 1️⃣ Create a signed hash
 
-  if (secret) {
-    const data = `${serialNumber}|${batchId}|${registrySequence}`;
-    payload.sig = crypto
-      .createHmac("sha256", secret)
-      .update(data)
-      .digest("hex");
-  }
+  const data = `${serialNumber}|${batchId}|${registrySequence}`;
 
-  return payload;
-}
-
-/**
- * Verify a QR payload signature.
- */
-export function verifyQRPayload(payload: QRPayload, secret: string): boolean {
-  if (!payload.sig) return false;
-  const data = `${payload.s}|${payload.b}|${payload.r}`;
-  const expectedSig = crypto
+  const signature = crypto
     .createHmac("sha256", secret)
     .update(data)
     .digest("hex");
-  return expectedSig === payload.sig;
+
+  // 2️⃣ Create a URL with query params
+  const url = `${baseUrl}/verify/batchUnit/${serialNumber}?sig=${signature}`;
+
+  return {
+    url,
+    serialNumber,
+    batchId,
+    registrySequence,
+    signature,
+  };
 }
+
+
+// batch QR payload generation
+export function generateBatchQRPayload(batchId: string, secret: string, baseUrl: string) {
+
+  const data = `BATCH|${batchId}`;
+
+  const signature = crypto.createHmac("sha256", secret).update(data).digest("hex");
+
+  const url = `${baseUrl}/verify/batch/${batchId}?sig=${signature}`;
+
+  return {
+    url,
+    batchId,
+    signature,
+  };
+}
+

@@ -6,21 +6,22 @@ import {
   Shield,
   LayoutDashboard,
   Package,
-  Users,
-  ClipboardList,
   BarChart3,
   AlertTriangle,
   Settings,
   LogOut,
   Building2,
+  Truck,
+  Camera
 } from "lucide-react"
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
 import { authRoutes } from "@/utils";
+import { ManufacturerTab } from "@/utils";
 
 interface HospitalSidebarProps {
   activeTab: string
-  setActiveTab: (tab: string) => void
+  setActiveTab: React.Dispatch<React.SetStateAction<ManufacturerTab>>
 }
 
 export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProps) {
@@ -30,8 +31,10 @@ export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProp
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "inventory", label: "Inventory", icon: Package },
-    { id: "patients", label: "Patient Records", icon: Users },
+    // { id: "patients", label: "Patient Records", icon: Users },
     { id: "reports", label: "Reports", icon: BarChart3 },
+    { id: "qr-scanner", label: "Qr Scanner", icon: Camera },
+    { id: "transfers", label: "Batch Transfers", icon: Truck },
     { id: "alerts", label: "Alerts", icon: AlertTriangle },
     { id: "settings", label: "Settings", icon: Settings },
   ]
@@ -69,7 +72,7 @@ export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProp
               key={item.id}
               variant={activeTab === item.id ? "secondary" : "ghost"}
               className="w-full justify-start cursor-pointer"
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => setActiveTab(item.id as ManufacturerTab)}
             >
               <Icon className="h-4 w-4 mr-3" />
               {item.label}

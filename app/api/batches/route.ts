@@ -1,13 +1,13 @@
-// /app/api/batches/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nanoid } from "nanoid";
 import { createBatchRegistry, registerUnitOnBatch } from "@/lib/hedera";
-import { generateQRPayload } from "@/lib/qrPayload";
+import { generateQRPayload , generateBatchQRPayload} from "@/lib/qrPayload";
 
 export const runtime = "nodejs";
 
-const QR_SECRET = process.env.QR_SECRET || "dev-secret"; // 🔒 store in env
+const QR_SECRET = process.env.QR_SECRET || "dev-secret"; 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export async function POST(req: Request) {
   try {
@@ -57,6 +57,10 @@ export async function POST(req: Request) {
       );
     }
 
+    const qrBatchPayload = generateBatchQRPayload(batchId, QR_SECRET, BASE_URL);
+
+    console.log("batch", qrBatchPayload)
+
     // ✅ Step 2: save batch in DB
     const newBatch = await prisma.medicationBatch.create({
       data: {
@@ -69,20 +73,15 @@ export async function POST(req: Request) {
         expiryDate: new Date(expiryDate),
         storageInstructions,
         registryTopicId: registry.topicId,
+        qrCodeData: qrBatchPayload.url,
+        qrSignature: qrBatchPayload.signature,
       },
     });
 
     // ✅ Step 3: create units & publish them to Hedera
-    const unitsData: {
-      serialNumber: string;
-      batchId: string;
-      registrySequence: number;
-    }[] = [];
-
-    const qrPayloads: any[] = [];
+    const unitsData: any[] = [];
 
     for (let i = 0; i < parseInt(batchSize, 10); i++) {
-      
       const unitNumber = String(i + 1).padStart(4, "0");
       const randomSuffix = nanoid(3);
 
@@ -94,18 +93,24 @@ export async function POST(req: Request) {
         batchId,
       });
 
+      const qrUnitPayload = generateQRPayload(
+        serialNumber,
+        batchId,
+        seq,
+        QR_SECRET,
+        BASE_URL
+      );
+
+      console.log("unit", qrUnitPayload);
+
       unitsData.push({
         serialNumber,
         batchId: newBatch.id,
         registrySequence: seq,
+        qrCode: qrUnitPayload.url,
+        qrSignature: qrUnitPayload.signature,
       });
-
-      const qr = generateQRPayload(serialNumber, batchId, seq, QR_SECRET);
-      qrPayloads.push(qr);
     }
-
-    
-    
 
     await prisma.medicationUnit.createMany({ data: unitsData });
 
@@ -113,7 +118,6 @@ export async function POST(req: Request) {
       {
         batch: newBatch,
         unitsCreated: unitsData.length,
-        qrPayloads, // 🟢 return QR payloads for client to render QR codes
       },
       { status: 201 }
     );

@@ -1,36 +1,24 @@
+// /app/api/organizations/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-// GET - Get all organizations (for transfer destination selection)
-export async function GET(req: Request) {
+/**
+ * GET /api/organizations
+ * Returns a list of all organizations
+ */
+export async function GET() {
   try {
     const organizations = await prisma.organization.findMany({
-      select: {
-        id: true,
-        companyName: true,
-        organizationType: true,
-        contactEmail: true,
-        isActive: true
-      },
-      where: {
-        isActive: true,
-        isVerified: true
-      },
-      orderBy: {
-        companyName: 'asc'
-      }
+      orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({
-      organizations
-    }, { status: 200 });
-
+    return NextResponse.json(organizations, { status: 200 });
   } catch (error) {
-    console.error("Get Organizations Error:", error);
+    console.error("Error fetching organizations:", error);
     return NextResponse.json(
-      { error: "Failed to retrieve organizations" },
+      { error: "Failed to fetch organizations" },
       { status: 500 }
     );
   }
