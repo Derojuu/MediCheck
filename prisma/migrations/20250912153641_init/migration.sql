@@ -1,29 +1,29 @@
--- CreateEnum
-CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_MEMBER', 'CONSUMER', 'SUPER_ADMIN');
+-- -- CreateEnum
+-- CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_MEMBER', 'CONSUMER', 'SUPER_ADMIN');
 
--- CreateEnum
-CREATE TYPE "public"."OrganizationType" AS ENUM ('MANUFACTURER', 'DRUG_DISTRIBUTOR', 'HOSPITAL', 'PHARMACY', 'REGULATOR');
+-- -- CreateEnum
+-- CREATE TYPE "public"."OrganizationType" AS ENUM ('MANUFACTURER', 'DRUG_DISTRIBUTOR', 'HOSPITAL', 'PHARMACY', 'REGULATOR');
 
--- CreateEnum
-CREATE TYPE "public"."BatchStatus" AS ENUM ('CREATED', 'IN_TRANSIT', 'DELIVERED', 'FLAGGED', 'RECALLED', 'EXPIRED', 'BULLY');
+-- -- CreateEnum
+-- CREATE TYPE "public"."BatchStatus" AS ENUM ('CREATED', 'IN_TRANSIT', 'DELIVERED', 'FLAGGED', 'RECALLED', 'EXPIRED', 'BULLY');
 
--- CreateEnum
-CREATE TYPE "public"."UnitStatus" AS ENUM ('IN_STOCK', 'DISPATCHED', 'SOLD', 'RETURNED', 'LOST');
+-- -- CreateEnum
+-- CREATE TYPE "public"."UnitStatus" AS ENUM ('IN_STOCK', 'DISPATCHED', 'SOLD', 'RETURNED', 'LOST');
 
--- CreateEnum
-CREATE TYPE "public"."TransferStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED');
+-- -- CreateEnum
+-- CREATE TYPE "public"."TransferStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED');
 
--- CreateEnum
-CREATE TYPE "public"."ScanResult" AS ENUM ('GENUINE', 'COUNTERFEIT', 'SUSPICIOUS', 'NOT_FOUND', 'EXPIRED');
+-- -- CreateEnum
+-- CREATE TYPE "public"."ScanResult" AS ENUM ('GENUINE', 'COUNTERFEIT', 'SUSPICIOUS', 'NOT_FOUND', 'EXPIRED');
 
--- CreateEnum
-CREATE TYPE "public"."ReportType" AS ENUM ('COUNTERFEIT_DETECTED', 'PACKAGING_ISSUE', 'EXPIRY_MISMATCH', 'MULTIPLE_SCANS', 'SUSPICIOUS_ACTIVITY');
+-- -- CreateEnum
+-- CREATE TYPE "public"."ReportType" AS ENUM ('COUNTERFEIT_DETECTED', 'PACKAGING_ISSUE', 'EXPIRY_MISMATCH', 'MULTIPLE_SCANS', 'SUSPICIOUS_ACTIVITY');
 
--- CreateEnum
-CREATE TYPE "public"."SeverityLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+-- -- CreateEnum
+-- CREATE TYPE "public"."SeverityLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
 
--- CreateEnum
-CREATE TYPE "public"."ReportStatus" AS ENUM ('PENDING', 'INVESTIGATING', 'RESOLVED', 'DISMISSED', 'ESCALATED');
+-- -- CreateEnum
+-- CREATE TYPE "public"."ReportStatus" AS ENUM ('PENDING', 'INVESTIGATING', 'RESOLVED', 'DISMISSED', 'ESCALATED');
 
 -- CreateTable
 CREATE TABLE "public"."users" (
@@ -115,6 +115,7 @@ CREATE TABLE "public"."medication_batches" (
     "status" "public"."BatchStatus" NOT NULL DEFAULT 'CREATED',
     "qrCodeData" TEXT,
     "qrSignature" TEXT,
+    "secretKey" TEXT,
     "blockchainHash" TEXT,
     "registryTopicId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -138,6 +139,18 @@ CREATE TABLE "public"."medication_units" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "medication_units_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."BatchEvent" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "eventType" TEXT NOT NULL,
+    "hederaSeq" INTEGER NOT NULL,
+    "payload" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BatchEvent_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -258,6 +271,9 @@ ALTER TABLE "public"."medication_batches" ADD CONSTRAINT "medication_batches_org
 
 -- AddForeignKey
 ALTER TABLE "public"."medication_units" ADD CONSTRAINT "medication_units_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."BatchEvent" ADD CONSTRAINT "BatchEvent_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."ownership_transfers" ADD CONSTRAINT "ownership_transfers_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

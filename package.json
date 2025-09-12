@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.8",
+    "@hashgraph/sdk": "^2.72.0",
     "@hashgraphonline/standards-sdk": "^0.0.188",
     "@hookform/resolvers": "^3.10.0",
     "@prisma/client": "^6.15.0",

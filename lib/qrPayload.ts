@@ -38,11 +38,18 @@ export function generateQRPayload(
 
 
 // batch QR payload generation
-export function generateBatchQRPayload(batchId: string, secret: string, baseUrl: string) {
+export function generateBatchQRPayload(
+  batchId: string,
+  secret: string,
+  baseUrl: string,
+  registryTopicId: string,
+) {
+  const data = `BATCH|${batchId}|${registryTopicId}`;
 
-  const data = `BATCH|${batchId}`;
-
-  const signature = crypto.createHmac("sha256", secret).update(data).digest("hex");
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(data)
+    .digest("hex");
 
   const url = `${baseUrl}/verify/batch/${batchId}?sig=${signature}`;
 
