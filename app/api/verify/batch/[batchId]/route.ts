@@ -16,8 +16,6 @@ export async function GET(
 
   const sig = url.searchParams.get("sig");
 
-  console.log(batchId, sig)
-
   if (!sig) {
     return NextResponse.json(
       { valid: false, error: "Missing signature" },
@@ -38,12 +36,14 @@ export async function GET(
   }
 
   // 2️⃣ Recompute signature
-  const data = `BATCH|${batch.batchId}`; // or add manufacturingDate etc. if you want stronger uniqueness
+  const data = `BATCH|${batch.batchId}|${batch.registryTopicId}`; 
+
   const valid = verifySignature(data, sig, QR_SECRET);
 
-  // 3️⃣ Respond
+  // 3️⃣ Response
   return NextResponse.json({
     valid,
     batch,
   });
+
 }

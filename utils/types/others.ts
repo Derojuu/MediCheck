@@ -78,3 +78,17 @@ export interface TransferProps {
     contactEmail: string;
   };
 }
+
+export interface HederaLogPayload {
+  batchId: string;
+  organizationId: string;
+  drugName?: string;
+  batchSize: string;
+  // specific to batch creation
+  manufacturingDate?: string;
+  expiryDate?: string
+  // specific to transfer
+  transferFrom?: string; // for transfer
+  transferTo?: string; // for transfer
+  qrSignature?: string;
+}

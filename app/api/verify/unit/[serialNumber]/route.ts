@@ -9,7 +9,7 @@ export async function GET(
   req: Request,
   context: { params: { serialNumber: string } }
 ) {
-  // 👇 await params here
+
   const { serialNumber } = await context.params;
 
   const url = new URL(req.url);
@@ -39,6 +39,8 @@ export async function GET(
 
   // conpare serialnumber from db with the serialnumber in the url, same thing with the 
   const splitSerialNumber = serialNumber.split("-");
+
+  // reconstruct the batchid this unit belongs to
   const batchIdFromUrl = splitSerialNumber[1] +"-"+ splitSerialNumber[2]
   
   if (batchIdFromUrl !== unit.batch.batchId || sig !== unit.qrSignature) {
@@ -47,6 +49,8 @@ export async function GET(
       { status: 400 }
     );
   }
+
+  console.log(serialNumber, unit.serialNumber)
 
   // 2️⃣ Recompute signature
   const data = `${unit.serialNumber}|${unit.batch.batchId}|${unit.registrySequence}`;
