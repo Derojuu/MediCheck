@@ -3,6 +3,8 @@
 
 import { HCS2Client, HCS2RegistryType } from "@hashgraphonline/standards-sdk";
 import { HederaLogPayload } from "@/utils";
+import { Client, TopicMessageQuery } from "@hashgraph/sdk";
+import { mirrorClient } from "./mirrorClient";
 
 if (!process.env.HEDERA_OPERATOR_ID || !process.env.HEDERA_OPERATOR_KEY) {
   throw new Error("Missing Hedera credentials in env");
@@ -72,4 +74,46 @@ export async function logBatchEvent(
   }
 
   return response.sequenceNumber;
+}
+
+
+/**
+ * Fetch all EVENT_LOG messages from a Hedera topic using the batch registryId
+ */
+export async function getBatchEventLogs(topicId: string) {
+  const messages: any[] = [];
+
+  return new Promise<any[]>((resolve, reject) => {
+    new TopicMessageQuery().setTopicId(topicId).subscribe(
+      mirrorClient,
+      (msg) => {
+        try {
+          if (!msg?.contents) return; 
+
+          const decoded = Buffer.from(msg?.contents).toString("utf8");
+          const parsed = JSON.parse(decoded);
+
+          if (parsed.type === "EVENT_LOG") {
+            messages.push({
+              ...parsed,
+              consensusTimestamp: msg.consensusTimestamp?.toDate(),
+            });
+          }
+        } catch (err) {
+          console.error("Error parsing message", err);
+        }
+      },
+      (err) => reject(err)
+    );
+
+    // Resolve after 2 seconds to allow messages to arrive
+    setTimeout(() => {
+      messages.sort(
+        (a, b) =>
+          new Date(a.consensusTimestamp).getTime() -
+          new Date(b.consensusTimestamp).getTime()
+      );
+      resolve(messages);
+    }, 2000);
+  });
 }
