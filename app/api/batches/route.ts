@@ -6,6 +6,8 @@ import { generateQRPayload , generateBatchQRPayload} from "@/lib/qrPayload";
 
 export const runtime = "nodejs";
 
+console.log(prisma)
+
 const QR_SECRET = process.env.QR_SECRET || "dev-secret"; 
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

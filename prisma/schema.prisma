@@ -10,31 +10,31 @@ datasource db {
 }
 
 model User {
-  id               String        @id @default(cuid())
-  userRole         UserRole
-  clerkUserId      String        @unique
-  isActive         Boolean       @default(true)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id          String   @id @default(cuid())
+  userRole    UserRole
+  clerkUserId String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  consumer         Consumer?
-  organizations    Organization?
-  teamMember       TeamMember?
+  consumer      Consumer?
+  organizations Organization?
+  teamMember    TeamMember?
 
   @@map("users")
 }
 
 model Consumer {
-  id                  String              @id @default(cuid())
-  userId              String              @unique
-  fullName            String
-  dateOfBirth         DateTime?
-  phoneNumber         String?
-  address             String?
-  country             String?             // currenly no in the consmer register form
-  state               String?             // currenly no in the consmer register form
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  fullName    String
+  dateOfBirth DateTime?
+  phoneNumber String?
+  address     String?
+  country     String? // currenly no in the consmer register form
+  state       String? // currenly no in the consmer register form
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   counterfeit_reports CounterfeitReport[]
@@ -44,8 +44,8 @@ model Consumer {
 }
 
 model Organization {
-  id                String              @id @default(cuid())
-  adminId           String              @unique
+  id                String           @id @default(cuid())
+  adminId           String           @unique
   organizationType  OrganizationType
   companyName       String
   contactEmail      String
@@ -62,11 +62,11 @@ model Organization {
   agencyName        String?
   officialId        String?
   distributorType   String?
-  isVerified        Boolean             @default(false)
-  isActive          Boolean             @default(true)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  
+  isVerified        Boolean          @default(false)
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
   medicationBatches MedicationBatch[]
   users             User                @relation(fields: [adminId], references: [id], onDelete: Cascade)
   transfersFrom     OwnershipTransfer[] @relation("TransferFrom")
@@ -77,22 +77,22 @@ model Organization {
 }
 
 model TeamMember {
-  id             String       @id @default(cuid())
-  userId         String       @unique
+  id             String   @id @default(cuid())
+  userId         String   @unique
   organizationId String
   isAdmin        Boolean
   name           String
   email          String
   role           String
   department     String
-  joinDate       DateTime     @default(now())
-  lastActive     DateTime     @default(now())
-  isActive       Boolean      @default(true)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  joinDate       DateTime @default(now())
+  lastActive     DateTime @default(now())
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("team_members")
 }
@@ -114,45 +114,46 @@ model MedicationBatch {
   secretKey           String?
   blockchainHash      String?
   // ✅ Hedera registry for this batch
-  registryTopicId     String?          // HCS topic ID where all units are registered
+  registryTopicId     String? // HCS topic ID where all units are registered
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   counterfeitReports  CounterfeitReport[]
   organization        Organization        @relation(fields: [organizationId], references: [id])
   ownershipTransfers  OwnershipTransfer[]
   scanHistory         ScanHistory[]
-  events              BatchEvent[]
+  batchEvents         BatchEvent[]
   medicationUnits     MedicationUnit[]
+
   @@map("medication_batches")
 }
 
 model MedicationUnit {
-  id              String      @id @default(cuid()) // Primary key
-  batchId         String                         // FK to MedicationBatch
-  serialNumber    String      @unique            // Unique identifier per unit
-  qrCode          String?                        // Optional QR code for scanning
-  qrSignature     String?
-  currentLocation String?                        // Where the unit currently is
-  status          UnitStatus  @default(IN_STOCK) // Enum for tracking unit state
-  blockchainHash  String?                        // Optional for blockchain verification
-  createdAt       DateTime    @default(now())    // Auto set on creation
+  id               String     @id @default(cuid()) // Primary key
+  batchId          String // FK to MedicationBatch
+  serialNumber     String     @unique // Unique identifier per unit
+  qrCode           String? // Optional QR code for scanning
+  qrSignature      String?
+  currentLocation  String? // Where the unit currently is
+  status           UnitStatus @default(IN_STOCK) // Enum for tracking unit state
+  blockchainHash   String? // Optional for blockchain verification
+  createdAt        DateTime   @default(now()) // Auto set on creation
   // ✅ On-chain footprint for this specific unit
-  registrySequence     Int?     // sequence number of the unit’s registration on-chain
-  updatedAt       DateTime    @updatedAt         // Auto updated on changes
+  registrySequence Int? // sequence number of the unit’s registration on-chain
+  updatedAt        DateTime   @updatedAt // Auto updated on changes
 
   // Relation back to MedicationBatch
-  batch           MedicationBatch @relation(fields: [batchId], references: [id])
+  batch MedicationBatch @relation(fields: [batchId], references: [id])
 
   @@map("medication_units")
 }
 
 model BatchEvent {
-  id           String   @id @default(cuid())
-  batchId      String
-  eventType    String
-  hederaSeq    Int
-  payload      Json
-  createdAt    DateTime @default(now())
+  id        String   @id @default(cuid())
+  batchId   String
+  eventType String
+  hederaSeq Int
+  payload   Json
+  createdAt DateTime @default(now())
 
   medicationBatch MedicationBatch @relation(fields: [batchId], references: [id])
 }
