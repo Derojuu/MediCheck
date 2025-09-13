@@ -17,14 +17,48 @@ import Link from "next/link"
 import { useClerk } from "@clerk/nextjs"
 import { authRoutes } from "@/utils";
 import { ManufacturerTab } from "@/utils"
+import { useState, useEffect } from "react"
 
 interface ManufacturerSidebarProps {
   activeTab: string
   setActiveTab: (tab: ManufacturerTab) => void
+  orgId: string
 }
 
-export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSidebarProps) {
+export function ManufacturerSidebar({ activeTab, setActiveTab, orgId }: ManufacturerSidebarProps) {
   const { signOut } = useClerk()
+  const [orgName, setOrgName] = useState("Loading...")
+  const [isSigningOut, setIsSigningOut] = useState(false)
+
+  // Fetch organization info
+  useEffect(() => {
+    const fetchOrgInfo = async () => {
+      if (!orgId) return
+      
+      try {
+        const response = await fetch(`/api/organizations/info?orgId=${orgId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setOrgName(data.companyName)
+        }
+      } catch (error) {
+        console.error('Error fetching organization info:', error)
+        setOrgName("Organization")
+      }
+    }
+
+    fetchOrgInfo()
+  }, [orgId])
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true)
+    try {
+      await signOut({ redirectUrl: authRoutes.login })
+    } catch (error) {
+      console.error('Error signing out:', error)
+      setIsSigningOut(false)
+    }
+  }
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -55,7 +89,7 @@ export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSid
               <Building2 className="h-5 w-5 text-sidebar-primary-foreground" />
             </div>
             <div>
-              <p className="font-medium text-sidebar-foreground">PharmaTech Industries</p>
+              <p className="font-medium text-sidebar-foreground">{orgName}</p>
               <Badge variant="secondary" className="text-xs">
                 Manufacturer
               </Badge>
@@ -85,10 +119,11 @@ export function ManufacturerSidebar({ activeTab, setActiveTab }: ManufacturerSid
         <Button
           variant="ghost"
           className="w-full justify-start text-muted-foreground cursor-pointer"
-          onClick={() => signOut({ redirectUrl: authRoutes.login })}
+          onClick={handleSignOut}
+          disabled={isSigningOut}
         >
-          <LogOut className="h-4 w-4 mr-3" />
-          Sign Out
+          <LogOut className={`h-4 w-4 mr-3 ${isSigningOut ? 'animate-spin' : ''}`} />
+          {isSigningOut ? 'Signing out...' : 'Sign Out'}
         </Button>
       </div>
     </div>

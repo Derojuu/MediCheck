@@ -72,8 +72,30 @@ model Organization {
   transfersFrom     OwnershipTransfer[] @relation("TransferFrom")
   transfersTo       OwnershipTransfer[] @relation("TransferTo")
   teamMembers       TeamMember[]
+  products          Product[]
 
   @@map("organizations")
+}
+
+model Product {
+  id                String    @id @default(cuid())
+  organizationId    String
+  name              String
+  description       String
+  category          String
+  dosageForm        String?
+  strength          String?
+  activeIngredients String[]
+  nafdacNumber      String?
+  shelfLifeMonths   Int?
+  storageConditions String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("products")
 }
 
 model TeamMember {

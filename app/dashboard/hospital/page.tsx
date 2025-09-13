@@ -107,18 +107,18 @@ export default function HospitalDashboard() {
   return (
     <div className="flex h-screen bg-background">
 
-      <HospitalSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <HospitalSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
 
       <main className="flex-1 overflow-y-auto">
 
         <div className="p-8">
 
           {activeTab === "dashboard" && (
-            <HospitalMain setActiveTab={setActiveTab} />
+            <HospitalMain setActiveTab={setActiveTab} orgId={orgId} />
           )}
 
           {activeTab === "inventory" && (
-            <HospitalInventory />
+            <HospitalInventory orgId={orgId} />
           )}
 
           {activeTab === "reports" && (

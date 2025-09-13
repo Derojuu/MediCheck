@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { LoadingSpinner, LoadingTable } from "@/components/ui/loading"
 import {
     Factory,
     Package,
@@ -9,20 +10,134 @@ import {
     Building2,
     Truck,
     FlaskConical,
+    Activity,
 } from "lucide-react";
 import { ManufacturerTab } from "@/utils";
-import { dummyTransfers } from "@/database";
 
-const ManufacturerMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React.SetStateAction<ManufacturerTab>> }) => {
+interface RecentActivity {
+    id: string;
+    type: 'batch' | 'transfer';
+    batchId?: string;
+    productName: string;
+    fromEntity?: string;
+    toEntity?: string;
+    status: string;
+    createdAt: string;
+}
+
+const ManufacturerMain = ({ setActiveTab, orgId }: { 
+    setActiveTab: React.Dispatch<React.SetStateAction<ManufacturerTab>>;
+    orgId: string;
+}) => {
 
     const [stats, setStats] = useState({
         totalBatches: 0,
         activeBatches: 0,
         pendingQuality: 0,
         recentTransfers: 0,
-    })
+    });
 
-    const [recentTransfers, setRecentTransfers] = useState(dummyTransfers);
+    const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+    const [loadingActivity, setLoadingActivity] = useState(true);
+
+    // Fetch recent activity data from database
+    const fetchRecentActivity = async () => {
+        try {
+            setLoadingActivity(true);
+            const response = await fetch(`/api/dashboard/recent-activity?orgId=${orgId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setRecentActivity(data);
+            }
+        } catch (error) {
+            console.error('Error fetching recent activity:', error);
+        } finally {
+            setLoadingActivity(false);
+        }
+    };
+
+    // Fetch dashboard stats from database
+    const fetchStats = async () => {
+        try {
+            const response = await fetch(`/api/dashboard/stats?orgId=${orgId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setStats(data);
+            }
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (orgId) {
+            fetchRecentActivity();
+            fetchStats();
+        }
+    }, [orgId]);
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+            case 'pending':
+                return 'bg-yellow-500';
+            case 'completed':
+            case 'manufactured':
+                return 'bg-green-500';
+            case 'in_transit':
+                return 'bg-blue-500';
+            case 'delivered':
+                return 'bg-purple-500';
+            default:
+                return 'bg-gray-500';
+        }
+    };
+
+    // Loading animation component
+    const ActivitySkeleton = () => (
+        <LoadingTable rows={5} columns={3} />
+    );
+
+    // Empty state component with animation
+    const EmptyActivity = () => (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="relative mb-4">
+                <Activity 
+                    className="w-16 h-16 text-gray-300 animate-pulse" 
+                    strokeWidth={1.5}
+                />
+                <div className="absolute inset-0 w-16 h-16 border-2 border-blue-200 rounded-full animate-ping opacity-20"></div>
+            </div>
+            <h3 className="text-lg font-medium text-gray-600 mb-2">No Recent Activity</h3>
+            <p className="text-sm text-gray-500 mb-4">
+                When you create batches or initiate transfers, they'll appear here
+            </p>
+            <div className="flex gap-2">
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setActiveTab("products")}
+                >
+                    Create Product
+                </Button>
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setActiveTab("batches")}
+                >
+                    Create Batch
+                </Button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="space-y-8">
@@ -122,29 +237,55 @@ const ManufacturerMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React
 
                 <Card className="glass-effect border-2 border-primary/20 shadow-xl backdrop-blur-xl">
                     <CardHeader>
-                        <CardTitle className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recent Activity</CardTitle>
+                        <CardTitle className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent flex items-center gap-2">
+                            <Activity className="w-5 h-5" />
+                            Recent Activity
+                        </CardTitle>
                         <CardDescription className="text-muted-foreground">Latest batch and transfer activities</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {recentTransfers.slice(0, 4).map((transfer) => (
-                                <div key={transfer.id} className="flex items-center space-x-4 p-3 rounded-lg bg-card/50 hover:bg-card/70 transition-all duration-200">
-                                    <div className="w-2 h-2 bg-gradient-to-r from-primary to-accent rounded-full"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-foreground">{transfer.productName}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {transfer.fromEntity} → {transfer.toEntity}
-                                        </p>
+                        {loadingActivity ? (
+                            <ActivitySkeleton />
+                        ) : recentActivity.length === 0 ? (
+                            <EmptyActivity />
+                        ) : (
+                            <div className="space-y-4">
+                                {recentActivity.slice(0, 4).map((activity) => (
+                                    <div key={activity.id} className="flex items-center space-x-4 p-3 rounded-lg bg-card/50 hover:bg-card/70 transition-all duration-200">
+                                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+                                            {activity.type === 'batch' ? (
+                                                <Package className="w-5 h-5 text-blue-600" />
+                                            ) : (
+                                                <Truck className="w-5 h-5 text-blue-600" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-foreground">
+                                                {activity.type === 'batch' 
+                                                    ? `Batch - ${activity.productName}`
+                                                    : `Transfer: ${activity.productName}`
+                                                }
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {activity.type === 'transfer' && activity.toEntity
+                                                    ? `To ${activity.toEntity}`
+                                                    : formatDate(activity.createdAt)
+                                                }
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <Badge 
+                                                variant={activity.status === "completed" ? "default" : "secondary"} 
+                                                className={`${getStatusColor(activity.status)} text-white border-primary/20`}
+                                            >
+                                                {activity.status.replace('_', ' ')}
+                                            </Badge>
+                                            <p className="text-xs text-muted-foreground">{formatDate(activity.createdAt)}</p>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <Badge variant={transfer.status === "Completed" ? "default" : "secondary"} className="bg-primary/10 text-primary border-primary/20">
-                                            {transfer.status}
-                                        </Badge>
-                                        <p className="text-xs text-muted-foreground">{transfer.transferDate}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
