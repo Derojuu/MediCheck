@@ -18,15 +18,49 @@ import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
 import { authRoutes } from "@/utils";
 import { ManufacturerTab } from "@/utils";
+import { useState, useEffect } from "react"
 
 interface HospitalSidebarProps {
   activeTab: string
   setActiveTab: React.Dispatch<React.SetStateAction<ManufacturerTab>>
+  orgId: string
 }
 
-export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProps) {
+export function HospitalSidebar({ activeTab, setActiveTab, orgId }: HospitalSidebarProps) {
 
   const { signOut } = useClerk();
+  const [orgName, setOrgName] = useState("Loading...")
+  const [isSigningOut, setIsSigningOut] = useState(false)
+
+  // Fetch organization info
+  useEffect(() => {
+    const fetchOrgInfo = async () => {
+      if (!orgId) return
+      
+      try {
+        const response = await fetch(`/api/organizations/info?orgId=${orgId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setOrgName(data.companyName)
+        }
+      } catch (error) {
+        console.error('Error fetching organization info:', error)
+        setOrgName("Hospital")
+      }
+    }
+
+    fetchOrgInfo()
+  }, [orgId])
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true)
+    try {
+      await signOut({ redirectUrl: authRoutes.login })
+    } catch (error) {
+      console.error('Error signing out:', error)
+      setIsSigningOut(false)
+    }
+  }
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -55,7 +89,7 @@ export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProp
               <Building2 className="h-5 w-5 text-sidebar-primary-foreground" />
             </div>
             <div>
-              <p className="font-medium text-sidebar-foreground">Lagos University Teaching Hospital</p>
+              <p className="font-medium text-sidebar-foreground">{orgName}</p>
               <Badge variant="secondary" className="text-xs">
                 Hospital
               </Badge>
@@ -81,14 +115,15 @@ export function HospitalSidebar({ activeTab, setActiveTab }: HospitalSidebarProp
         })}
       </nav>
 
-      <div className="absolute bottom-4 left-4 right-4">
+      <div className="absolute bottom-4 px-4">
         <Button
           variant="ghost"
-          className=" justify-start text-muted-foreground cursor-pointer"
-          onClick={() => signOut({ redirectUrl: authRoutes.login })}
+          className="w-full justify-start text-muted-foreground hover:!bg-transparent hover:!text-muted-foreground"
+          onClick={handleSignOut}
+          disabled={isSigningOut}
         >
-          <LogOut className="h-4 w-4 mr-3" />
-          Sign Out
+          <LogOut className={`h-4 w-4 mr-3 ${isSigningOut ? 'animate-spin' : ''}`} />
+          {isSigningOut ? 'Signing out...' : 'Sign Out'}
         </Button>
       </div>
     </div>

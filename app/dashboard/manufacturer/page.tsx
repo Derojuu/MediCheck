@@ -12,6 +12,7 @@ import ManufacturerProducts from "@/components/manufacturer-page-component/Manuf
 import ManufacturerBatch from "@/components/manufacturer-page-component/ManufacturerBatch";
 import Transfers from "@/components/Transfers";
 import ManufacturerMain from "@/components/manufacturer-page-component/ManufacturerMain"
+import { LoadingSpinner } from "@/components/ui/loading"
 // 
 import { ManufacturerTab } from "@/utils";
 import { toast } from "react-toastify";
@@ -83,7 +84,7 @@ export default function ManufacturerDashboard() {
   if (orgLoading || batchesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-600 animate-pulse">Loading...</p>
+        <LoadingSpinner size="large" text="Loading dashboard..." />
       </div>
     );
   }
@@ -91,14 +92,14 @@ export default function ManufacturerDashboard() {
   return (
     <div className="flex h-screen bg-background">
 
-      <ManufacturerSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ManufacturerSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
 
       <main className="flex-1 overflow-y-auto">
 
         <div className="p-8">
 
           {activeTab === "dashboard" && (
-            <ManufacturerMain setActiveTab={setActiveTab} />
+            <ManufacturerMain setActiveTab={setActiveTab} orgId={orgId} />
           )}
 
           {activeTab === "batches" && (
@@ -106,7 +107,7 @@ export default function ManufacturerDashboard() {
           )}
 
           {activeTab === "products" && (
-            <ManufacturerProducts />
+            <ManufacturerProducts orgId={orgId} />
           )}
 
           {activeTab === "transfers" && (

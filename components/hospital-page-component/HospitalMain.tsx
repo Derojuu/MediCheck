@@ -1,18 +1,54 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { LoadingSpinner } from "@/components/ui/loading"
 import { Package, AlertTriangle, TrendingUp, Clock, CheckCircle, QrCode, Building2 } from "lucide-react";
 import { ManufacturerTab } from "@/utils";
+import { useState, useEffect } from "react"
 
+interface HospitalStats {
+    totalMedications: number;
+    medicationGrowth: number;
+    verifiedToday: number;
+    verificationDifference: number;
+    pendingVerifications: number;
+    alerts: number;
+}
 
-const HospitalMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React.SetStateAction<ManufacturerTab>> }) => {
+const HospitalMain = ({ setActiveTab, orgId }: { 
+    setActiveTab: React.Dispatch<React.SetStateAction<ManufacturerTab>>;
+    orgId: string;
+}) => {
+    const [stats, setStats] = useState<HospitalStats>({
+        totalMedications: 0,
+        medicationGrowth: 0,
+        verifiedToday: 0,
+        verificationDifference: 0,
+        pendingVerifications: 0,
+        alerts: 0,
+    });
+    const [loading, setLoading] = useState(true);
 
-    const stats = {
-        totalMedications: 1247,
-        verifiedToday: 89,
-        pendingVerifications: 23,
-        alerts: 3,
-    }
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!orgId) return;
+            
+            try {
+                setLoading(true);
+                const response = await fetch(`/api/dashboard/hospital-stats?orgId=${orgId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStats(data);
+                }
+            } catch (error) {
+                console.error('Error fetching hospital stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, [orgId]);
 
     const handleVerifyMedication = () => {
         alert("Opening medication verification scanner...")
@@ -20,6 +56,17 @@ const HospitalMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React.Set
 
     const handleViewAnalytics = () => {
         setActiveTab("reports")
+    }
+
+    if (loading) {
+        return (
+            <div className="space-y-8">
+                <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hospital Dashboard</h1>
+                <div className="flex items-center justify-center p-8">
+                    <LoadingSpinner size="large" text="Loading dashboard..." />
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -48,7 +95,9 @@ const HospitalMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React.Set
                     <CardContent>
                         <div className="text-2xl font-bold text-foreground">{stats.totalMedications.toLocaleString()}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-accent font-medium">+12%</span> from last month
+                            <span className={`font-medium ${stats.medicationGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {stats.medicationGrowth >= 0 ? '+' : ''}{stats.medicationGrowth}%
+                            </span> from last month
                         </p>
                     </CardContent>
                 </Card>
@@ -61,7 +110,9 @@ const HospitalMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React.Set
                     <CardContent>
                         <div className="text-2xl font-bold text-foreground">{stats.verifiedToday}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-primary font-medium">+5</span> more than yesterday
+                            <span className={`font-medium ${stats.verificationDifference >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {stats.verificationDifference >= 0 ? '+' : ''}{stats.verificationDifference}
+                            </span> {stats.verificationDifference === 1 || stats.verificationDifference === -1 ? 'more' : 'from'} yesterday
                         </p>
                     </CardContent>
                 </Card>
@@ -85,7 +136,7 @@ const HospitalMain = ({ setActiveTab }: { setActiveTab: React.Dispatch<React.Set
                     <CardContent>
                         <div className="text-2xl font-bold text-destructive">{stats.alerts}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-destructive font-medium">+1</span> this week
+                            Expired & expiring medications
                         </p>
                     </CardContent>
                 </Card>

@@ -53,7 +53,7 @@ export async function registerUnitOnBatch(
 
 export async function logBatchEvent(
   topicId: string,
-  eventType: "BATCH_CREATED" | "BATCH_OWNERSHIP",
+  eventType: "BATCH_CREATED" | "BATCH_OWNERSHIP" | "BATCH_FLAG",
   payload: HederaLogPayload
 ) {
 
@@ -80,56 +80,6 @@ export async function logBatchEvent(
 /**
  * Fetch all EVENT_LOG messages from a Hedera topic using the batch registryId
  */
-
-// export async function getBatchEventLogs(topicId: string, timeoutMs = 5000) {
-//   const messages: any[] = [];
-
-//   return new Promise<any[]>((resolve, reject) => {
-//     let resolved = false;
-
-//     const sub = new TopicMessageQuery().setTopicId(topicId).subscribe(
-//       mirrorClient,
-//       (msg) => {
-//         try {
-//           if (!msg?.contents) return;
-
-//           const decoded = Buffer.from(msg.contents).toString("utf8");
-//           const parsed = JSON.parse(decoded);
-
-//           if (parsed.type === "EVENT_LOG") {
-//             messages.push({
-//               ...parsed,
-//               consensusTimestamp: msg.consensusTimestamp?.toDate(),
-//             });
-//           }
-//         } catch (err) {
-//           console.error("Error parsing message", err);
-//         }
-//       },
-//       (err) => {
-//         if (!resolved) {
-//           resolved = true;
-//           reject(err);
-//         }
-//       }
-//     );
-
-//     // Stop subscription and resolve after timeout
-//     const timer = setTimeout(() => {
-//       if (!resolved) {
-//         resolved = true;
-//         sub.unsubscribe?.(); // stop listening
-//         messages.sort(
-//           (a, b) =>
-//             new Date(a.consensusTimestamp).getTime() -
-//             new Date(b.consensusTimestamp).getTime()
-//         );
-//         resolve(messages);
-//       }
-//     }, timeoutMs);
-//   });
-// }
-
 
 export const getBatchEventLogs = async (topicId: string) => {
 

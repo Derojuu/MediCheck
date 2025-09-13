@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,9 @@ import {
   AlertTriangle,
   Bell,
   LogOut,
+  Mic,
+  MicOff,
+  X,
 } from "lucide-react"
 import Link from "next/link";
 import { authRoutes } from "@/utils"
@@ -31,6 +34,26 @@ export default function ConsumerProfile() {
   const [activeTab, setActiveTab] = useState("profile");
 
   const { signOut } = useClerk();
+
+  // Chatbot state variables
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [chatInput, setChatInput] = useState("")
+  const [isAILoading, setIsAILoading] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [chatUserProfile, setChatUserProfile] = useState({
+    weight: "",
+    age: "",
+    currentMedications: [] as string[]
+  })
+
+  const recognitionRef = useRef<any>(null)
+
+  // Chat message interface
+  interface ChatMessage {
+    type: "user" | "ai"
+    content: string
+    timestamp: string
+  }
 
   // Mock user data
   const userProfile = {
@@ -86,6 +109,151 @@ export default function ConsumerProfile() {
         return "bg-red-100 text-red-800"
       default:
         return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  // Load chat messages from localStorage on component mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('consumerProfileChatMessages')
+    if (savedMessages) {
+      try {
+        setChatMessages(JSON.parse(savedMessages))
+      } catch (error) {
+        console.error('Error loading chat messages:', error)
+      }
+    }
+  }, [])
+
+  // Save chat messages to localStorage whenever they change
+  useEffect(() => {
+    if (chatMessages.length > 0) {
+      localStorage.setItem('consumerProfileChatMessages', JSON.stringify(chatMessages))
+    }
+  }, [chatMessages])
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition()
+        
+        recognition.continuous = false
+        recognition.interimResults = false
+        recognition.lang = "en-US"
+        
+        recognition.onstart = () => {
+          setIsListening(true)
+        }
+        
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript
+          setChatInput(transcript)
+          setIsListening(false)
+        }
+        
+        recognition.onend = () => {
+          setIsListening(false)
+        }
+        
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error)
+          setIsListening(false)
+        }
+        
+        recognitionRef.current = recognition
+      }
+    }
+  }, [])
+
+  // Voice input functions
+  const startListening = () => {
+    if (recognitionRef.current && !isListening) {
+      try {
+        recognitionRef.current.start()
+      } catch (error) {
+        console.error('Error starting speech recognition:', error)
+      }
+    }
+  }
+
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop()
+    }
+  }
+
+  // Check if speech recognition is supported
+  const isSpeechRecognitionSupported = () => {
+    return typeof window !== 'undefined' && 
+           ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
+  }
+
+  // Clear chat function with localStorage cleanup
+  const clearChat = () => {
+    setChatMessages([])
+    localStorage.removeItem('consumerProfileChatMessages')
+  }
+
+  // Send chat message function
+  const sendChatMessage = async () => {
+    if (!chatInput.trim() || isAILoading) return
+
+    const userMessage: ChatMessage = { 
+      type: "user", 
+      content: chatInput,
+      timestamp: new Date().toISOString()
+    }
+    
+    setChatMessages(prev => [...prev, userMessage])
+    
+    const currentInput = chatInput
+    setChatInput("")
+    setIsAILoading(true)
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          userProfile: chatUserProfile,
+          features: {
+            drugInteractionCheck: true,
+            dosageCalculation: true
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response')
+      }
+
+      const data = await response.json()
+      
+      const aiResponse: ChatMessage = {
+        type: "ai",
+        content: data.message,
+        timestamp: new Date().toISOString()
+      }
+
+      setChatMessages(prev => [...prev, aiResponse])
+      
+    } catch (error) {
+      console.error('Error sending message:', error)
+      
+      const fallbackResponse: ChatMessage = {
+        type: "ai",
+        content: "I'm sorry, I'm having trouble connecting right now. Please consult your healthcare provider or pharmacist for medication guidance.",
+        timestamp: new Date().toISOString()
+      }
+      
+      setChatMessages(prev => [...prev, fallbackResponse])
+    } finally {
+      setIsAILoading(false)
     }
   }
 
@@ -248,40 +416,172 @@ export default function ConsumerProfile() {
           </TabsContent>
 
           <TabsContent value="ai-chat" className="space-y-6">
-            <Card>
+            <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MessageCircle className="h-5 w-5 mr-2" />
-                  AI Assistant
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center space-x-2 font-bold">
+                    <MessageCircle className="w-5 h-5 text-primary" />
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI Health Assistant</span>
+                  </CardTitle>
+                  {chatMessages.length > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={clearChat}
+                      className="text-xs border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Clear Chat
+                    </Button>
+                  )}
+                </div>
                 <CardDescription>Get personalized medication guidance and safety information</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <p className="text-sm text-muted-foreground mb-2">AI Assistant:</p>
-                    <p className="text-sm">Hello! I'm your medication AI assistant. I can help you with:</p>
-                    <ul className="text-sm mt-2 space-y-1">
-                      <li>• Medication usage instructions</li>
-                      <li>• Side effects and safety information</li>
-                      <li>• Drug interactions</li>
-                      <li>• Dosage guidance</li>
-                      <li>• Storage recommendations</li>
-                    </ul>
-                  </div>
 
-                  <div className="flex space-x-2">
-                    <Input placeholder="Ask me about your medications..." className="flex-1" />
-                    <Button>
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Send
+              <CardContent className="space-y-4">
+                {/* Chat Messages */}
+                <div className="space-y-3 h-96 overflow-y-auto border rounded-lg p-4 bg-gradient-to-br from-slate-50 to-cyan-50">
+                  {chatMessages.length === 0 ? (
+                    <div className="text-center text-slate-500 py-8">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+                      <p className="text-sm mb-2">Welcome to your AI Health Assistant!</p>
+                      <p className="text-xs">Ask me about:</p>
+                      <ul className="text-xs mt-2 space-y-1 text-left max-w-xs mx-auto">
+                        <li>• Medication usage instructions</li>
+                        <li>• Side effects and safety information</li>
+                        <li>• Drug interactions</li>
+                        <li>• Dosage guidance</li>
+                        <li>• Storage recommendations</li>
+                      </ul>
+                    </div>
+                  ) : (
+                    <>
+                      {chatMessages.map((message: ChatMessage, index: number) => (
+                        <div key={index} className={`flex flex-col ${message.type === "user" ? "items-end" : "items-start"}`}>
+                          <div
+                            className={`max-w-xs p-3 rounded-lg ${
+                              message.type === "user" 
+                                ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg" 
+                                : "bg-gradient-to-r from-slate-600 to-slate-700 text-white border border-slate-500 shadow-lg"
+                            }`}
+                          >
+                            <p className="text-sm">{message.content}</p>
+                          </div>
+                          <span className="text-xs text-slate-400 mt-1">
+                            {new Date(message.timestamp).toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </span>
+                        </div>
+                      ))}
+                      
+                      {/* AI Typing Indicator */}
+                      {isAILoading && (
+                        <div className="flex justify-start">
+                          <div className="bg-gradient-to-r from-slate-600 to-slate-700 text-white border border-slate-500 p-3 rounded-lg">
+                            <div className="flex items-center space-x-1">
+                              <div className="flex space-x-1">
+                                <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                              </div>
+                              <span className="text-xs text-slate-200 ml-2">AI is thinking...</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Chat Input */}
+                <div className="flex space-x-2">
+                  <div className="flex-1 relative">
+                    <Input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && !isAILoading && sendChatMessage()}
+                      placeholder="Ask about medications, dosage, side effects..."
+                      disabled={isAILoading || isListening}
+                      className={`w-full transition-colors duration-200 disabled:opacity-50 ${
+                        isListening 
+                          ? "border-red-400 bg-red-50" 
+                          : "border-primary/20 focus:border-primary/40 hover:border-primary/30"
+                      }`}
+                    />
+                    {isListening && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="flex items-center space-x-1">
+                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                          <span className="text-xs text-red-600">Listening...</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {isSpeechRecognitionSupported() && (
+                    <Button
+                      onClick={isListening ? stopListening : startListening}
+                      size="sm"
+                      variant="outline"
+                      disabled={isAILoading}
+                      className={`cursor-pointer transition-colors ${
+                        isListening 
+                          ? "bg-red-100 border-red-300 text-red-600 hover:bg-red-200" 
+                          : "border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                      }`}
+                    >
+                      {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                     </Button>
-                  </div>
+                  )}
+                  
+                  <Button 
+                    onClick={sendChatMessage} 
+                    disabled={isAILoading || !chatInput.trim()}
+                    className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isAILoading ? (
+                      <div className="flex items-center space-x-1">
+                        <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm">AI...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Send
+                      </>
+                    )}
+                  </Button>
+                </div>
 
-                  <div className="text-center py-8 text-muted-foreground">
-                    <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Start a conversation to get personalized medication guidance</p>
-                  </div>
+                {/* Quick Action Buttons */}
+                <div className="flex flex-wrap gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setChatInput("What are the side effects of paracetamol?")}
+                    className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    Common Side Effects
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setChatInput("How should I store my medications?")}
+                    className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    Storage Tips
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setChatInput("Can I take multiple medications together?")}
+                    className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    Drug Interactions
+                  </Button>
                 </div>
               </CardContent>
             </Card>

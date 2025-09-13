@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { QrCode, CheckCircle, AlertTriangle, XCircle, ArrowLeft, MessageCircle, Camera } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { QrCode, CheckCircle, AlertTriangle, XCircle, ArrowLeft, MessageCircle, Camera, Mic, MicOff, Volume2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +11,7 @@ import Link from "next/link"
 interface ChatMessage {
   type: "user" | "ai"
   content: string
+  timestamp: string
 }
 
 interface ScanResult {
@@ -71,7 +72,104 @@ export default function ConsumerScanPage() {
 
   const [lastScanTime, setLastScanTime] = useState<string>("")
 
+  const [isAILoading, setIsAILoading] = useState(false)
+
+  const [isListening, setIsListening] = useState(false)
+  
+  const [userProfile, setUserProfile] = useState({
+    weight: "",
+    age: "",
+    currentMedications: [] as string[]
+  })
+
   const videoRef = useRef<HTMLVideoElement>(null)
+  
+  const recognitionRef = useRef<any>(null)
+
+  // Load chat messages from localStorage on component mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('consumerChatMessages')
+    if (savedMessages) {
+      try {
+        setChatMessages(JSON.parse(savedMessages))
+      } catch (error) {
+        console.error('Error loading chat messages:', error)
+      }
+    }
+  }, [])
+
+  // Save chat messages to localStorage whenever they change
+  useEffect(() => {
+    if (chatMessages.length > 0) {
+      localStorage.setItem('consumerChatMessages', JSON.stringify(chatMessages))
+    }
+  }, [chatMessages])
+
+  // Clear chat function with localStorage cleanup
+  const clearChat = () => {
+    setChatMessages([])
+    localStorage.removeItem('consumerChatMessages')
+  }
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // TypeScript-safe way to access SpeechRecognition
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition()
+        
+        recognition.continuous = false
+        recognition.interimResults = false
+        recognition.lang = "en-US"
+        
+        recognition.onstart = () => {
+          setIsListening(true)
+        }
+        
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript
+          setChatInput(transcript)
+          setIsListening(false)
+        }
+        
+        recognition.onend = () => {
+          setIsListening(false)
+        }
+        
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error)
+          setIsListening(false)
+        }
+        
+        recognitionRef.current = recognition
+      }
+    }
+  }, [])
+
+  // Voice input functions
+  const startListening = () => {
+    if (recognitionRef.current && !isListening) {
+      try {
+        recognitionRef.current.start()
+      } catch (error) {
+        console.error('Error starting speech recognition:', error)
+      }
+    }
+  }
+
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop()
+    }
+  }
+
+  // Check if speech recognition is supported
+  const isSpeechRecognitionSupported = () => {
+    return typeof window !== 'undefined' && 
+           ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
+  }
 
   // Handle QR code scan results
   const handleQRScan = (qrData: string) => {
@@ -138,17 +236,69 @@ export default function ConsumerScanPage() {
     }
   }
 
-  const sendChatMessage = () => {
-    if (!chatInput.trim()) return
+  const sendChatMessage = async () => {
+    if (!chatInput.trim() || isAILoading) return
 
-    const userMessage: ChatMessage = { type: "user", content: chatInput }
-    const aiResponse: ChatMessage = {
-      type: "ai",
-      content: `Based on your scan of ${scanResult?.drugName}, I recommend following the prescribed dosage. ${scanResult?.aiRecommendation}`,
+    const userMessage: ChatMessage = { 
+      type: "user", 
+      content: chatInput,
+      timestamp: new Date().toISOString()
     }
-
-    setChatMessages([...chatMessages, userMessage, aiResponse])
+    
+    // Add user message immediately
+    setChatMessages(prev => [...prev, userMessage])
+    
+    // Clear input and set loading
+    const currentInput = chatInput
     setChatInput("")
+    setIsAILoading(true)
+
+    try {
+      // Call the Gemini API with enhanced context
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          scanResult: scanResult,
+          userProfile: userProfile,
+          features: {
+            drugInteractionCheck: true,
+            dosageCalculation: true
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response')
+      }
+
+      const data = await response.json()
+      
+      const aiResponse: ChatMessage = {
+        type: "ai",
+        content: data.message,
+        timestamp: new Date().toISOString()
+      }
+
+      setChatMessages(prev => [...prev, aiResponse])
+      
+    } catch (error) {
+      console.error('Error sending message:', error)
+      
+      // Fallback response if API fails
+      const fallbackResponse: ChatMessage = {
+        type: "ai",
+        content: "I'm sorry, I'm having trouble connecting right now. Please consult your healthcare provider or pharmacist for medication guidance.",
+        timestamp: new Date().toISOString()
+      }
+      
+      setChatMessages(prev => [...prev, fallbackResponse])
+    } finally {
+      setIsAILoading(false)
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -306,10 +456,22 @@ export default function ConsumerScanPage() {
           <div className={`${showAIChat ? "block" : "hidden lg:block"}`}>
             <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 font-bold">
-                  <MessageCircle className="w-5 h-5 text-primary" />
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI Health Assistant</span>
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center space-x-2 font-bold">
+                    <MessageCircle className="w-5 h-5 text-primary" />
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI Health Assistant</span>
+                  </CardTitle>
+                  {chatMessages.length > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={clearChat}
+                      className="text-xs border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                    >
+                      Clear Chat
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
 
               <CardContent className="space-y-4">
@@ -321,34 +483,102 @@ export default function ConsumerScanPage() {
                       <p className="text-sm">Ask me anything about your medication!</p>
                     </div>
                   ) : (
-                    chatMessages.map((message: ChatMessage, index: number) => (
-                      <div key={index} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
-                        <div
-                          className={`max-w-xs p-3 rounded-lg ${
-                            message.type === "user" 
-                              ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg" 
-                              : "bg-gradient-to-r from-primary/5 to-accent/5 text-slate-900 border border-primary/10"
-                          }`}
-                        >
-                          <p className="text-sm">{message.content}</p>
+                    <>
+                      {chatMessages.map((message: ChatMessage, index: number) => (
+                        <div key={index} className={`flex flex-col ${message.type === "user" ? "items-end" : "items-start"}`}>
+                          <div
+                            className={`max-w-xs p-3 rounded-lg ${
+                              message.type === "user" 
+                                ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg" 
+                                : "bg-gradient-to-r from-slate-600 to-slate-700 text-white border border-slate-500 shadow-lg"
+                            }`}
+                          >
+                            <p className="text-sm">{message.content}</p>
+                          </div>
+                          <span className="text-xs text-slate-400 mt-1">
+                            {new Date(message.timestamp).toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </span>
                         </div>
-                      </div>
-                    ))
+                      ))}
+                      
+                      {/* AI Typing Indicator */}
+                      {isAILoading && (
+                        <div className="flex justify-start">
+                          <div className="bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10 p-3 rounded-lg">
+                            <div className="flex items-center space-x-1">
+                              <div className="flex space-x-1">
+                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                              </div>
+                              <span className="text-xs text-slate-500 ml-2">AI is thinking...</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
                 {/* Chat Input */}
                 <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && sendChatMessage()}
-                    placeholder="Ask about dosage, side effects..."
-                    className="flex-1 px-3 py-2 border-2 border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary/40 text-sm hover:border-primary/30 transition-colors duration-200"
-                  />
-                  <Button onClick={sendChatMessage} size="sm" className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg">
-                    Send
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && !isAILoading && sendChatMessage()}
+                      placeholder="Ask about dosage, side effects..."
+                      disabled={isAILoading || isListening}
+                      className={`w-full px-3 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm transition-colors duration-200 disabled:opacity-50 ${
+                        isListening 
+                          ? "border-red-400 bg-red-50" 
+                          : "border-primary/20 focus:border-primary/40 hover:border-primary/30"
+                      }`}
+                    />
+                    {isListening && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="flex items-center space-x-1">
+                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                          <span className="text-xs text-red-600">Listening...</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {isSpeechRecognitionSupported() && (
+                    <Button
+                      onClick={isListening ? stopListening : startListening}
+                      size="sm"
+                      variant="outline"
+                      disabled={isAILoading}
+                      className={`cursor-pointer transition-colors ${
+                        isListening 
+                          ? "bg-red-100 border-red-300 text-red-600 hover:bg-red-200" 
+                          : "border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                      }`}
+                    >
+                      {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    </Button>
+                  )}
+                  
+                  <Button 
+                    onClick={sendChatMessage} 
+                    size="sm" 
+                    disabled={isAILoading || !chatInput.trim()}
+                    className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isAILoading ? (
+                      <div className="flex items-center space-x-1">
+                        <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>AI...</span>
+                      </div>
+                    ) : (
+                      "Send"
+                    )}
                   </Button>
                 </div>
 

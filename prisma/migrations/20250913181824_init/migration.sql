@@ -1,29 +1,29 @@
--- -- CreateEnum
--- CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_MEMBER', 'CONSUMER', 'SUPER_ADMIN');
+-- CreateEnum
+CREATE TYPE "public"."UserRole" AS ENUM ('ORGANIZATION_MEMBER', 'CONSUMER', 'SUPER_ADMIN');
 
--- -- CreateEnum
--- CREATE TYPE "public"."OrganizationType" AS ENUM ('MANUFACTURER', 'DRUG_DISTRIBUTOR', 'HOSPITAL', 'PHARMACY', 'REGULATOR');
+-- CreateEnum
+CREATE TYPE "public"."OrganizationType" AS ENUM ('MANUFACTURER', 'DRUG_DISTRIBUTOR', 'HOSPITAL', 'PHARMACY', 'REGULATOR');
 
--- -- CreateEnum
--- CREATE TYPE "public"."BatchStatus" AS ENUM ('CREATED', 'IN_TRANSIT', 'DELIVERED', 'FLAGGED', 'RECALLED', 'EXPIRED', 'BULLY');
+-- CreateEnum
+CREATE TYPE "public"."BatchStatus" AS ENUM ('CREATED', 'IN_TRANSIT', 'DELIVERED', 'FLAGGED', 'RECALLED', 'EXPIRED', 'BULLY');
 
--- -- CreateEnum
--- CREATE TYPE "public"."UnitStatus" AS ENUM ('IN_STOCK', 'DISPATCHED', 'SOLD', 'RETURNED', 'LOST');
+-- CreateEnum
+CREATE TYPE "public"."UnitStatus" AS ENUM ('IN_STOCK', 'DISPATCHED', 'SOLD', 'RETURNED', 'LOST');
 
--- -- CreateEnum
--- CREATE TYPE "public"."TransferStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED');
+-- CreateEnum
+CREATE TYPE "public"."TransferStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED');
 
--- -- CreateEnum
--- CREATE TYPE "public"."ScanResult" AS ENUM ('GENUINE', 'COUNTERFEIT', 'SUSPICIOUS', 'NOT_FOUND', 'EXPIRED');
+-- CreateEnum
+CREATE TYPE "public"."ScanResult" AS ENUM ('GENUINE', 'COUNTERFEIT', 'SUSPICIOUS', 'NOT_FOUND', 'EXPIRED');
 
--- -- CreateEnum
--- CREATE TYPE "public"."ReportType" AS ENUM ('COUNTERFEIT_DETECTED', 'PACKAGING_ISSUE', 'EXPIRY_MISMATCH', 'MULTIPLE_SCANS', 'SUSPICIOUS_ACTIVITY');
+-- CreateEnum
+CREATE TYPE "public"."ReportType" AS ENUM ('COUNTERFEIT_DETECTED', 'PACKAGING_ISSUE', 'EXPIRY_MISMATCH', 'MULTIPLE_SCANS', 'SUSPICIOUS_ACTIVITY');
 
--- -- CreateEnum
--- CREATE TYPE "public"."SeverityLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+-- CreateEnum
+CREATE TYPE "public"."SeverityLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
 
--- -- CreateEnum
--- CREATE TYPE "public"."ReportStatus" AS ENUM ('PENDING', 'INVESTIGATING', 'RESOLVED', 'DISMISSED', 'ESCALATED');
+-- CreateEnum
+CREATE TYPE "public"."ReportStatus" AS ENUM ('PENDING', 'INVESTIGATING', 'RESOLVED', 'DISMISSED', 'ESCALATED');
 
 -- CreateTable
 CREATE TABLE "public"."users" (
@@ -79,6 +79,26 @@ CREATE TABLE "public"."organizations" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "organizations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."products" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "dosageForm" TEXT,
+    "strength" TEXT,
+    "activeIngredients" TEXT[],
+    "nafdacNumber" TEXT,
+    "shelfLifeMonths" INTEGER,
+    "storageConditions" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -173,7 +193,7 @@ CREATE TABLE "public"."ownership_transfers" (
 CREATE TABLE "public"."scan_history" (
     "id" TEXT NOT NULL,
     "batchId" TEXT NOT NULL,
-    "consumerId" TEXT,
+    "teamMemberId" TEXT,
     "scanLocation" TEXT,
     "scanDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "scanResult" "public"."ScanResult" NOT NULL,
@@ -184,6 +204,19 @@ CREATE TABLE "public"."scan_history" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "scan_history_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."unit_scan_history" (
+    "id" TEXT NOT NULL,
+    "unitId" TEXT NOT NULL,
+    "consumerId" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
+    "scanResult" "public"."ScanResult" NOT NULL,
+
+    CONSTRAINT "unit_scan_history_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -261,6 +294,9 @@ ALTER TABLE "public"."consumers" ADD CONSTRAINT "consumers_userId_fkey" FOREIGN 
 ALTER TABLE "public"."organizations" ADD CONSTRAINT "organizations_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "public"."products" ADD CONSTRAINT "products_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "public"."team_members" ADD CONSTRAINT "team_members_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -285,10 +321,16 @@ ALTER TABLE "public"."ownership_transfers" ADD CONSTRAINT "ownership_transfers_f
 ALTER TABLE "public"."ownership_transfers" ADD CONSTRAINT "ownership_transfers_toOrgId_fkey" FOREIGN KEY ("toOrgId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."scan_history" ADD CONSTRAINT "scan_history_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."scan_history" ADD CONSTRAINT "scan_history_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."scan_history" ADD CONSTRAINT "scan_history_consumerId_fkey" FOREIGN KEY ("consumerId") REFERENCES "public"."consumers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."scan_history" ADD CONSTRAINT "scan_history_teamMemberId_fkey" FOREIGN KEY ("teamMemberId") REFERENCES "public"."team_members"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."unit_scan_history" ADD CONSTRAINT "unit_scan_history_unitId_fkey" FOREIGN KEY ("unitId") REFERENCES "public"."medication_units"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."unit_scan_history" ADD CONSTRAINT "unit_scan_history_consumerId_fkey" FOREIGN KEY ("consumerId") REFERENCES "public"."consumers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."counterfeit_reports" ADD CONSTRAINT "counterfeit_reports_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "public"."medication_batches"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { LoadingSpinner } from "@/components/ui/loading";
 import { toast } from "react-toastify";
 import { Plus, ArrowUpRight, ArrowDownLeft, RefreshCw } from "lucide-react";
 import { TransferProps, MedicationBatchInfoProps, OrganizationProp } from "@/utils";
@@ -200,9 +201,11 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center p-8">
-        <RefreshCw className="h-6 w-6 animate-spin" />
-        <span className="ml-2">Loading transfers...</span>
+      <div className="space-y-6">
+        <h1 className="font-montserrat font-bold text-3xl text-foreground">Batch Transfers</h1>
+        <div className="flex items-center justify-center p-8">
+          <LoadingSpinner size="large" text="Loading transfers..." />
+        </div>
       </div>
     );
   }
