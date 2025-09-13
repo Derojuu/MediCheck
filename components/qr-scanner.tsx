@@ -31,7 +31,6 @@ export function QRScanner({
   facingMode = 'environment',
   autoStart = false
 }: QRScannerProps) {
-  
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
