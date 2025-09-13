@@ -18,8 +18,20 @@ import {
     XCircle,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { dummyProducts } from "@/database"
 import { MedicationBatchInfoProps } from "@/utils"
+
+interface Product {
+    id: string;
+    name: string;
+    description: string;
+    category: string;
+    dosageForm?: string;
+    strength?: string;
+    activeIngredients: string[];
+    nafdacNumber?: string;
+    shelfLifeMonths?: number;
+    storageConditions?: string;
+}
 
 // Mock organization data for transfer destination dropdown
 const mockOrganizations = [
@@ -77,7 +89,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
         storageInstructions: "",
     });
 
-    const [products, setProducts] = useState(dummyProducts);
+    const [products, setProducts] = useState<Product[]>([]);
 
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -88,8 +100,26 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
     const [organizations, setOrganizations] = useState<any[]>(mockOrganizations);
 
     useEffect(() => {
-        setBatches(allBatches)
-    }, [allBatches])
+        setBatches(allBatches);
+        if (orgId) {
+            loadProducts();
+        }
+    }, [allBatches, orgId]);
+
+    const loadProducts = async () => {
+        try {
+            const res = await fetch(`/api/products?organizationId=${orgId}`);
+            const data = await res.json();
+            
+            if (res.ok) {
+                setProducts(data.products || []);
+            } else {
+                console.error("Failed to load products:", data.error);
+            }
+        } catch (error) {
+            console.error("Failed to load products:", error);
+        }
+    };
 
     const handleCreateBatch = async (e: React.FormEvent) => {
 
@@ -205,9 +235,10 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                 {/* create batch dialog */}
                 <Dialog open={isCreateBatchOpen} onOpenChange={setIsCreateBatchOpen}>
                     <DialogTrigger asChild>
-                        <Button className="cursor-pointer">
+                        <Button className="cursor-pointer" disabled={products.length === 0}>
                             <Plus className="h-4 w-4 mr-2" />
                             Create Batch
+                            {products.length === 0 && " (No products)"}
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
@@ -226,11 +257,17 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                             <SelectValue placeholder="Select product" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {products.map((product) => (
-                                                <SelectItem key={product.name} value={product.name}>
-                                                    {product.name}
+                                            {products.length > 0 ? (
+                                                products.map((product) => (
+                                                    <SelectItem key={product.id} value={product.name}>
+                                                        {product.name} ({product.category})
+                                                    </SelectItem>
+                                                ))
+                                            ) : (
+                                                <SelectItem value="no-products" disabled>
+                                                    No products available - Create products first
                                                 </SelectItem>
-                                            ))}
+                                            )}
                                         </SelectContent>
                                     </Select>
                                 </div>
