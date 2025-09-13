@@ -38,7 +38,7 @@ model Consumer {
 
   user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   counterfeit_reports CounterfeitReport[]
-  scanHistory         ScanHistory[]
+  unitScanHistory     UnitScanHistory[]
 
   @@map("consumers")
 }
@@ -93,6 +93,7 @@ model TeamMember {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanHistory         ScanHistory[]
 
   @@map("team_members")
 }
@@ -143,6 +144,7 @@ model MedicationUnit {
 
   // Relation back to MedicationBatch
   batch MedicationBatch @relation(fields: [batchId], references: [id])
+  scanHistory UnitScanHistory[]
 
   @@map("medication_units")
 }
@@ -179,7 +181,7 @@ model OwnershipTransfer {
 model ScanHistory {
   id           String          @id @default(cuid())
   batchId      String
-  consumerId   String?
+  teamMemberId   String?
   scanLocation String?
   scanDate     DateTime        @default(now())
   scanResult   ScanResult
@@ -188,11 +190,30 @@ model ScanHistory {
   latitude     Float?
   longitude    Float?
   createdAt    DateTime        @default(now())
-  batch        MedicationBatch @relation(fields: [batchId], references: [id])
-  consumer     Consumer?       @relation(fields: [consumerId], references: [id])
+
+  batch        MedicationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  teamMember  TeamMember?     @relation(fields: [teamMemberId], references: [id], onDelete: SetNull)
+  
 
   @@map("scan_history")
 }
+
+model UnitScanHistory{
+  id           String          @id @default(cuid()) 
+  unitId       String 
+  consumerId   String?
+  timestamp    DateTime        @default(now())
+  latitude     Float?
+  longitude    Float?
+  scanResult   ScanResult
+
+  // Relations
+  unit       MedicationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  consumer   Consumer?      @relation(fields: [consumerId], references: [id], onDelete: Cascade)
+  
+  @@map("unit_scan_history")
+}
+
 
 model CounterfeitReport {
   id             String           @id @default(cuid())
