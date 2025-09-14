@@ -77,7 +77,8 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
 
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error calling Gemini API:', error);
     
     // More detailed error logging
@@ -93,4 +94,5 @@ export async function POST(request: NextRequest) {
       debug: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
     }, { status: 500 });
   }
+  
 }
