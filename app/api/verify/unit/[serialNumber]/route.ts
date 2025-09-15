@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifySignature } from "@/lib/verifySignature";
 import { getBatchEventLogs } from "@/lib/hedera";
-import { TopicMessageQuery } from "@hashgraph/sdk";
-import { mirrorClient } from "@/lib/mirrorClient";
+import { runAllUnitAuthenticityChecks } from "@/lib/safetyChecks";
 
 const QR_SECRET = process.env.QR_SECRET || "dev-secret";
 
@@ -38,6 +37,7 @@ export async function GET(
     );
   }
 
+  // VERIFYING THAT THIS UNIT BELONGS TO A BATCH REGISTERED ON OUR PLATFORM
   // conpare serialnumber from db with the serialnumber in the url, same thing with the
   const splitSerialNumber = serialNumber.split("-");
 
@@ -60,6 +60,7 @@ export async function GET(
 
   const valid = verifySignature(data, sig, QR_SECRET);
 
+  // 
   const topicId = unit.batch.registryTopicId ?? "";
 
   const logEntries = await getBatchEventLogs(topicId);
@@ -74,7 +75,24 @@ export async function GET(
     })
     .filter((entry) => entry && entry.type === "EVENT_LOG");
 
-  console.log("Filtered EVENT_LOG entries:", eventLogs);
+
+  console.log(eventLogs)
+
+  // AUTHENTICITY CHECK
+  const authenticityCheckResult = await runAllUnitAuthenticityChecks(
+    eventLogs,
+    unit.id,
+    unit.batch.batchId,
+    unit.batch.organizationId,
+    topicId
+  );
+
+  console.log(
+    `AUTHENTICITY CHECK RESULT: ${JSON.stringify(authenticityCheckResult)}`
+  );
+
+
+
 
   // 3️⃣ Response
   return NextResponse.json({
@@ -82,4 +100,5 @@ export async function GET(
     unit,
     batch: unit.batch,
   });
+
 }

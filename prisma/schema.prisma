@@ -236,7 +236,6 @@ model UnitScanHistory{
   @@map("unit_scan_history")
 }
 
-
 model CounterfeitReport {
   id             String           @id @default(cuid())
   batchId        String?
