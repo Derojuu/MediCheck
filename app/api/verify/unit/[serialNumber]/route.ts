@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { verifySignature } from "@/lib/verifySignature";
 import { getBatchEventLogs } from "@/lib/hedera";
 import { runAllUnitAuthenticityChecks } from "@/lib/safetyChecks";
+import { currentUser } from "@clerk/nextjs/server";
 
 const QR_SECRET = process.env.QR_SECRET || "dev-secret";
 
@@ -11,6 +12,9 @@ export async function GET(
   req: Request,
   context: { params: { serialNumber: string } }
 ) {
+
+  const user = await currentUser();
+
   const { serialNumber } = await context.params;
 
   const url = new URL(req.url);
@@ -79,7 +83,7 @@ export async function GET(
   console.log(eventLogs)
 
   // AUTHENTICITY CHECK
-  const authenticityCheckResult = await runAllUnitAuthenticityChecks(
+  const authenticityResultCheck = await runAllUnitAuthenticityChecks(
     eventLogs,
     unit.id,
     unit.batch.batchId,
@@ -87,12 +91,30 @@ export async function GET(
     topicId
   );
 
-  console.log(
-    `AUTHENTICITY CHECK RESULT: ${JSON.stringify(authenticityCheckResult)}`
-  );
+  // const formatedAuthenticityResultCheck = JSON.stringify(authenticityResultCheck)
 
+  const consumer = user
+  ? await prisma.consumer.findUnique({ where: { userId: user.id } })
+  : null;
 
+  const consumerId = consumer?.id || "";
 
+  const scanResult = authenticityResultCheck?.status === "NOT_SAFE" 
+  ? "COUNTERFEIT" 
+  : "GENUINE";
+
+  const timestamp = new Date();
+
+  const newBatch = await prisma.unitScanHistory.create({
+    data: {
+      unitId: unit.id,
+      consumerId,
+      timestamp,
+      latitude: 2.3444,  
+      longitude: 4.222,   
+      scanResult
+    }
+  });
 
   // 3️⃣ Response
   return NextResponse.json({

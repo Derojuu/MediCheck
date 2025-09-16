@@ -185,7 +185,7 @@ export async function runAllUnitAuthenticityChecks(
   const failedChecks = allChecks.filter((c) => !c.passed);
 
   // Status logic
-  const status = failedChecks.length ? "NOT_SAFE" : "AUTHENTIC";
+  const status: string = failedChecks.length ? "NOT_SAFE" : "AUTHENTIC";
 
   // Collect reasons
   const reasons = failedChecks.length
@@ -198,10 +198,11 @@ export async function runAllUnitAuthenticityChecks(
       ? "Do not use this medicine. Contact your pharmacist or regulator immediately."
       : "This medicine is authentic and safe to use as prescribed.";
 
-  return {
+  const restul = {
     status,
     reasons,
     recommendedAction,
   };
+  return restul;
 }
 

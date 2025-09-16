@@ -17,6 +17,25 @@ export default function VerifyUnitPage() {
     const [batch, setBatch] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
 
+    const getUserLocation = (): Promise< { latitude: number; longitude: number }> => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                return reject(new Error("Geolocation not supported"));
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
+                },
+                (err) => reject(err)
+            );
+        });
+    }
+
+
     useEffect(() => {
         async function verifyUnit() {
             if (!serialNumber || !sig) {
