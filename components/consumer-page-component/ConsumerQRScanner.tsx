@@ -1,6 +1,5 @@
 "use client"
-
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { QrCode, CheckCircle, AlertTriangle, XCircle, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,89 +26,25 @@ interface ConsumerQRScannerProps {
 }
 
 export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScannerProps) {
+
   const [isScanning, setIsScanning] = useState(false)
+
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
+  
   const qrScannerRef = useRef<QRScannerRef>(null)
 
-  // Save scan data to database
-  const saveScanToDatabase = async (qrData: string, scanResult: ScanResult) => {
-    try {
-      // Extract unit ID from QR data
-      let unitId = null;
-      let scanResultEnum = 'GENUINE'; // Default
-      
-      try {
-        const parsedData = JSON.parse(qrData);
-        unitId = parsedData.unitId || parsedData.id;
-        
-        // Map scan result status to database enum
-        switch (scanResult.status.toLowerCase()) {
-          case 'genuine':
-            scanResultEnum = 'GENUINE';
-            break;
-          case 'suspicious':
-            scanResultEnum = 'SUSPICIOUS';
-            break;
-          case 'fake':
-            scanResultEnum = 'COUNTERFEIT';
-            break;
-          default:
-            scanResultEnum = 'GENUINE';
-        }
-      } catch (e) {
-        // If QR data is not JSON, try to use it as unitId
-        unitId = qrData;
-      }
+  const [scannedQRcodeResult, setScannedQRcodeResult] = useState("");
 
-      if (!unitId) {
-        console.error('No unit ID found in QR data');
-        return;
-      }
-
-      // Get user's location if available
-      let latitude = null;
-      let longitude = null;
-      
-      if (navigator.geolocation) {
-        try {
-          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              timeout: 5000,
-              enableHighAccuracy: false
-            });
-          });
-          latitude = position.coords.latitude;
-          longitude = position.coords.longitude;
-        } catch (error) {
-          console.log('Could not get location:', error);
-        }
-      }
-
-      // Save to database
-      const response = await fetch('/api/consumer/save-scan', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          unitId,
-          scanResult: scanResultEnum,
-          latitude,
-          longitude,
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Scan saved successfully:', result);
-      } else {
-        const error = await response.json();
-        console.error('Failed to save scan:', error);
-      }
-    } catch (error) {
-      console.error('Error saving scan to database:', error);
-    }
+  const handleQRScan = (qrData: string) => {
+    setScannedQRcodeResult(qrData)
   }
+
+  useEffect(() => {
+    if (scannedQRcodeResult) {
+      console.log(scannedQRcodeResult);
+      window.location.href = scannedQRcodeResult;
+    }
+  }, [scannedQRcodeResult])
 
   // Process QR code data and return a scan result
   const processQRCodeData = (qrData: string): ScanResult => {
@@ -151,22 +86,6 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
       sideEffects: ["Consult healthcare provider"],
       dosage: "Follow prescription instructions",
     }
-  }
-
-  // Handle QR code scan results
-  const handleQRScan = async (qrData: string) => {
-    console.log('QR Code scanned:', qrData)
-    
-    // Process the QR data and generate result
-    const result = processQRCodeData(qrData)
-    setScanResult(result)
-    onScanResult(result)
-    
-    const scanTime = new Date().toLocaleTimeString()
-    onScanTime(scanTime)
-
-    // Save scan to database
-    await saveScanToDatabase(qrData, result)
   }
 
   // Handle QR scanner errors

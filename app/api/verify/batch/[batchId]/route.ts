@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { verifySignature } from "@/lib/verifySignature";
+import { logBatchEvent } from "@/lib/hedera";
+import { encodeFeatures } from "@/lib/formatModelInput";
+import { modelPrediction } from "@/lib/modelPrediction";
 
 const QR_SECRET = process.env.QR_SECRET || "dev-secret";
 
@@ -14,6 +17,8 @@ export async function GET(
     const { batchId } = context.params;
     const url = new URL(req.url);
     const sig = url.searchParams.get("sig");
+    const longitude = url.searchParams.get("long");
+    const latitude = url.searchParams.get("lat");
 
     const { userId } = await auth();
 
@@ -31,7 +36,7 @@ export async function GET(
       );
     }
 
-    // 2️⃣ Fetch user & team membership
+    // Fetch user & team membership
     const user = await prisma.user.findUnique({
       where: { clerkUserId: userId },
       include: { teamMember: true },
@@ -45,7 +50,6 @@ export async function GET(
     }
 
     const orgId = user?.teamMember?.organizationId;
-
 
     // 1️⃣ Fetch batch
     const batch = await prisma.medicationBatch.findUnique({
@@ -65,7 +69,7 @@ export async function GET(
 
     if (!valid) {
       return NextResponse.json(
-        { valid: false, error: "Invalid signature" },
+        { valid: false, error: "This batch is not valid" },
         { status: 400 }
       );
     }
@@ -78,51 +82,155 @@ export async function GET(
       },
     });
 
-    console.log("Batch info:", batch);
-    console.log("Organization id from Clerk:", orgId);
-    console.log("Ownership transfer record:", transfer);
-
     let updatedBatch = batch;
 
+    const organizationInformation = await prisma.organization.findUnique({
+      where: { id: batch.organizationId },
+    });
+
+    const prevOrg = batch.batchId;
+
     if (transfer && transfer.status === "PENDING") {
-      // ✅ Transfer ownership
+      // 1. Transfer ownership
       updatedBatch = await prisma.medicationBatch.update({
-        where: { batchId: batch.batchId },
+        where: { batchId: prevOrg },
         data: {
           organizationId: orgId,
           status: "DELIVERED",
         },
       });
 
-      // Mark transfer as complete
+      // 2. Mark transfer as complete
       await prisma.ownershipTransfer.update({
         where: { id: transfer.id },
         data: { status: "COMPLETED" },
       });
 
-      // TODO: log digital footprint on-chain
+      // 3. log digital footprint on-chain
       console.log(
-        `Batch ${batch.batchId} ownership transferred to org ${orgId} by user ${userId}`
+        `Batch ${prevOrg} ownership transferred to org ${orgId} by user ${userId}`
       );
+
+      // Log the batch creation event to Hedera
+      await logBatchEvent(batch.registryTopicId ?? "", "BATCH_OWNERSHIP", {
+        batchId: batch.batchId,
+        organizationId: batch.organizationId,
+        transferFrom: prevOrg,
+        transferTo: orgId,
+        qrSignature: batch.qrSignature ?? "",
+      });
     } else {
-      // ❌ Flag batch
+      // Flag batch
       updatedBatch = await prisma.medicationBatch.update({
-        where: { batchId: batch.batchId },
+        where: { batchId: prevOrg },
         data: { status: "FLAGGED" },
+      });
+
+      // log flag event
+
+      await logBatchEvent(batch.registryTopicId ?? "", "BATCH_FLAG", {
+        batchId: batch.batchId,
+        organizationId: batch.organizationId,
+        qrSignature: batch.qrSignature ?? "",
+        flagReason: "The tranfer of this batch seems malicious.",
       });
     }
 
-    const ipAddress =
-      req.headers.get("x-forwarded-for") ??
-      req.headers.get("x-real-ip") ??
-      undefined;
+    const now = new Date();
 
-    await prisma.scanHistory.create({
+    // batch level scan
+    const savedScan = await prisma.scanHistory.create({
       data: {
         batchId: batch.id,
         teamMemberId: user.teamMember.id,
         scanResult: transfer ? "GENUINE" : "SUSPICIOUS",
-        ipAddress: ipAddress as string | undefined,
+        region: organizationInformation?.state,
+        isAnonymous: false,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
+        timestamp: now,
+      },
+    });
+
+    // Day of week
+    const dayMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const dayOfWeek = dayMap[now.getDay()];
+
+    // Time of day
+    const hour = now.getHours();
+    let timeOfDay;
+    if (hour >= 5 && hour < 12) timeOfDay = "morning";
+    else if (hour >= 12 && hour < 17) timeOfDay = "afternoon";
+    else if (hour >= 17 && hour < 21) timeOfDay = "evening";
+    else timeOfDay = "night";
+
+    // total scans in region in last 30 days
+    const totalScans = await prisma.scanHistory.count({
+      where: {
+        region: organizationInformation?.state,
+        timestamp: {
+          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+    });
+
+    // suspicious scans in region in last 30 days
+    const suspiciousScans = await prisma.scanHistory.count({
+      where: {
+        region: organizationInformation?.state,
+        scanResult: "SUSPICIOUS",
+        timestamp: {
+          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+    });
+
+    // incident rate
+    const pastIncidentRate = totalScans > 0 ? suspiciousScans / totalScans : 0;
+
+    // 1. Base risk by role
+    let baseRisk = 0.1; // Team Members always start low risk
+
+    // 2. Behavior adjustment: suspicious scans ratio for this team member
+    const totalUserScans = await prisma.scanHistory.count({
+      where: { teamMemberId: user.teamMember?.id },
+    });
+
+    const suspiciousUserScans = await prisma.scanHistory.count({
+      where: {
+        teamMemberId: user.teamMember?.id,
+        scanResult: "SUSPICIOUS",
+      },
+    });
+
+    const suspiciousRatio =
+      totalUserScans > 0 ? suspiciousUserScans / totalUserScans : 0;
+
+    // 3. Combine to make user_flag
+    const userFlag = Math.min(baseRisk + suspiciousRatio * 0.5, 1);
+
+    const features = encodeFeatures({
+      region: organizationInformation?.state ?? "",
+      latitude: latitude ? parseFloat(latitude) : 0,
+      longitude: longitude ? parseFloat(longitude) : 0,
+      time_of_day: timeOfDay,
+      day_of_week: dayOfWeek,
+      past_incident_rate: pastIncidentRate,
+      user_flag: userFlag,
+    });
+
+    // Run ONNX model
+    const predictionArray = await modelPrediction(features);
+    const predictedProbability = predictionArray[0];
+    const predictedLabel = predictedProbability > 0.5;
+
+    await prisma.predictionScore.create({
+      data: {
+        scanHistoryId: savedScan.id,
+        predictedLabel,
+        predictedProbability,
+        region: organizationInformation?.state,
+        scanType: "BATCH",
       },
     });
 
@@ -131,7 +239,8 @@ export async function GET(
       valid: true,
       batch: updatedBatch,
     });
-  } catch (err: any) {
+  }
+  catch (err: any) {
     console.error("VerifyBatch API Error:", err);
     return NextResponse.json(
       { valid: false, error: "Internal server error" },

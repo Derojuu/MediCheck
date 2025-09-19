@@ -37,16 +37,18 @@ export default function VerifyUnitPage() {
 
 
     useEffect(() => {
-        async function verifyUnit() {
+        const verifyUnit = async (latitude: number, longitude: number) => {
+
             if (!serialNumber || !sig) {
                 setError("Missing serial number or signature");
                 setLoading(false);
                 return;
             }
+
             try {
 
                 console.log(serialNumber, sig)
-                const res = await fetch(`/api/verify/unit/${serialNumber}?sig=${sig}`);
+                const res = await fetch(`/api/verify/unit/${serialNumber}?sig=${sig}&lat=${latitude}&long=${longitude}`);
                 const data = await res.json();
 
                 if (!res.ok) {
@@ -67,7 +69,13 @@ export default function VerifyUnitPage() {
             }
         }
 
-        verifyUnit();
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                verifyUnit(latitude, longitude);
+            })
+        }
     }, [serialNumber, sig]);
 
     if (loading) {

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     if (!message) {
       return NextResponse.json(
         { error: 'Message is required' },
-        { status: 400 }
+          { status: 400 }
       );
     }
 

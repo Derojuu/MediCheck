@@ -24,12 +24,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Get scan history for this consumer
-    const scanHistory = await prisma.unitScanHistory.findMany({
+    const scanHistory = await prisma.scanHistory.findMany({
       where: {
         consumerId: user.consumer.id,
       },
       include: {
-        unit: {
+        medicationUnit: {
           include: {
             batch: {
               include: {
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        timestamp: 'desc',
+        timestamp: "desc",
       },
       take: 50, // Limit to last 50 scans
     });
@@ -48,21 +48,24 @@ export async function GET(request: NextRequest) {
     // Format the response to match the existing UI structure
     const formattedHistory = scanHistory.map((scan) => ({
       id: scan.id,
-      batchId: scan.unit.batch.batchId,
-      drugName: scan.unit.batch.drugName,
-      manufacturer: scan.unit.batch.organization.companyName,
-      scanDate: scan.timestamp.toISOString().split('T')[0],
-      location: scan.latitude && scan.longitude 
-        ? `${scan.latitude.toFixed(4)}, ${scan.longitude.toFixed(4)}` 
-        : 'Unknown',
+      batchId: scan?.medicationUnit?.batch.batchId,
+      drugName: scan?.medicationUnit?.batch.drugName,
+      manufacturer: scan?.medicationUnit?.batch.organization.companyName,
+      scanDate: scan.timestamp.toISOString().split("T")[0],
+      location:
+        scan.latitude && scan.longitude
+          ? `${scan.latitude.toFixed(4)}, ${scan.longitude.toFixed(4)}`
+          : "Unknown",
       result: scan.scanResult,
-      expiryDate: scan.unit.batch.expiryDate.toISOString().split('T')[0],
-      serialNumber: scan.unit.serialNumber,
+      expiryDate: scan.medicationUnit?.batch.expiryDate
+        .toISOString()
+        .split("T")[0],
+      serialNumber: scan.medicationUnit?.serialNumber,
       scanStatus: scan.scanResult,
       // Check if approaching expiry (within 30 days)
-      warning: scan.unit.batch.expiryDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) 
-        ? 'Approaching expiry date' 
-        : null,
+      warning: (scan.medicationUnit?.batch?.expiryDate ?? Infinity) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+  ? "Approaching expiry date"
+  : null,
     }));
 
     return NextResponse.json(formattedHistory);

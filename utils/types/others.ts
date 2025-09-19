@@ -82,6 +82,7 @@ export interface TransferProps {
 export interface HederaLogPayload {
   batchId: string;
   organizationId: string;
+  // region: string;
   drugName?: string;
   batchSize?: string;
   // specific to batch creation
@@ -93,4 +94,5 @@ export interface HederaLogPayload {
   qrSignature?: string;
   // flag
   flagReason?: string
+
 }

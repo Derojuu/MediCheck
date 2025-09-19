@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get total scans count
-    const totalScans = await prisma.unitScanHistory.count({
+    const totalScans = await prisma.scanHistory.count({
       where: {
         consumerId: user.consumer.id,
       },

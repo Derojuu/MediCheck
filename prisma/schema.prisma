@@ -31,14 +31,14 @@ model Consumer {
   dateOfBirth DateTime?
   phoneNumber String?
   address     String?
-  country     String? // currenly no in the consmer register form
-  state       String? // currenly no in the consmer register form
+  country     String? 
+  state       String? 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
+  //
   user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   counterfeit_reports CounterfeitReport[]
-  unitScanHistory     UnitScanHistory[]
+  scanHistory         ScanHistory[] 
 
   @@map("consumers")
 }
@@ -62,7 +62,8 @@ model Organization {
   agencyName        String?
   officialId        String?
   distributorType   String?
-  isVerified        Boolean          @default(false)
+
+  isVerified        Boolean          @default(true)
   isActive          Boolean          @default(true)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
@@ -166,7 +167,7 @@ model MedicationUnit {
 
   // Relation back to MedicationBatch
   batch MedicationBatch @relation(fields: [batchId], references: [id])
-  scanHistory UnitScanHistory[]
+  scanHistory      ScanHistory[]
 
   @@map("medication_units")
 }
@@ -177,6 +178,7 @@ model BatchEvent {
   eventType String
   hederaSeq Int
   payload   Json
+  region    String
   createdAt DateTime @default(now())
 
   medicationBatch MedicationBatch @relation(fields: [batchId], references: [id])
@@ -202,38 +204,47 @@ model OwnershipTransfer {
 
 model ScanHistory {
   id           String          @id @default(cuid())
-  batchId      String
-  teamMemberId   String?
-  scanLocation String?
+  //
+  batchId      String?
+  teamMemberId String?
+  //
+  unitId       String?
+  consumerId   String?
+  //
+  isAnonymous  Boolean
+  //
+  region       String?
   scanDate     DateTime        @default(now())
   scanResult   ScanResult
-  ipAddress    String?
-  deviceInfo   String?
   latitude     Float?
   longitude    Float?
-  createdAt    DateTime        @default(now())
+  timestamp    DateTime        @default(now())
 
-  batch        MedicationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
-  teamMember  TeamMember?     @relation(fields: [teamMemberId], references: [id], onDelete: SetNull)
+  batch        MedicationBatch? @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  teamMember   TeamMember?      @relation(fields: [teamMemberId], references: [id], onDelete: SetNull)
+  medicationUnit MedicationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  consumer     Consumer?         @relation(fields: [consumerId], references: [id], onDelete: SetNull)
+
+  // Reverse relation
+  predictionScores PredictionScore[]
   
 
   @@map("scan_history")
 }
 
-model UnitScanHistory{
-  id           String          @id @default(cuid()) 
-  unitId       String 
-  consumerId   String?
-  timestamp    DateTime        @default(now())
-  latitude     Float?
-  longitude    Float?
-  scanResult   ScanResult
+model PredictionScore {
+  id                    String     @id @default(cuid())
+  scanHistoryId         String
+  predictedLabel        Boolean
+  predictedProbability  Float
+  predictedAt           DateTime   @default(now())
+  region                String?    
+  scanType              ScanType?
 
-  // Relations
-  unit       MedicationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  consumer   Consumer?      @relation(fields: [consumerId], references: [id], onDelete: Cascade)
-  
-  @@map("unit_scan_history")
+  // Relation back to ScanHistory
+  scanHistory           ScanHistory @relation(fields: [scanHistoryId], references: [id], onDelete: Cascade)
+
+  @@map("prediction_scores")
 }
 
 model CounterfeitReport {
@@ -324,10 +335,7 @@ enum TransferStatus {
 
 enum ScanResult {
   GENUINE
-  COUNTERFEIT
   SUSPICIOUS
-  NOT_FOUND
-  EXPIRED
 }
 
 enum ReportType {
@@ -351,4 +359,15 @@ enum ReportStatus {
   RESOLVED
   DISMISSED
   ESCALATED
+}
+
+enum ScanType{
+  UNIT
+  BATCH
+}
+
+enum ScannedBy {
+  CONSUMER
+  ORGANIZATION_MEMBER
+  ANONYMOUS_USER
 }

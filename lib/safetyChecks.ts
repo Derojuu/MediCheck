@@ -121,7 +121,7 @@ export async function checkDuplicateScan(
   topicId: string
 ) {
   // Fetch the last scan record from your DB
-  const lastScan = await prisma.unitScanHistory.findFirst({
+  const lastScan = await prisma.scanHistory.findFirst({
     where: { unitId },
   });
 

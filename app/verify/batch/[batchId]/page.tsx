@@ -20,7 +20,7 @@ export default function VerifyBatchPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function verifyBatch() {
+    async function verifyBatch(latitude: number, longitude: number) {
       if (!batchId || !sig) {
         setError("Missing batch ID or signature");
         setLoading(false);
@@ -28,7 +28,7 @@ export default function VerifyBatchPage() {
       }
 
       try {
-        const res = await fetch(`/api/verify/batch/${batchId}?sig=${sig}`);
+        const res = await fetch(`/api/verify/batch/${batchId}?sig=${sig}&lat=${latitude}&long=${longitude}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -46,7 +46,13 @@ export default function VerifyBatchPage() {
       }
     }
 
-    verifyBatch();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        verifyBatch(latitude, longitude);
+      })
+    }
+
   }, [batchId, sig]);
 
   if (!isSignedIn) {
