@@ -13,6 +13,10 @@ interface BatchData {
     batchSize: number;
     expiryDate: string;
     status: string;
+    manufacturingDate: string;
+    transferDate: string;
+    receivedFrom: string;
+    fromOrgType: string;
 }
 
 interface HospitalInventoryProps {
@@ -29,10 +33,13 @@ const HospitalInventory = ({ orgId }: HospitalInventoryProps) => {
             
             try {
                 setLoading(true);
-                const response = await fetch(`/api/batches/${orgId}`);
+                // Fetch batches that have been transferred TO this hospital
+                const response = await fetch(`/api/hospital/inventory?orgId=${orgId}`);
                 if (response.ok) {
                     const data = await response.json();
                     setBatches(data);
+                } else {
+                    console.error('Failed to fetch hospital inventory');
                 }
             } catch (error) {
                 console.error('Error fetching batches:', error);
@@ -103,6 +110,8 @@ const HospitalInventory = ({ orgId }: HospitalInventoryProps) => {
                                 <TableHead>Medication</TableHead>
                                 <TableHead>Batch ID</TableHead>
                                 <TableHead>Quantity</TableHead>
+                                <TableHead>Received From</TableHead>
+                                <TableHead>Transfer Date</TableHead>
                                 <TableHead>Expiry Date</TableHead>
                                 <TableHead>Status</TableHead>
                             </TableRow>
@@ -110,7 +119,7 @@ const HospitalInventory = ({ orgId }: HospitalInventoryProps) => {
                         <TableBody>
                             {batches.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                    <TableCell colSpan={7} className="text-center text-muted-foreground">
                                         No inventory data available
                                     </TableCell>
                                 </TableRow>
@@ -122,6 +131,15 @@ const HospitalInventory = ({ orgId }: HospitalInventoryProps) => {
                                             <TableCell className="font-medium">{batch.drugName}</TableCell>
                                             <TableCell>{batch.batchId}</TableCell>
                                             <TableCell>{batch.batchSize}</TableCell>
+                                            <TableCell>
+                                                <div>
+                                                    <div className="font-medium">{batch.receivedFrom}</div>
+                                                    <div className="text-sm text-muted-foreground capitalize">
+                                                        {batch.fromOrgType.toLowerCase()}
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{formatDate(batch.transferDate)}</TableCell>
                                             <TableCell>{formatDate(batch.expiryDate)}</TableCell>
                                             <TableCell>
                                                 <Badge

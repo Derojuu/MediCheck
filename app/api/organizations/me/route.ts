@@ -13,20 +13,43 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { clerkUserId: userId },
-      include: { organizations: true },
+      include: { 
+        organizations: true,
+        teamMember: {
+          include: {
+            organization: true
+          }
+        }
+      },
     });
 
-    if (!user || !user.organizations) {
+    if (!user) {
       return NextResponse.json(
-        { error: "No organization found" },
+        { error: "User not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({
-      organizationId: user.organizations.id,
-      organization: user.organizations,
-    });
+    // Check if user owns an organization
+    if (user.organizations) {
+      return NextResponse.json({
+        organizationId: user.organizations.id,
+        organization: user.organizations,
+      });
+    }
+
+    // Check if user is a team member of an organization
+    if (user.teamMember && user.teamMember.organization) {
+      return NextResponse.json({
+        organizationId: user.teamMember.organization.id,
+        organization: user.teamMember.organization,
+      });
+    }
+
+    return NextResponse.json(
+      { error: "No organization found" },
+      { status: 404 }
+    );
   } catch (error) {
     console.error("Error fetching organization:", error);
     return NextResponse.json(
