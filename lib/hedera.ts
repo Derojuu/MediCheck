@@ -1,21 +1,9 @@
 // /lib/hedera.ts
 "use server"; 
-
-import { HCS2Client, HCS2RegistryType } from "@hashgraphonline/standards-sdk";
+import { hederaClient } from "./hederaClient";
+import { HCS2RegistryType } from "@hashgraphonline/standards-sdk";
 import { HederaLogPayload } from "@/utils";
-import { TopicMessageQuery } from "@hashgraph/sdk";
-import { mirrorClient } from "./mirrorClient";
 
-if (!process.env.HEDERA_OPERATOR_ID || !process.env.HEDERA_OPERATOR_KEY) {
-  throw new Error("Missing Hedera credentials in env");
-}
-
-const hederaClient = new HCS2Client({
-  network: "testnet",
-  operatorId: process.env.HEDERA_OPERATOR_ID!,
-  operatorKey: process.env.HEDERA_OPERATOR_KEY!,
-  logLevel: "info",
-});
 
 export async function createBatchRegistry(batchId: string) {
 

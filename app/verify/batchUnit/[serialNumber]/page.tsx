@@ -17,17 +17,38 @@ export default function VerifyUnitPage() {
     const [batch, setBatch] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
 
+    const getUserLocation = (): Promise< { latitude: number; longitude: number }> => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                return reject(new Error("Geolocation not supported"));
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
+                },
+                (err) => reject(err)
+            );
+        });
+    }
+
+
     useEffect(() => {
-        async function verifyUnit() {
+        const verifyUnit = async (latitude: number, longitude: number) => {
+
             if (!serialNumber || !sig) {
                 setError("Missing serial number or signature");
                 setLoading(false);
                 return;
             }
+
             try {
 
                 console.log(serialNumber, sig)
-                const res = await fetch(`/api/verify/unit/${serialNumber}?sig=${sig}`);
+                const res = await fetch(`/api/verify/unit/${serialNumber}?sig=${sig}&lat=${latitude}&long=${longitude}`);
                 const data = await res.json();
 
                 if (!res.ok) {
@@ -48,7 +69,13 @@ export default function VerifyUnitPage() {
             }
         }
 
-        verifyUnit();
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                verifyUnit(latitude, longitude);
+            })
+        }
     }, [serialNumber, sig]);
 
     if (loading) {

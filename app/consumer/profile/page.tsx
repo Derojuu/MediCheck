@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Shield,
   User,
@@ -32,6 +33,23 @@ import { consumerRoutes } from "@/utils"
 export default function ConsumerProfile() {
 
   const [activeTab, setActiveTab] = useState("profile");
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [scanHistory, setScanHistory] = useState<any[]>([]);
+  const [isScanHistoryLoading, setIsScanHistoryLoading] = useState(false);
+
+  // Editable profile fields
+  const [editableProfile, setEditableProfile] = useState({
+    fullName: "",
+    phoneNumber: "",
+    address: "",
+  });
+  const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   const { signOut } = useClerk();
 
@@ -55,58 +73,215 @@ export default function ConsumerProfile() {
     timestamp: string
   }
 
-  // Mock user data
-  const userProfile = {
-    name: "John Smith",
-    email: "john.smith@email.com",
-    joinDate: "2024-01-10",
-    totalScans: 15,
-    language: "English",
-  }
+  // Available languages
+  const languages = [
+    "English",
+    "Spanish", 
+    "French",
+    "German",
+    "Portuguese",
+    "Italian",
+    "Dutch",
+    "Russian",
+    "Chinese",
+    "Japanese",
+    "Arabic",
+    "Hindi"
+  ];
 
-  // Mock scan history
-  const scanHistory = [
-    {
-      id: 1,
-      batchId: "BTH-2024-001",
-      drugName: "Paracetamol 500mg",
-      manufacturer: "Pharma Corp Ltd.",
-      scanDate: "2024-01-16",
-      location: "Home",
-      result: "Verified",
-      expiryDate: "2025-12-15",
-    },
-    {
-      id: 2,
-      batchId: "BTH-2024-003",
-      drugName: "Ibuprofen 400mg",
-      manufacturer: "MedLife Pharmaceuticals",
-      scanDate: "2024-01-15",
-      location: "Home",
-      result: "Warning",
-      expiryDate: "2024-03-20",
-      warning: "Approaching expiry date",
-    },
-    {
-      id: 3,
-      batchId: "BTH-2024-002",
-      drugName: "Amoxicillin 250mg",
-      manufacturer: "HealthCare Inc.",
-      scanDate: "2024-01-14",
-      location: "Home",
-      result: "Verified",
-      expiryDate: "2025-08-30",
-    },
-  ]
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/consumer/profile');
+        if (response.ok) {
+          const profileData = await response.json();
+          setUserProfile(profileData);
+          setSelectedLanguage(profileData.language || "English");
+          
+          // Initialize editable profile fields with current data
+          setEditableProfile({
+            fullName: profileData.name || "",
+            phoneNumber: profileData.phoneNumber || "",
+            address: profileData.address || "",
+          });
+        } else {
+          console.error('Failed to fetch profile');
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // Update editable fields when userProfile changes
+  useEffect(() => {
+    if (userProfile) {
+      setEditableProfile({
+        fullName: userProfile.name || "",
+        phoneNumber: userProfile.phoneNumber || "",
+        address: userProfile.address || "",
+      });
+    }
+  }, [userProfile]);
+
+  // Update profile function
+  const updateProfile = async () => {
+    try {
+      const response = await fetch('/api/consumer/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language: selectedLanguage,
+        }),
+      });
+
+      if (response.ok) {
+        // Store language preference locally as well
+        localStorage.setItem('preferredLanguage', selectedLanguage);
+        
+        // Update the userProfile state
+        setUserProfile((prev: any) => ({
+          ...prev,
+          language: selectedLanguage
+        }));
+        
+        showToastNotification('Profile updated successfully!');
+      } else {
+        showToastNotification('Failed to update profile', 'error');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      showToastNotification('Error updating profile', 'error');
+    }
+  };
+
+  // Save profile changes function
+  const saveProfileChanges = async () => {
+    try {
+      setIsProfileSaving(true);
+      const response = await fetch('/api/consumer/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: editableProfile.fullName,
+          phoneNumber: editableProfile.phoneNumber,
+          address: editableProfile.address,
+          language: selectedLanguage,
+        }),
+      });
+
+      if (response.ok) {
+        const updatedProfile = await response.json();
+        
+        // Update the userProfile state
+        setUserProfile((prev: any) => ({
+          ...prev,
+          name: editableProfile.fullName,
+          phoneNumber: editableProfile.phoneNumber,
+          address: editableProfile.address,
+          language: selectedLanguage
+        }));
+        
+        // Store language preference locally as well
+        localStorage.setItem('preferredLanguage', selectedLanguage);
+        
+        // Exit edit mode
+        setIsEditingProfile(false);
+        
+        showToastNotification('Profile saved successfully!');
+      } else {
+        const error = await response.json();
+        showToastNotification('Failed to save profile: ' + (error.message || 'Unknown error'), 'error');
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      showToastNotification('Error saving profile', 'error');
+    } finally {
+      setIsProfileSaving(false);
+    }
+  };
+
+  // Enable edit mode
+  const enableEditMode = () => {
+    setIsEditingProfile(true);
+  };
+
+  // Cancel edit mode and reset fields
+  const cancelEditMode = () => {
+    setIsEditingProfile(false);
+    // Reset editable fields to current profile data
+    if (userProfile) {
+      setEditableProfile({
+        fullName: userProfile.name || "",
+        phoneNumber: userProfile.phoneNumber || "",
+        address: userProfile.address || "",
+      });
+    }
+  };
+
+  // Show toast notification
+  const showToastNotification = (message: string, type: "success" | "error" = "success") => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+  // Fetch scan history data
+  const fetchScanHistory = async () => {
+    try {
+      setIsScanHistoryLoading(true);
+      const response = await fetch('/api/consumer/scan-history');
+      if (response.ok) {
+        const historyData = await response.json();
+        setScanHistory(historyData);
+      } else {
+        console.error('Failed to fetch scan history');
+      }
+    } catch (error) {
+      console.error('Error fetching scan history:', error);
+    } finally {
+      setIsScanHistoryLoading(false);
+    }
+  };
+
+  // Fetch scan history when history tab is accessed or refresh manually
+  useEffect(() => {
+    if (activeTab === 'history') {
+      fetchScanHistory();
+    }
+  }, [activeTab]);
+
+  // Add refresh function for manual refresh
+  const refreshScanHistory = () => {
+    fetchScanHistory();
+  };
 
   const getResultColor = (result: string) => {
     switch (result) {
-      case "Verified":
+      case "GENUINE":
         return "bg-green-100 text-green-800"
-      case "Warning":
+      case "SUSPICIOUS":
         return "bg-yellow-100 text-yellow-800"
-      case "Error":
+      case "COUNTERFEIT":
         return "bg-red-100 text-red-800"
+      case "EXPIRED":
+        return "bg-orange-100 text-orange-800"
+      case "NOT_FOUND":
+        return "bg-gray-100 text-gray-800"
       default:
         return "bg-gray-100 text-gray-800"
     }
@@ -312,21 +487,72 @@ export default function ConsumerProfile() {
                   <CardDescription>Update your personal information and preferences</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input id="name" value={userProfile.name} />
+                  {isLoading ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Full Name</Label>
+                          <div className="h-9 bg-muted animate-pulse rounded-md"></div>
+                        </div>
+                        <div>
+                          <Label>Phone Number</Label>
+                          <div className="h-9 bg-muted animate-pulse rounded-md"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <Label>Preferred Language</Label>
+                        <div className="h-9 bg-muted animate-pulse rounded-md"></div>
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" value={userProfile.email} />
+                  ) : userProfile ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="name">Full Name</Label>
+                          <Input id="name" value={userProfile.name || ''} readOnly />
+                        </div>
+                        <div>
+                          <Label htmlFor="phone">Phone Number</Label>
+                          <Input id="phone" value={userProfile.phoneNumber || 'Not provided'} readOnly />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="address">Address</Label>
+                          <Input id="address" value={userProfile.address || 'Not provided'} readOnly />
+                        </div>
+                        <div>
+                          <Label htmlFor="country">Country</Label>
+                          <Input id="country" value={userProfile.country || 'Not provided'} readOnly />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="language">Preferred Language</Label>
+                        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select your preferred language" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {languages.map((language) => (
+                              <SelectItem key={language} value={language}>
+                                {language}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button 
+                        onClick={updateProfile}
+                        className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        Update Profile
+                      </Button>
                     </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="language">Preferred Language</Label>
-                    <Input id="language" value={userProfile.language} />
-                  </div>
-                  <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">Update Profile</Button>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground">Failed to load profile data</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -335,32 +561,56 @@ export default function ConsumerProfile() {
                   <CardTitle className="font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Account Statistics</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <User className="h-8 w-8 text-primary" />
+                  {isLoading ? (
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-muted animate-pulse rounded-full mx-auto mb-4"></div>
+                        <div className="h-4 bg-muted animate-pulse rounded mx-auto mb-2 w-24"></div>
+                        <div className="h-3 bg-muted animate-pulse rounded mx-auto w-20"></div>
+                      </div>
+                      <div className="space-y-3">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="flex justify-between">
+                            <div className="h-3 bg-muted animate-pulse rounded w-20"></div>
+                            <div className="h-3 bg-muted animate-pulse rounded w-12"></div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <h3 className="font-semibold">{userProfile.name}</h3>
-                    <p className="text-sm text-muted-foreground">Consumer Account</p>
-                  </div>
+                  ) : userProfile ? (
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <User className="h-8 w-8 text-primary" />
+                        </div>
+                        <h3 className="font-semibold">{userProfile.name}</h3>
+                        <p className="text-sm text-muted-foreground">Consumer Account</p>
+                      </div>
 
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Member Since:</span>
-                      <span className="font-medium">{userProfile.joinDate}</span>
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Member Since:</span>
+                          <span className="font-medium">{userProfile.joinDate}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Total Scans:</span>
+                          <span className="font-medium">{userProfile.totalScans}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Phone:</span>
+                          <span className="font-medium">{userProfile.phoneNumber || 'Not provided'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Country:</span>
+                          <span className="font-medium">{userProfile.country || 'Not provided'}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Total Scans:</span>
-                      <span className="font-medium">{userProfile.totalScans}</span>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground">Failed to load data</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Verified Medicines:</span>
-                      <span className="font-medium text-primary">13</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Warnings:</span>
-                      <span className="font-medium text-yellow-600">2</span>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -369,48 +619,93 @@ export default function ConsumerProfile() {
           <TabsContent value="history" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <History className="h-5 w-5 mr-2" />
-                  Scan History
-                </CardTitle>
-                <CardDescription>All your medication verification records</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center">
+                      <History className="h-5 w-5 mr-2" />
+                      Scan History
+                    </CardTitle>
+                    <CardDescription>All your medication verification records</CardDescription>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={refreshScanHistory}
+                    disabled={isScanHistoryLoading}
+                    className="text-primary hover:bg-primary/10"
+                  >
+                    {isScanHistoryLoading ? 'Refreshing...' : 'Refresh'}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {scanHistory.map((scan) => (
-                    <div key={scan.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <Scan className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{scan.batchId}</p>
-                          <p className="text-sm text-muted-foreground">{scan.drugName}</p>
-                          <p className="text-xs text-muted-foreground">{scan.manufacturer}</p>
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
-                            <span className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {scan.scanDate}
-                            </span>
-                            <span className="flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" />
-                              {scan.location}
-                            </span>
+                {isScanHistoryLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-muted rounded-lg"></div>
+                          <div className="space-y-2">
+                            <div className="h-4 bg-muted rounded w-32"></div>
+                            <div className="h-3 bg-muted rounded w-24"></div>
+                            <div className="h-3 bg-muted rounded w-20"></div>
                           </div>
                         </div>
+                        <div className="text-right space-y-2">
+                          <div className="h-6 bg-muted rounded w-20"></div>
+                          <div className="h-3 bg-muted rounded w-16"></div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <Badge className={getResultColor(scan.result)}>
-                          {scan.result === "Verified" && <CheckCircle className="h-3 w-3 mr-1" />}
-                          {scan.result === "Warning" && <AlertTriangle className="h-3 w-3 mr-1" />}
-                          {scan.result}
-                        </Badge>
-                        <p className="text-xs text-muted-foreground mt-1">Expires: {scan.expiryDate}</p>
-                        {scan.warning && <p className="text-xs text-yellow-600 mt-1">{scan.warning}</p>}
+                    ))}
+                  </div>
+                ) : scanHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {scanHistory.map((scan) => (
+                      <div key={scan.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <Scan className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{scan.batchId}</p>
+                            <p className="text-sm text-muted-foreground">{scan.drugName}</p>
+                            <p className="text-xs text-muted-foreground">{scan.manufacturer}</p>
+                            <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
+                              <span className="flex items-center">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {scan.scanDate}
+                              </span>
+                              <span className="flex items-center">
+                                <MapPin className="h-3 w-3 mr-1" />
+                                {scan.location}
+                              </span>
+                              {scan.serialNumber && (
+                                <span className="text-xs">
+                                  Serial: {scan.serialNumber}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge className={getResultColor(scan.scanStatus)}>
+                            {scan.scanStatus === "GENUINE" && <CheckCircle className="h-3 w-3 mr-1" />}
+                            {(scan.scanStatus === "SUSPICIOUS" || scan.scanStatus === "EXPIRED") && <AlertTriangle className="h-3 w-3 mr-1" />}
+                            {scan.scanStatus}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground mt-1">Expires: {scan.expiryDate}</p>
+                          {scan.warning && <p className="text-xs text-yellow-600 mt-1">{scan.warning}</p>}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Scan className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No scan history found</p>
+                    <p className="text-sm text-muted-foreground mt-1">Start scanning medications to see your history here</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -592,92 +887,145 @@ export default function ConsumerProfile() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Settings className="h-5 w-5 mr-2" />
-                  Account Settings
+                  Consumer Settings
                 </CardTitle>
-                <CardDescription>Manage your notifications and privacy preferences</CardDescription>
+                <CardDescription>Manage your consumer profile preferences and configurations</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="font-medium mb-4">Notification Preferences</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Expiry Alerts</p>
-                        <p className="text-sm text-muted-foreground">
-                          Get notified when your medications are about to expire
-                        </p>
+              <CardContent>
+                {isLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-muted animate-pulse rounded w-24"></div>
+                        <div className="h-9 bg-muted animate-pulse rounded"></div>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <Bell className="h-4 w-4 mr-2" />
-                        Enabled
-                      </Button>
+                    ))}
+                  </div>
+                ) : userProfile ? (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="consumer-name">Full Name</Label>
+                      {isEditingProfile ? (
+                        <Input 
+                          id="consumer-name" 
+                          value={editableProfile.fullName} 
+                          onChange={(e) => setEditableProfile(prev => ({ ...prev, fullName: e.target.value }))}
+                          className="border-green-200 focus:border-green-400 dark:border-green-700 dark:focus:border-green-500"
+                        />
+                      ) : (
+                        <Input id="consumer-name" value={userProfile.name || 'Not provided'} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                      )}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Counterfeit Alerts</p>
-                        <p className="text-sm text-muted-foreground">
-                          Receive alerts about counterfeit medications you've scanned
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Bell className="h-4 w-4 mr-2" />
-                        Enabled
-                      </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-number">Phone Number</Label>
+                      {isEditingProfile ? (
+                        <Input 
+                          id="phone-number" 
+                          value={editableProfile.phoneNumber} 
+                          onChange={(e) => setEditableProfile(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                          className="border-green-200 focus:border-green-400 dark:border-green-700 dark:focus:border-green-500"
+                        />
+                      ) : (
+                        <Input id="phone-number" value={userProfile.phoneNumber || 'Not provided'} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                      )}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Recall Notifications</p>
-                        <p className="text-sm text-muted-foreground">Get notified about medication recalls</p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Bell className="h-4 w-4 mr-2" />
-                        Enabled
-                      </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="date-of-birth">Date of Birth</Label>
+                      <Input id="date-of-birth" value={userProfile.dateOfBirth ?? 'Not provided'} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="consumer-address">Address</Label>
+                      {isEditingProfile ? (
+                        <Input 
+                          id="consumer-address" 
+                          value={editableProfile.address} 
+                          onChange={(e) => setEditableProfile(prev => ({ ...prev, address: e.target.value }))}
+                          className="border-green-200 focus:border-green-400 dark:border-green-700 dark:focus:border-green-500"
+                        />
+                      ) : (
+                        <Input id="consumer-address" value={userProfile.address || 'Not provided'} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="consumer-country">Country</Label>
+                      <Input id="consumer-country" value={userProfile.country ?? 'Not provided'} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="consumer-state">State</Label>
+                      <Input id="consumer-state" value={userProfile.state ?? 'Not provided'} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="join-date">Member Since</Label>
+                      <Input id="join-date" value={userProfile.joinDate ?? ''} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="total-scans">Total Scans</Label>
+                      <Input id="total-scans" value={userProfile.totalScans?.toString() ?? '0'} readOnly className="bg-slate-100 dark:bg-slate-800" />
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      {!isEditingProfile ? (
+                        <Button 
+                          onClick={enableEditMode}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          Edit Profile
+                        </Button>
+                      ) : (
+                        <>
+                          <Button 
+                            onClick={saveProfileChanges}
+                            disabled={isProfileSaving}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            {isProfileSaving ? 'Saving...' : 'Save Changes'}
+                          </Button>
+                          <Button 
+                            onClick={cancelEditMode}
+                            variant="outline"
+                            disabled={isProfileSaving}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
-                </div>
-
-                <div className="border-t pt-6">
-                  <h3 className="font-medium mb-4">Privacy Settings</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Share Anonymous Usage Data</p>
-                        <p className="text-sm text-muted-foreground">
-                          Help improve the platform by sharing anonymous usage statistics
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Enabled
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Location Tracking</p>
-                        <p className="text-sm text-muted-foreground">
-                          Allow location tracking for enhanced verification
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Disabled
-                      </Button>
-                    </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground">Failed to load profile settings</p>
                   </div>
-                </div>
-
-                <div className="border-t pt-6">
-                  <h3 className="font-medium mb-4 text-destructive">Danger Zone</h3>
-                  <div className="space-y-3">
-                    <Button variant="destructive" className="w-full">
-                      Delete Account
-                    </Button>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg border transition-all duration-300 transform animate-in slide-in-from-right ${
+          toastType === 'success' 
+            ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200' 
+            : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200'
+        }`}>
+          <div className="flex items-center space-x-2">
+            {toastType === 'success' ? (
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+            ) : (
+              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            )}
+            <span className="font-medium">{toastMessage}</span>
+            <button 
+              onClick={() => setShowToast(false)}
+              className="ml-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert } from '@/components/ui/alert'
@@ -22,7 +22,12 @@ interface QRCodeResult {
   timestamp: number
 }
 
-export function QRScanner({
+export interface QRScannerRef {
+  startCamera: () => void
+  stopCamera: () => void
+}
+
+export const QRScanner = forwardRef<QRScannerRef, QRScannerProps>(({
   onScan,
   onError,
   className = '',
@@ -30,7 +35,7 @@ export function QRScanner({
   height = 300,
   facingMode = 'environment',
   autoStart = false
-}: QRScannerProps) {
+}, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -121,6 +126,12 @@ export function QRScanner({
     setHasPermission(null)
     setError(null)
   }, [])
+
+  // Expose methods to parent component via ref
+  useImperativeHandle(ref, () => ({
+    startCamera,
+    stopCamera
+  }), [startCamera, stopCamera])
 
   // QR Code scanning with actual libraries
   const scanQRCode = useCallback(async () => {
@@ -372,6 +383,8 @@ export function QRScanner({
       </CardContent>
     </Card>
   )
-}
+})
+
+QRScanner.displayName = 'QRScanner'
 
 export default QRScanner

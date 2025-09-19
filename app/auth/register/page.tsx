@@ -54,7 +54,7 @@ export default function RegisterPage() {
     // Common fields
     password: "",
     confirmPassword: "",
-    agreeToTerms: false,
+    agreeToTerms: true,
   })
 
   const router = useRouter();
@@ -99,8 +99,11 @@ export default function RegisterPage() {
           body: JSON.stringify({
             clerkUserId: result.createdUserId,
             accountType,
+            // formData Values
             organizationType: formData.organizationType,
             companyName: formData.companyName,
+            rcNumber: formData.rcNumber,
+            nafdacNumber: formData.nafdacNumber,
             contactEmail: formData.contactEmail,
             contactPhone: formData.contactPhone,
             contactPersonName: formData.contactPersonName,
@@ -109,10 +112,12 @@ export default function RegisterPage() {
             state: formData.state,
             fullName: formData.fullName,
             dateOfBirth: formData.dateOfBirth,
-            name: formData.fullName,
-            email: formData.contactEmail,
-            role: "Admin",
-            department: "Admin",
+            businessRegNumber: formData.businessRegNumber,
+            licenseNumber: formData.licenseNumber,
+            pcnNumber: formData.pcnNumber,
+            agencyName: formData.agencyName,
+            officialId: formData.officialId,
+            distributorType: formData.distributorType,
           }),
         });
 
@@ -155,9 +160,46 @@ export default function RegisterPage() {
     }
   };  
 
-  const countries = ["Nigeria", "Ghana", "Kenya", "South Africa", "Egypt"]
+  const countries = ["Nigeria"]
 
-  const nigerianStates = ["Lagos", "Abuja", "Kano", "Rivers", "Ogun", "Kaduna", "Oyo", "Delta"]
+  const nigerianStates = [
+    "Abia",
+    "Adamawa",
+    "Akwa Ibom",
+    "Anambra",
+    "Bauchi",
+    "Bayelsa",
+    "Benue",
+    "Borno",
+    "Cross River",
+    "Delta",
+    "Ebonyi",
+    "Edo",
+    "Ekiti",
+    "Enugu",
+    "Gombe",
+    "Imo",
+    "Jigawa",
+    "Kaduna",
+    "Kano",
+    "Katsina",
+    "Kebbi",
+    "Kogi",
+    "Kwara",
+    "Lagos",
+    "Nasarawa",
+    "Niger",
+    "Ogun",
+    "Ondo",
+    "Osun",
+    "Oyo",
+    "Plateau",
+    "Rivers",
+    "Sokoto",
+    "Taraba",
+    "Yobe",
+    "Zamfara"
+  ];
 
   const renderOrganizationSpecificFields = () => {
 
@@ -201,18 +243,6 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <Label htmlFor="address">Headquarters Address</Label>
-              <Textarea
-                id="address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Enter complete headquarters address"
-                rows={3}
-                className="cursor-pointer"
-                required
-              />
-            </div>
-            <div>
               <Label htmlFor="country">Country of Origin</Label>
               <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
                 <SelectTrigger className="cursor-pointer">
@@ -226,6 +256,33 @@ export default function RegisterPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label htmlFor="state">State</Label>
+              <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {nigerianStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="address">Headquarters Address</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Enter complete headquarters address"
+                rows={3}
+                className="cursor-pointer"
+                required
+              />
             </div>
           </>
         )
@@ -272,6 +329,36 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
+              <Label htmlFor="country">Country of Origin</Label>
+              <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="state">State</Label>
+              <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {nigerianStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label htmlFor="address">Operating Address</Label>
               <Textarea
                 id="address"
@@ -310,6 +397,36 @@ export default function RegisterPage() {
                 className="cursor-pointer"
                 required
               />
+            </div>
+            <div>
+              <Label htmlFor="country">Country of Origin</Label>
+              <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="state">State</Label>
+              <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {nigerianStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="address">Address</Label>
@@ -352,7 +469,44 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <Label htmlFor="state">State of Practice</Label>
+              <Label htmlFor="companyName">Pharmacy/Hospital Affiliation (Optional)</Label>
+              <Input
+                id="companyName"
+                value={formData.companyName}
+                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                placeholder="Enter pharmacy or hospital name"
+                className="cursor-pointer"
+              />
+            </div>
+            <div>
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Enter complete address"
+                rows={3}
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="country">Country of Origin</Label>
+              <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="state">State</Label>
               <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
                 <SelectTrigger className="cursor-pointer">
                   <SelectValue placeholder="Select state" />
@@ -365,16 +519,6 @@ export default function RegisterPage() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label htmlFor="companyName">Pharmacy/Hospital Affiliation (Optional)</Label>
-              <Input
-                id="companyName"
-                value={formData.companyName}
-                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                placeholder="Enter pharmacy or hospital name"
-                className="cursor-pointer"
-              />
             </div>
           </>
         )
@@ -426,6 +570,48 @@ export default function RegisterPage() {
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 placeholder="Enter your full name"
+                className="cursor-pointer"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="country">Country of Origin</Label>
+              <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="state">State</Label>
+              <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {nigerianStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Enter complete address"
+                rows={3}
                 className="cursor-pointer"
                 required
               />
@@ -741,18 +927,48 @@ export default function RegisterPage() {
                           required
                         />
                       </div>
+                        <div>
+                          <Label htmlFor="country">Country of Origin</Label>
+                          <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
+                            <SelectTrigger className="cursor-pointer">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countries.map((country) => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       <div>
-                        <Label htmlFor="address" className="font-medium text-foreground">Address</Label>
-                        <Textarea
-                          id="address"
-                          value={formData.address}
-                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                          placeholder="Enter your address"
-                          rows={3}
-                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                          required
-                        />
-                      </div>
+                        <Label htmlFor="state">State</Label>
+                        <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+                          <SelectTrigger className="cursor-pointer">
+                            <SelectValue placeholder="Select state" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {nigerianStates.map((state) => (
+                              <SelectItem key={state} value={state}>
+                                {state}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="address" className="font-medium text-foreground">Address</Label>
+                          <Textarea
+                            id="address"
+                            value={formData.address}
+                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            placeholder="Enter your address"
+                            rows={3}
+                            className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
+                            required
+                          />
+                        </div>
                       <div>
                         <Label htmlFor="password" className="font-medium text-foreground">Password *</Label>
                         <Input

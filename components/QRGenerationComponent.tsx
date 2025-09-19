@@ -88,7 +88,7 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
         batchTitle.innerText = `Batch: ${selectedBatch.drugName}`;
 
         const batchQrCanvas = document.createElement('canvas');
-        await QRCodeLib.toCanvas(batchQrCanvas, selectedBatch.batchId, { width: 200 });
+        await QRCodeLib.toCanvas(batchQrCanvas, selectedBatch.qrCodeData || "", { width: 200 });
 
         batchContainer.appendChild(batchTitle);
         batchContainer.appendChild(batchQrCanvas);
@@ -119,7 +119,7 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
 
             const qrCanvas = document.createElement('canvas');
             // Encode the real unit serialNumber (from DB)
-            await QRCodeLib.toCanvas(qrCanvas, units[i].serialNumber, { width: 150 });
+            await QRCodeLib.toCanvas(qrCanvas, units[i].qrCode ?? "", { width: 150 });
 
             container.appendChild(unitLabel);
             container.appendChild(qrCanvas);
@@ -139,8 +139,8 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
         if (!selectedBatch) return;
         const headers = ['Type', 'Code'];
         const rows: string[][] = [
-            ['Batch', selectedBatch.batchId],
-            ...units.map(u => ['Unit', u.serialNumber]),
+            ['Batch', selectedBatch.qrCodeData ?? ""],
+            ...units.map(u => ['Unit', u.qrCode ?? ""]),
         ];
         const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

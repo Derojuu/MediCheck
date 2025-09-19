@@ -16,16 +16,25 @@ export async function POST(req: Request) {
       const {
         clerkUserId,
         accountType,
+        // formData Values
         organizationType,
         companyName,
+        rcNumber,
+        nafdacNumber,
         contactEmail,
         contactPhone,
+        contactPersonName,
         address,
         country,
         state,
-        contactPersonName,
         fullName,
         dateOfBirth,
+        businessRegNumber,
+        licenseNumber,
+        pcnNumber,
+        agencyName,
+        officialId,
+        distributorType
       } = data;
 
       const clerk = await clerkClient();
@@ -101,9 +110,18 @@ export async function POST(req: Request) {
             companyName,
             contactEmail,
             contactPhone,
+            contactPersonName,
             address,
             country,
             state,
+            rcNumber,
+            nafdacNumber,
+            businessRegNumber,
+            licenseNumber,
+            pcnNumber,
+            agencyName,
+            officialId,
+            distributorType,
           },
         });
 

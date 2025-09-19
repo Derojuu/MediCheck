@@ -6,8 +6,6 @@ import { generateQRPayload , generateBatchQRPayload} from "@/lib/qrPayload";
 
 export const runtime = "nodejs";
 
-console.log(prisma)
-
 const QR_SECRET = process.env.QR_SECRET || "dev-secret"; 
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -39,10 +37,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ Check organization exists
+    // Check organization exists
     const org = await prisma.organization.findUnique({
       where: { id: organizationId },
     });
+
     if (!org) {
       return NextResponse.json(
         { error: "Organization not found" },
@@ -52,7 +51,7 @@ export async function POST(req: Request) {
 
     const batchId = `BATCH-${Date.now()}${nanoid(5)}`;
 
-    // ✅ Step 1: create registry for batch on Hedera
+    // Step 1: create registry for batch on Hedera
     const registry = await createBatchRegistry(batchId);
     if (!registry.success || !registry.topicId) {
       return NextResponse.json(
@@ -68,7 +67,7 @@ export async function POST(req: Request) {
       registry.topicId
     );
 
-    // ✅ Step 2: save batch in DB
+    // Step 2: save batch in DB
     const newBatch = await prisma.medicationBatch.create({
       data: {
         batchId,
@@ -95,6 +94,7 @@ export async function POST(req: Request) {
       expiryDate,
     });
 
+    // offchain record
     await prisma.batchEvent.create({
       data: {
         batchId: newBatch.id,
@@ -108,6 +108,7 @@ export async function POST(req: Request) {
           manufacturingDate,
           expiryDate,
         },
+        region: org?.state ?? ""
       },
     });
 

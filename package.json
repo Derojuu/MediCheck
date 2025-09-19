@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.8",
+    "@google/genai": "^1.20.0",
     "@google/generative-ai": "^0.24.1",
     "@hashgraph/sdk": "^2.72.0",
     "@hashgraphonline/standards-sdk": "^0.0.188",
@@ -58,9 +59,11 @@
     "input-otp": "1.4.1",
     "jspdf": "^3.0.2",
     "lucide-react": "^0.454.0",
+    "mime": "^4.1.0",
     "nanoid": "^5.1.5",
     "next": "15.5.2",
     "next-themes": "^0.4.6",
+    "onnxruntime-node": "1.22.0-rev",
     "qr-scanner": "^1.4.2",
     "qrcode": "^1.5.4",
     "react": "^19",
@@ -80,7 +83,7 @@
   "devDependencies": {
     "@next/swc-win32-x64-msvc": "^15.4.6",
     "@tailwindcss/postcss": "^4.1.9",
-    "@types/node": "^22",
+    "@types/node": "^22.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8.5",
