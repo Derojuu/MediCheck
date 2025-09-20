@@ -182,7 +182,7 @@ export async function GET(request: NextRequest) {
         type: "Inspection",
         target: scan.teamMember?.organization?.companyName || "Unknown Organization",
         status: scan.scanResult === "GENUINE" ? "completed" : "flagged",
-        priority: scan.scanResult === "COUNTERFEIT" ? "high" : "low",
+        priority: scan.scanResult === "SUSPICIOUS" ? "high" : "low",
         time: timeText,
         inspector: scan.teamMember?.organization?.companyName || "Inspector",
         findings: `${scan.batch?.drugName || "Drug"} verification - ${scan.scanResult}`,

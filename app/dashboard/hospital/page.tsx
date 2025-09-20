@@ -98,7 +98,10 @@ export default function HospitalDashboard() {
   if (orgLoading || batchesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-600 animate-pulse">Loading...</p>
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground font-medium">Loading hospital dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -112,7 +115,7 @@ export default function HospitalDashboard() {
 
       <main className="flex-1 overflow-y-auto">
 
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
 
           {activeTab === "dashboard" && (
             <HospitalMain setActiveTab={setActiveTab} orgId={orgId} />

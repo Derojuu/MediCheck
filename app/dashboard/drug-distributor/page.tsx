@@ -74,18 +74,18 @@ export default function DrugDistributorDashboard() {
       <DistributorSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           {activeTab === "dashboard" && (
             <div className="space-y-8">
               {/* Header */}
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Distributor Dashboard</h1>
-                  <p className="text-muted-foreground mt-2">Welcome to MedDistribute Nigeria Ltd - Wholesaler</p>
+                  <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Distributor Dashboard</h1>
+                  <p className="text-muted-foreground mt-2 text-sm sm:text-base">Welcome to MedDistribute Nigeria Ltd - Wholesaler</p>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
-                    <Building2 className="h-4 w-4 mr-2" />
+                  <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20 text-sm">
+                    <Building2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Distributor
                   </Badge>
                 </div>

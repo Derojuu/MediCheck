@@ -18,9 +18,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div className={`flex flex-col items-center justify-center space-y-2 ${className}`}>
-      <div className={`${sizeClasses[size]} border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin`}></div>
-      {text && <p className="text-gray-600 animate-pulse">{text}</p>}
+    <div className={`flex flex-col items-center justify-center space-y-3 ${className}`}>
+      <div className={`${sizeClasses[size]} border-2 border-primary/20 border-t-primary rounded-full animate-spin`}></div>
+      {text && <p className="text-muted-foreground animate-pulse font-medium">{text}</p>}
     </div>
   );
 };
@@ -31,10 +31,10 @@ interface LoadingCardProps {
 
 export const LoadingCard: React.FC<LoadingCardProps> = ({ className = '' }) => {
   return (
-    <div className={`animate-pulse bg-gray-50 rounded-lg p-4 ${className}`}>
-      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-      <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+    <div className={`animate-pulse bg-card/50 rounded-lg p-4 border border-border/50 ${className}`}>
+      <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+      <div className="h-3 bg-muted rounded w-1/2 mb-2"></div>
+      <div className="h-3 bg-muted rounded w-2/3"></div>
     </div>
   );
 };
@@ -48,9 +48,9 @@ export const LoadingTable: React.FC<LoadingTableProps> = ({ rows = 5, columns = 
   return (
     <div className="animate-pulse space-y-3">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex space-x-4 p-3 bg-gray-50 rounded-lg">
+        <div key={i} className="flex space-x-4 p-3 bg-card/50 rounded-lg border border-border/50">
           {Array.from({ length: columns }).map((_, j) => (
-            <div key={j} className="flex-1 h-4 bg-gray-200 rounded"></div>
+            <div key={j} className="flex-1 h-4 bg-muted rounded"></div>
           ))}
         </div>
       ))}

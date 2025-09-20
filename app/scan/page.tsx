@@ -202,32 +202,51 @@ export default function ScanPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b bg-card/50 backdrop-blur-sm">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href={publicRoutes.home} className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MedChain</span>
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <Link href={publicRoutes.home} className="flex items-center space-x-2 sm:space-x-4">
+              <div className="relative group cursor-pointer">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div className="relative bg-gradient-to-r from-primary to-accent p-1.5 sm:p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-white group-hover:scale-110 transition-transform duration-300" />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MedChain</span>
+                <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
+              </div>
             </Link>
             {isSignedIn ?
               (
-                <Link
-                  href={getRedirectPath(role, organizationType)}
-                  className="inline-block rounded-xl bg-accent px-6 py-2 text-white font-semibold shadow-md hover:shadow-lg hover:bg-accent/90 transition-all duration-200"
-                >
-                  Dashboard
+                <Link href={getRedirectPath(role, organizationType)}>
+                  <Button 
+                    variant="gradient"
+                    size="sm"
+                    className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
+                  >
+                    <span className="hidden sm:inline">Dashboard</span>
+                    <span className="sm:hidden">Dash</span>
+                  </Button>
                 </Link>
               )
               :
               (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 sm:space-x-4">
                   <Link href={authRoutes.register}>
-                    <Button variant="outline" className="cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5">
-                      Create Account
+                    <Button variant="outline" size="sm" className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6">
+                      <span className="hidden sm:inline">Create Account</span>
+                      <span className="sm:hidden">Sign Up</span>
                     </Button>
                   </Link>
                   <Link href={authRoutes.login}>
-                    <Button className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">Sign In</Button>
+                    <Button 
+                      variant="gradient"
+                      size="sm"
+                      className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
+                    >
+                      Sign In
+                    </Button>
                   </Link>
                 </div>
               )}
@@ -235,21 +254,21 @@ export default function ScanPage() {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-8">
           <Link
             href={publicRoutes.home}
-            className="inline-flex items-center text-muted-foreground hover:text-primary mb-4 cursor-pointer transition-colors duration-200"
+            className="inline-flex items-center text-muted-foreground hover:text-primary mb-4 cursor-pointer transition-colors duration-200 text-sm sm:text-base"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
             Back to Home
           </Link>
-          <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">Verify Your Medicine</h1>
-          <p className="text-muted-foreground">Scan the QR code or NFC tag on your medication packaging</p>
+          <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">Verify Your Medicine</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Scan the QR code or NFC tag on your medication packaging</p>
         </div>
 
         {!scanResult ? (
-          <Card className="max-w-2xl mx-auto border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <Card className="max-w-2xl mx-auto border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 glass-effect">
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center font-bold">
                 <QrCode className="h-6 w-6 mr-2 text-primary" />
@@ -278,7 +297,12 @@ export default function ScanPage() {
                   <div className="space-y-4">
                     <QrCode className="h-16 w-16 text-muted-foreground mx-auto" />
                     <p className="text-muted-foreground">Click the button below to start scanning</p>
-                    <Button size="lg" onClick={handleScan} className="cursor-pointer">
+                    <Button 
+                      variant="gradient"
+                      size="lg" 
+                      onClick={handleScan} 
+                      className="cursor-pointer shadow-lg hover:shadow-xl"
+                    >
                       <Scan className="h-5 w-5 mr-2" />
                       Start Scan
                     </Button>
@@ -302,10 +326,10 @@ export default function ScanPage() {
               <CardContent className="space-y-4">
                 {scanResult.status === "genuine" && (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">Batch ID</p>
-                        <p className="font-medium text-black">{scanResult.batchId}</p>
+                        <p className="font-medium text-black break-all">{scanResult.batchId}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Drug Name</p>
@@ -410,21 +434,23 @@ export default function ScanPage() {
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
-              <Button onClick={() => { setScanResult(null); setIsScanning(false); }} className="cursor-pointer">
-                <Scan className="h-4 w-4 mr-2" />
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-2xl mx-auto">
+              <Button onClick={() => { setScanResult(null); setIsScanning(false); }} className="cursor-pointer text-sm sm:text-base">
+                <Scan className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 Scan Another
               </Button>
               <Link href="/auth/register">
-                <Button variant="outline" className="cursor-pointer bg-transparent">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Chat with AI for Usage Guidance
+                <Button variant="outline" className="cursor-pointer bg-transparent text-sm sm:text-base">
+                  <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                  <span className="hidden sm:inline">Chat with AI for Usage Guidance</span>
+                  <span className="sm:hidden">AI Chat</span>
                 </Button>
               </Link>
               <Link href="/auth/register">
-                <Button variant="outline" className="cursor-pointer bg-transparent">
-                  <History className="h-4 w-4 mr-2" />
-                  Save to History
+                <Button variant="outline" className="cursor-pointer bg-transparent text-sm sm:text-base">
+                  <History className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                  <span className="hidden sm:inline">Save to History</span>
+                  <span className="sm:hidden">Save</span>
                 </Button>
               </Link>
             </div>

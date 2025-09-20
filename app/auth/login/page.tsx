@@ -79,28 +79,30 @@ export default function LoginPage() {
       {/* CAPTCHA element for Clerk Smart CAPTCHA */}
       <div id="clerk-captcha"></div>
       {/* Navigation - Updated to match landing page */}
-      <nav className="border-b bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <Link href="/" className="flex items-center space-x-4">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative group cursor-pointer">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                <div className="relative bg-gradient-to-r from-primary to-accent p-2 rounded-xl">
-                  <Shield className="h-8 w-8 text-white" />
+                <div className="relative bg-gradient-to-r from-primary to-accent p-1.5 sm:p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-white group-hover:scale-110 transition-transform duration-300" />
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-2xl text-foreground">MedChain</span>
-                <span className="text-xs text-muted-foreground font-mono">Blockchain Verified</span>
+                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MedChain</span>
+                <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>
             <Link href="/">
               <Button 
                 variant="outline"
-                className="cursor-pointer bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
+                size="sm"
+                className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Home</span>
+                <span className="sm:hidden">Back</span>
               </Button>
             </Link>
           </div>
@@ -108,11 +110,11 @@ export default function LoginPage() {
       </nav>
 
       {/* Main Content with matching background effects */}
-      <section className="relative py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8"></div>
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
 
         <div className="relative max-w-md mx-auto animate-slide-in-up">
           <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl">
@@ -153,7 +155,9 @@ export default function LoginPage() {
                 <Button 
                   disabled={isLoading} 
                   type="submit" 
-                  className="w-full cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-medium py-3 text-white rounded-lg"
+                  variant="gradient"
+                  size="lg"
+                  className="w-full cursor-pointer font-medium shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
                 >
                   {isLoading ? "Loading..." : "Sign In"}
                 </Button>

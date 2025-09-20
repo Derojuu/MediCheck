@@ -80,7 +80,7 @@ export default function VerifyUnitPage() {
 
     if (loading) {
         return (
-            <div className="flex h-screen items-center justify-center text-lg">
+            <div className="flex h-screen items-center justify-center text-base sm:text-lg px-4">
                 Verifying unit…
             </div>
         );
@@ -88,26 +88,26 @@ export default function VerifyUnitPage() {
 
     if (error) {
         return (
-            <div className="p-6 text-center">
-                <h1 className="text-2xl font-bold text-red-600">Verification Error</h1>
-                <p>{error}</p>
+            <div className="p-4 sm:p-6 text-center">
+                <h1 className="text-xl sm:text-2xl font-bold text-red-600">Verification Error</h1>
+                <p className="text-sm sm:text-base">{error}</p>
             </div>
         );
     }
 
     return (
-        <div className="max-w-xl mx-auto p-6 text-center">
+        <div className="max-w-xl mx-auto p-4 sm:p-6 text-center">
             {valid ? (
-                <div className="rounded-xl bg-green-100 p-6">
-                    <h1 className="text-3xl font-bold text-green-700">✅ Authentic Unit</h1>
-                    <p className="mt-2">Serial Number: {unit.serialNumber}</p>
-                    <p>Batch: {batch.batchId}</p>
-                    <p>Status: {unit.status}</p>
+                <div className="rounded-xl bg-green-100 p-4 sm:p-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-green-700">✅ Authentic Unit</h1>
+                    <p className="mt-2 text-sm sm:text-base break-all">Serial Number: {unit.serialNumber}</p>
+                    <p className="text-sm sm:text-base break-all">Batch: {batch.batchId}</p>
+                    <p className="text-sm sm:text-base">Status: {unit.status}</p>
                 </div>
             ) : (
-                <div className="rounded-xl bg-red-100 p-6">
-                    <h1 className="text-3xl font-bold text-red-700">⚠️ Invalid Signature</h1>
-                    <p>This QR code does not match any authentic record.</p>
+                <div className="rounded-xl bg-red-100 p-4 sm:p-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-red-700">⚠️ Invalid Signature</h1>
+                    <p className="text-sm sm:text-base">This QR code does not match any authentic record.</p>
                 </div>
             )}
         </div>

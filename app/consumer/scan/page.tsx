@@ -35,21 +35,22 @@ export default function ConsumerScanPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-cyan-50 dark:from-slate-950 dark:to-slate-900">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <Link href="/consumer/profile" className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
-              <ArrowLeft className="w-5 h-5 text-primary" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Verify Your Medication</h1>
-              <p className="text-slate-600 dark:text-slate-400">Scan to check authenticity and get AI guidance</p>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Verify Your Medication</h1>
+              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">Scan to check authenticity and get AI guidance</p>
             </div>
           </div>
-          <Button variant="outline" onClick={() => setShowAIChat(!showAIChat)} className="cursor-pointer border-primary/20 hover:border-primary/40 hover:bg-primary/5">
-            <MessageCircle className="w-4 h-4 mr-2 text-primary" />
-            AI Assistant
+          <Button variant="outline" onClick={() => setShowAIChat(!showAIChat)} className="cursor-pointer border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-sm sm:text-base">
+            <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-primary" />
+            <span className="hidden sm:inline">AI Assistant</span>
+            <span className="sm:hidden">AI</span>
           </Button>
         </div>
 

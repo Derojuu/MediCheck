@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
             lt: monthEnd
           },
           scanResult: {
-            in: ["SUSPICIOUS", "COUNTERFEIT"]
+            in: ["SUSPICIOUS"]
           }
         }
       });

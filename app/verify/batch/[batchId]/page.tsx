@@ -61,7 +61,7 @@ export default function VerifyBatchPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center text-lg">
+      <div className="flex h-screen items-center justify-center text-base sm:text-lg px-4">
         Verifying batch…
       </div>
     );
@@ -69,29 +69,29 @@ export default function VerifyBatchPage() {
 
   if (error) {
     return (
-      <div className="p-6 text-center">
-        <h1 className="text-2xl font-bold text-red-600">Verification Error</h1>
-        <p>{error}</p>
+      <div className="p-4 sm:p-6 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold text-red-600">Verification Error</h1>
+        <p className="text-sm sm:text-base">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 text-center">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 text-center">
       {valid ? (
-        <div className="rounded-xl bg-green-100 p-6">
-          <h1 className="text-3xl font-bold text-green-700">
+        <div className="rounded-xl bg-green-100 p-4 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-green-700">
             ✅ Authentic Batch
           </h1>
-          <p className="mt-2">Batch ID: {batch.batchId}</p>
-          <p>Status: {batch.status}</p>
+          <p className="mt-2 text-sm sm:text-base">Batch ID: {batch.batchId}</p>
+          <p className="text-sm sm:text-base">Status: {batch.status}</p>
 
           {units.length > 0 && (
-            <div className="mt-6 text-left">
-              <h2 className="text-xl font-semibold">Units in this batch:</h2>
-              <ul className="list-disc pl-6">
+            <div className="mt-4 sm:mt-6 text-left">
+              <h2 className="text-lg sm:text-xl font-semibold">Units in this batch:</h2>
+              <ul className="list-disc pl-4 sm:pl-6 text-sm sm:text-base">
                 {units.map((u) => (
-                  <li key={u.serialNumber}>
+                  <li key={u.serialNumber} className="break-all">
                     {u.serialNumber} – {u.status}
                   </li>
                 ))}
@@ -100,11 +100,11 @@ export default function VerifyBatchPage() {
           )}
         </div>
       ) : (
-        <div className="rounded-xl bg-red-100 p-6">
-          <h1 className="text-3xl font-bold text-red-700">
+        <div className="rounded-xl bg-red-100 p-4 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-red-700">
             ⚠️ Invalid Signature
           </h1>
-          <p>This batch QR code does not match any authentic record.</p>
+          <p className="text-sm sm:text-base">This batch QR code does not match any authentic record.</p>
         </div>
       )}
     </div>
