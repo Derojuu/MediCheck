@@ -90,13 +90,24 @@ export default function ManufacturerDashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative overflow-hidden page-transition">
+      {/* Enhanced Background Decorations with Animations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/3 rounded-full blur-3xl bg-decoration gradient-transition animate-pulse duration-[12000ms]"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/4 rounded-full blur-2xl bg-decoration gradient-transition animate-pulse duration-[8000ms] delay-2000"></div>
+        <div className="absolute top-1/2 right-1/3 w-32 h-32 bg-primary/6 rounded-full blur-xl bg-decoration gradient-transition animate-pulse duration-[6000ms] delay-1000"></div>
+        {/* Additional floating orbs */}
+        <div className="absolute top-1/4 left-1/4 w-24 h-24 bg-accent/5 rounded-full blur-2xl bg-decoration animate-pulse duration-[10000ms] delay-3000"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-40 h-40 bg-primary/4 rounded-full blur-3xl bg-decoration animate-pulse duration-[14000ms] delay-1500"></div>
+      </div>
 
-      <ManufacturerSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
+      <div className="slide-in-left">
+        <ManufacturerSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
+      </div>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10 slide-in-right">
 
-        <div className="p-4 sm:p-6 lg:p-8">
+        <div className="p-4 sm:p-6 lg:p-8 page-enter">
 
           {activeTab === "dashboard" && (
             <ManufacturerMain setActiveTab={setActiveTab} orgId={orgId} />

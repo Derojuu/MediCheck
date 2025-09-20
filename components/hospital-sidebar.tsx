@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
   Shield,
   LayoutDashboard,
@@ -118,7 +119,10 @@ export function HospitalSidebar({ activeTab, setActiveTab, orgId }: HospitalSide
         })}
       </nav>
 
-      <div className="absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4">
+      <div className="absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4 space-y-2">
+        <div className="flex items-center justify-center">
+          <ThemeToggle />
+        </div>
         <Button
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:!bg-transparent hover:!text-muted-foreground text-xs sm:text-sm"

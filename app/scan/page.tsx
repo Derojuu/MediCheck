@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { QRScanner } from "@/components/qr-scanner";
 import { publicRoutes, authRoutes } from "@/utils";
 import { useUser } from "@clerk/nextjs";
@@ -200,7 +201,15 @@ export default function ScanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/4 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 -left-32 w-64 h-64 bg-accent/6 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-primary/3 rounded-full blur-3xl"></div>
+        <div className="absolute top-3/4 left-1/3 w-48 h-48 bg-accent/8 rounded-full blur-xl"></div>
+      </div>
+      
       {/* Navigation */}
       <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -219,20 +228,24 @@ export default function ScanPage() {
             </Link>
             {isSignedIn ?
               (
-                <Link href={getRedirectPath(role, organizationType)}>
-                  <Button 
-                    variant="gradient"
-                    size="sm"
-                    className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
-                  >
-                    <span className="hidden sm:inline">Dashboard</span>
-                    <span className="sm:hidden">Dash</span>
-                  </Button>
-                </Link>
+                <div className="flex items-center space-x-2 sm:space-x-4">
+                  <ThemeToggle />
+                  <Link href={getRedirectPath(role, organizationType)}>
+                    <Button 
+                      variant="gradient"
+                      size="sm"
+                      className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
+                    >
+                      <span className="hidden sm:inline">Dashboard</span>
+                      <span className="sm:hidden">Dash</span>
+                    </Button>
+                  </Link>
+                </div>
               )
               :
               (
                 <div className="flex items-center space-x-2 sm:space-x-4">
+                  <ThemeToggle />
                   <Link href={authRoutes.register}>
                     <Button variant="outline" size="sm" className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6">
                       <span className="hidden sm:inline">Create Account</span>

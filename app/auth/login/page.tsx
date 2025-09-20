@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Shield, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -75,11 +76,21 @@ export default function LoginPage() {
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden page-transition">
+      {/* Enhanced Background Decorations with Animations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 -right-32 w-64 h-64 bg-primary/8 rounded-full blur-2xl bg-decoration gradient-transition animate-pulse duration-[8000ms]"></div>
+        <div className="absolute bottom-40 -left-24 w-48 h-48 bg-accent/6 rounded-full blur-xl bg-decoration gradient-transition animate-pulse duration-[6000ms] delay-1000"></div>
+        <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-primary/4 rounded-full blur-lg bg-decoration gradient-transition animate-pulse duration-[4000ms] delay-2000"></div>
+        {/* Additional floating elements */}
+        <div className="absolute top-32 left-1/3 w-20 h-20 bg-accent/5 rounded-full blur-xl bg-decoration animate-pulse duration-[7000ms] delay-500"></div>
+        <div className="absolute bottom-20 right-1/3 w-36 h-36 bg-primary/6 rounded-full blur-2xl bg-decoration animate-pulse duration-[9000ms] delay-1500"></div>
+      </div>
+      
       {/* CAPTCHA element for Clerk Smart CAPTCHA */}
       <div id="clerk-captcha"></div>
       {/* Navigation - Updated to match landing page */}
-      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect slide-in-top theme-transition">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-4">
@@ -94,35 +105,39 @@ export default function LoginPage() {
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>
-            <Link href="/">
-              <Button 
-                variant="outline"
-                size="sm"
-                className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6"
-              >
-                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Back to Home</span>
-                <span className="sm:hidden">Back</span>
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeToggle />
+              <Link href="/">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6"
+                >
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Back to Home</span>
+                  <span className="sm:hidden">Back</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Main Content with matching background effects */}
       <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8"></div>
-        <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 gradient-transition"></div>
+        <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[12000ms]"></div>
+        <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[10000ms] delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
 
         <div className="relative max-w-md mx-auto animate-slide-in-up">
-          <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl">
-            <CardHeader className="text-center pb-8">
-              <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl theme-transition card hover:shadow-3xl hover:scale-[1.02] transition-all duration-500 page-enter">
+            <CardHeader className="text-center pb-8 slide-in-top">
+              <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent slide-in-top">
                 Welcome Back
               </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2 text-lg">
+              <CardDescription className="text-muted-foreground mt-2 text-lg slide-in-top"
+                               style={{ animationDelay: '0.2s' }}>
                 Sign in to your MedChain account
               </CardDescription>
             </CardHeader>

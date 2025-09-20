@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
   Shield,
   User,
@@ -433,7 +434,14 @@ export default function ConsumerProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-32 right-32 w-64 h-64 bg-primary/5 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-40 left-40 w-80 h-80 bg-accent/4 rounded-full blur-3xl"></div>
+        <div className="absolute top-2/3 right-1/4 w-48 h-48 bg-primary/6 rounded-full blur-xl"></div>
+      </div>
+      
       {/* Navigation */}
       <nav className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -444,11 +452,12 @@ export default function ConsumerProfile() {
             </Link>
             <div className="flex items-center space-x-4">
               <Link href={consumerRoutes.scan}>
-                <Button variant="outline" className="border-primary/20 hover:border-primary/40 hover:bg-primary/5">
+                <Button variant="outline" className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 cursor-pointer">
                   <Scan className="h-4 w-4 mr-2 text-primary" />
                   Scan Medicine
                 </Button>
               </Link>
+              <ThemeToggle />
               <Button 
                 variant="ghost"
                 className="cursor-pointer hover:bg-primary/5"

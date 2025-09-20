@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox";
+import { ThemeToggle } from "@/components/theme-toggle";
 // icons
 import { Shield, Building2, User, ArrowLeft, Eye, EyeOff } from "lucide-react"
 // 
@@ -691,7 +692,14 @@ export default function RegisterPage() {
 
   return (
 
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-32 -left-40 w-80 h-80 bg-accent/6 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 -right-32 w-64 h-64 bg-primary/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-2/3 left-1/4 w-40 h-40 bg-accent/8 rounded-full blur-xl"></div>
+      </div>
+      
       {/* Navigation - Updated to match landing page */}
       <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -708,17 +716,20 @@ export default function RegisterPage() {
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>
-            <Link href="/">
-              <Button 
-                variant="outline"
-                size="sm"
-                className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6"
-              >
-                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Back to Home</span>
-                <span className="sm:hidden">Back</span>
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeToggle />
+              <Link href="/">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6"
+                >
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Back to Home</span>
+                  <span className="sm:hidden">Back</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
@@ -841,7 +852,7 @@ export default function RegisterPage() {
                               variant="default"
                               size="lg"
                               onClick={() => setStep(2)}
-                              className="w-full h-12 font-semibold"
+                              className="w-full h-12 font-semibold cursor-pointer"
                               disabled={!formData.organizationType}
                             >
                               Continue to Contact Information
@@ -927,7 +938,7 @@ export default function RegisterPage() {
                                   <button
                                     type="button"
                                     tabIndex={-1}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
                                     onClick={() => setShowPassword((v) => !v)}
                                     aria-label={showPassword ? "Hide password" : "Show password"}
                                   >
@@ -952,7 +963,7 @@ export default function RegisterPage() {
                                   <button
                                     type="button"
                                     tabIndex={-1}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
                                     onClick={() => setShowConfirmPassword((v) => !v)}
                                     aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                                   >
@@ -985,7 +996,7 @@ export default function RegisterPage() {
                               type="button"
                               variant="outline"
                               onClick={() => setStep(1)}
-                              className="flex-1 h-12"
+                              className="flex-1 h-12 cursor-pointer"
                             >
                               Back
                             </Button>
@@ -993,7 +1004,7 @@ export default function RegisterPage() {
                               type="submit"
                               variant="default"
                               size="lg"
-                              className="flex-1 h-12 font-semibold"
+                              className="flex-1 h-12 font-semibold cursor-pointer"
                               disabled={isLoading}
                             >
                               {isLoading ? "Creating Account..." : "Create Account"}
@@ -1146,7 +1157,7 @@ export default function RegisterPage() {
                               <button
                                 type="button"
                                 tabIndex={-1}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
                                 onClick={() => setShowPassword((v) => !v)}
                                 aria-label={showPassword ? "Hide password" : "Show password"}
                               >

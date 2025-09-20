@@ -64,10 +64,17 @@ export default function PharmacyDashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-24 right-24 w-64 h-64 bg-accent/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-24 left-24 w-80 h-80 bg-primary/3 rounded-full blur-2xl"></div>
+        <div className="absolute top-3/4 right-1/3 w-44 h-44 bg-accent/7 rounded-full blur-xl"></div>
+      </div>
+      
       <PharmacySidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10">
         <div className="p-4 sm:p-6 lg:p-8">
           {activeTab === "dashboard" && (
             <div className="space-y-8">

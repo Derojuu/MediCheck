@@ -70,10 +70,17 @@ export default function DrugDistributorDashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-12 left-12 w-72 h-72 bg-primary/4 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-12 right-12 w-56 h-56 bg-accent/6 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/3 right-2/3 w-40 h-40 bg-primary/8 rounded-full blur-xl"></div>
+      </div>
+      
       <DistributorSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10">
         <div className="p-4 sm:p-6 lg:p-8">
           {activeTab === "dashboard" && (
             <div className="space-y-8">

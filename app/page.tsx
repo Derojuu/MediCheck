@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { publicRoutes, authRoutes } from "@/utils";
 import { useUser } from "@clerk/nextjs";
 import { getRedirectPath } from "@/utils";
@@ -61,7 +62,18 @@ export default function HomePage() {
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Enhanced Background Decorations with Animations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl bg-decoration gradient-transition animate-pulse duration-[8000ms]"></div>
+        <div className="absolute top-1/2 -left-32 w-64 h-64 bg-accent/5 rounded-full blur-2xl bg-decoration gradient-transition animate-pulse duration-[6000ms] delay-1000"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl bg-decoration gradient-transition animate-pulse duration-[10000ms] delay-2000"></div>
+        <div className="absolute top-1/4 right-1/3 w-32 h-32 bg-accent/10 rounded-full blur-xl bg-decoration gradient-transition animate-pulse duration-[4000ms] delay-500"></div>
+        {/* Additional animated orbs for dynamic effect */}
+        <div className="absolute top-10 left-1/4 w-24 h-24 bg-primary/8 rounded-full blur-2xl bg-decoration animate-pulse duration-[7000ms] delay-3000"></div>
+        <div className="absolute bottom-1/4 left-10 w-40 h-40 bg-accent/6 rounded-full blur-3xl bg-decoration animate-pulse duration-[9000ms] delay-1500"></div>
+      </div>
+      
       {/* Navigation */}
       <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -105,6 +117,7 @@ export default function HomePage() {
             {isSignedIn ?
               (
                 <div className="flex items-center space-x-2 sm:space-x-4">
+                  <ThemeToggle />
                   <Button
                     variant="ghost"
                     size="sm"
@@ -129,6 +142,7 @@ export default function HomePage() {
               :
               (
                 <div className="flex items-center space-x-2 sm:space-x-4">
+                  <ThemeToggle />
                   <Link href={authRoutes.login}>
                     <Button
                       variant="outline"
@@ -158,10 +172,13 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8"></div>
-        <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 gradient-transition"></div>
+        <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[12000ms]"></div>
+        <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[10000ms] delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl bg-decoration gradient-transition"></div>
+        {/* Additional floating orbs */}
+        <div className="absolute top-32 right-1/4 w-32 h-32 bg-gradient-to-r from-primary/15 to-accent/15 rounded-full blur-2xl bg-decoration animate-pulse duration-[8000ms] delay-1000"></div>
+        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-gradient-to-r from-accent/12 to-primary/12 rounded-full blur-3xl bg-decoration animate-pulse duration-[14000ms] delay-3000"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
           <div className="scroll-animate">
@@ -289,9 +306,8 @@ export default function HomePage() {
                   <CardTitle className="font-bold text-2xl mb-4">Manufacturers</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed text-lg">
-                    Create and track medication batches from production to distribution with complete transparency and
-                    real-time analytics
+                  <p className="text-muted-foreground leading-relaxed text-base">
+                    Create and track medication batches with complete transparency and real-time analytics
                   </p>
                 </CardContent>
               </Card>
@@ -306,9 +322,8 @@ export default function HomePage() {
                   <CardTitle className="font-bold text-2xl mb-4">Distributors</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed text-lg">
-                    Manage incoming shipments and outgoing transfers with full transparency and automated compliance
-                    reporting
+                  <p className="text-muted-foreground leading-relaxed text-base">
+                    Manage shipments and transfers with transparency and automated compliance reporting
                   </p>
                 </CardContent>
               </Card>
@@ -323,9 +338,8 @@ export default function HomePage() {
                   <CardTitle className="font-bold text-2xl mb-4">Pharmacies</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed text-lg">
-                    Verify authenticity and manage inventory with real-time blockchain data and intelligent automated
-                    alerts
+                  <p className="text-muted-foreground leading-relaxed text-base">
+                    Verify authenticity and manage inventory with blockchain data and automated alerts
                   </p>
                 </CardContent>
               </Card>
@@ -340,9 +354,8 @@ export default function HomePage() {
                   <CardTitle className="font-bold text-2xl mb-4">Patients</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed text-lg">
-                    Instantly verify medication authenticity with a simple scan and access complete medication history and
-                    safety data
+                  <p className="text-muted-foreground leading-relaxed text-base">
+                    Verify medication authenticity with simple scan and access complete medication history
                   </p>
                 </CardContent>
               </Card>

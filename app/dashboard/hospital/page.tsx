@@ -109,11 +109,17 @@ export default function HospitalDashboard() {
 
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-16 left-16 w-80 h-80 bg-primary/4 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-16 right-16 w-60 h-60 bg-accent/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 left-1/3 w-36 h-36 bg-primary/7 rounded-full blur-xl"></div>
+      </div>
 
       <HospitalSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10">
 
         <div className="p-4 sm:p-6 lg:p-8">
 

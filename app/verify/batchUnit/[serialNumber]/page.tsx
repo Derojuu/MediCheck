@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function VerifyUnitPage() {
     const params = useParams();
@@ -80,23 +81,48 @@ export default function VerifyUnitPage() {
 
     if (loading) {
         return (
-            <div className="flex h-screen items-center justify-center text-base sm:text-lg px-4">
-                Verifying unit…
+            <div className="flex h-screen items-center justify-center text-base sm:text-lg px-4 relative overflow-hidden">
+                {/* Background Decorations */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-20 left-20 w-56 h-56 bg-purple-500/6 rounded-full blur-2xl"></div>
+                    <div className="absolute bottom-20 right-20 w-40 h-40 bg-indigo-500/8 rounded-full blur-xl"></div>
+                </div>
+                <div className="absolute top-6 right-6 z-10">
+                    <ThemeToggle />
+                </div>
+                <div className="relative z-10">Verifying unit…</div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="p-4 sm:p-6 text-center">
-                <h1 className="text-xl sm:text-2xl font-bold text-red-600">Verification Error</h1>
-                <p className="text-sm sm:text-base">{error}</p>
+            <div className="p-4 sm:p-6 text-center relative overflow-hidden min-h-screen">
+                {/* Background Decorations */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-20 right-20 w-56 h-56 bg-red-500/6 rounded-full blur-2xl"></div>
+                    <div className="absolute bottom-20 left-20 w-40 h-40 bg-orange-500/8 rounded-full blur-xl"></div>
+                </div>
+                <div className="absolute top-6 right-6 z-10">
+                    <ThemeToggle />
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold text-red-600 relative z-10">Verification Error</h1>
+                <p className="text-sm sm:text-base relative z-10">{error}</p>
             </div>
         );
     }
 
     return (
-        <div className="max-w-xl mx-auto p-4 sm:p-6 text-center">
+        <div className="max-w-xl mx-auto p-4 sm:p-6 text-center relative overflow-hidden min-h-screen">
+            {/* Background Decorations */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-20 right-20 w-64 h-64 bg-green-500/6 rounded-full blur-2xl"></div>
+                <div className="absolute bottom-20 left-20 w-48 h-48 bg-blue-500/8 rounded-full blur-xl"></div>
+                <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-purple-500/10 rounded-full blur-lg transform -translate-x-1/2 -translate-y-1/2"></div>
+            </div>
+            <div className="absolute top-6 right-6 z-10">
+                <ThemeToggle />
+            </div>
             {valid ? (
                 <div className="rounded-xl bg-green-100 p-4 sm:p-6">
                     <h1 className="text-2xl sm:text-3xl font-bold text-green-700">✅ Authentic Unit</h1>
