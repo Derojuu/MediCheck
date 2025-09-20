@@ -90,7 +90,7 @@ export default function LoginPage() {
       {/* CAPTCHA element for Clerk Smart CAPTCHA */}
       <div id="clerk-captcha"></div>
       {/* Navigation - Updated to match landing page */}
-      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect slide-in-top theme-transition">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect theme-transition">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-4">
@@ -131,13 +131,12 @@ export default function LoginPage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
 
         <div className="relative max-w-md mx-auto animate-slide-in-up">
-          <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl theme-transition card hover:shadow-3xl hover:scale-[1.02] transition-all duration-500 page-enter">
-            <CardHeader className="text-center pb-8 slide-in-top">
-              <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent slide-in-top">
+          <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl theme-transition card hover:shadow-3xl transition-all duration-300">
+            <CardHeader className="text-center pb-8">
+              <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Welcome Back
               </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2 text-lg slide-in-top"
-                               style={{ animationDelay: '0.2s' }}>
+              <CardDescription className="text-muted-foreground mt-2 text-lg">
                 Sign in to your MedChain account
               </CardDescription>
             </CardHeader>

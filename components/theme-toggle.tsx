@@ -9,81 +9,93 @@ import { Button } from "@/components/ui/button"
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
   const [isAnimating, setIsAnimating] = React.useState(false)
+  const buttonRef = React.useRef<HTMLButtonElement>(null)
 
   const handleThemeToggle = () => {
+    if (!buttonRef.current) return
+    
     setIsAnimating(true)
     
-    // Add theme switching animation to body
-    document.body.classList.add('theme-switch-animation')
+    // Get button position
+    const button = buttonRef.current
+    const rect = button.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
     
-    // Trigger background orb animation
-    const decorations = document.querySelectorAll('.bg-decoration')
-    decorations.forEach((el) => {
-      el.classList.add('animate-pulse', 'duration-1000')
+    // Create spreading blur overlay
+    const overlay = document.createElement('div')
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      backdrop-filter: blur(0px);
+      background: radial-gradient(circle at ${centerX}px ${centerY}px, 
+        ${theme === 'light' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)'} 0%, 
+        ${theme === 'light' ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.6)'} 40%,
+        ${theme === 'light' ? 'rgba(15, 23, 42, 0.3)' : 'rgba(255, 255, 255, 0.3)'} 80%,
+        transparent 100%);
+      clip-path: circle(0% at ${centerX}px ${centerY}px);
+      transition: clip-path 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), backdrop-filter 0.6s ease-out;
+    `
+    
+    document.body.appendChild(overlay)
+    
+    // Start the spreading animation with blur
+    requestAnimationFrame(() => {
+      const maxDistance = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2)
+      overlay.style.clipPath = `circle(${maxDistance}px at ${centerX}px ${centerY}px)`
+      overlay.style.backdropFilter = 'blur(8px)'
     })
     
-    setTheme(theme === "light" ? "dark" : "light")
-    
-    // Reset animation state and classes after animation completes
+    // Change theme in the middle of animation
     setTimeout(() => {
+      setTheme(theme === "light" ? "dark" : "light")
+    }, 300)
+    
+    // Remove overlay and reset
+    setTimeout(() => {
+      overlay.remove()
       setIsAnimating(false)
-      document.body.classList.remove('theme-switch-animation')
-      decorations.forEach((el) => {
-        el.classList.remove('animate-pulse', 'duration-1000')
-      })
-    }, 800)
+    }, 600)
   }
 
   return (
     <Button
+      ref={buttonRef}
       variant="outline"
       size="icon"
       onClick={handleThemeToggle}
-      className="h-9 w-9 cursor-pointer relative overflow-hidden group 
-                 transition-all duration-300 ease-in-out
-                 hover:scale-110 hover:shadow-lg hover:shadow-yellow-500/20 
-                 dark:hover:shadow-blue-500/20 active:scale-95
-                 hover:glow-effect"
+      disabled={isAnimating}
+      className="h-9 w-9 cursor-pointer relative overflow-hidden
+                 transition-all duration-200 ease-out
+                 hover:scale-105 hover:shadow-md active:scale-95"
     >
-      {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 
-                      dark:from-blue-400/20 dark:to-purple-400/20 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md" />
+      {/* Simple background transition */}
+      <div className="absolute inset-0 bg-gradient-to-br from-yellow-50 to-orange-50 
+                      dark:from-blue-50 dark:to-purple-50 
+                      opacity-0 hover:opacity-20 transition-opacity duration-200 rounded-md" />
       
-      {/* Sun icon with enhanced animations */}
+      {/* Sun icon */}
       <Sun className={`h-[1.2rem] w-[1.2rem] 
-                       transition-all duration-700 ease-in-out
+                       transition-all duration-300 ease-out
                        ${theme === 'dark' 
-                         ? '-rotate-180 scale-0 opacity-0' 
+                         ? 'rotate-90 scale-0 opacity-0' 
                          : 'rotate-0 scale-100 opacity-100'
                        }
-                       ${isAnimating ? 'animate-spin' : ''}
-                       text-yellow-500 drop-shadow-sm hover:drop-shadow-lg
-                       group-hover:scale-110`} />
+                       text-yellow-600`} />
       
-      {/* Moon icon with enhanced animations */}
+      {/* Moon icon */}
       <Moon className={`absolute h-[1.2rem] w-[1.2rem] 
-                        transition-all duration-700 ease-in-out
+                        transition-all duration-300 ease-out
                         ${theme === 'light' 
-                          ? 'rotate-180 scale-0 opacity-0' 
+                          ? '-rotate-90 scale-0 opacity-0' 
                           : 'rotate-0 scale-100 opacity-100'
                         }
-                        ${isAnimating ? 'animate-pulse' : ''}
-                        text-blue-400 drop-shadow-sm hover:drop-shadow-lg
-                        group-hover:scale-110`} />
-      
-      {/* Animated ripple effect on click */}
-      {isAnimating && (
-        <>
-          <div className="absolute inset-0 rounded-full border-2 border-yellow-400/50 
-                          dark:border-blue-400/50 animate-ping" />
-          <div className="absolute inset-0 rounded-full border border-yellow-400/30 
-                          dark:border-blue-400/30 animate-ping delay-100" 
-               style={{ animationDuration: '1s' }} />
-          <div className="absolute inset-0 rounded-full bg-yellow-400/10 
-                          dark:bg-blue-400/10 animate-pulse" />
-        </>
-      )}
+                        text-blue-500`} />
       
       <span className="sr-only">Toggle theme</span>
     </Button>
