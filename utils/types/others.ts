@@ -96,3 +96,9 @@ export interface HederaLogPayload {
   flagReason?: string
 
 }
+
+
+export interface MyPublicMetadata {
+  role?: string;
+  organizationType?: string;
+}

@@ -1,11 +1,14 @@
 // app/api/verify/batch/[batchId]/route.ts
+export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { verifySignature } from "@/lib/verifySignature";
 import { logBatchEvent } from "@/lib/hedera";
 import { encodeFeatures } from "@/lib/formatModelInput";
-import { modelPrediction } from "@/lib/modelPrediction";
+import * as ort from "onnxruntime-node";
+import { promises as fs } from "fs";
+import path from "path";
 
 const QR_SECRET = process.env.QR_SECRET || "dev-secret";
 
@@ -14,7 +17,7 @@ export async function GET(
   context: { params: { batchId: string } }
 ) {
   try {
-    const { batchId } = context.params;
+    const { batchId } = await context.params;
     const url = new URL(req.url);
     const sig = url.searchParams.get("sig");
     const longitude = url.searchParams.get("long");
@@ -28,6 +31,18 @@ export async function GET(
         { status: 401 }
       );
     }
+
+    const modelPath = path.join(
+      process.cwd(),
+      "models",
+      "counterfeit_predictor.onnx"
+    );
+
+    // Load as Buffer
+    const modelBuffer = await fs.readFile(modelPath);
+
+    // 🔑 Convert Buffer to Uint8Array
+    const modelUint8 = new Uint8Array(modelBuffer);
 
     if (!sig) {
       return NextResponse.json(
@@ -119,12 +134,20 @@ export async function GET(
         transferTo: orgId,
         qrSignature: batch.qrSignature ?? "",
       });
-    } else {
+
+    }
+    else {
       // Flag batch
       updatedBatch = await prisma.medicationBatch.update({
         where: { batchId: prevOrg },
         data: { status: "FLAGGED" },
       });
+
+      // if (transfer) {
+      //   await prisma.ownershipTransfer.delete({
+      //     where: { id: transfer.id },
+      //   });
+      // }
 
       // log flag event
 
@@ -219,26 +242,62 @@ export async function GET(
       user_flag: userFlag,
     });
 
-    // Run ONNX model
-    const predictionArray = await modelPrediction(features);
-    const predictedProbability = predictionArray[0];
-    const predictedLabel = predictedProbability > 0.5;
+    // Initialize ONNX Runtime with proper error handling
+    try {
+      const session = await ort.InferenceSession.create(modelUint8);
 
-    await prisma.predictionScore.create({
-      data: {
-        scanHistoryId: savedScan.id,
-        predictedLabel,
-        predictedProbability,
-        region: organizationInformation?.state,
-        scanType: "BATCH",
-      },
-    });
+      const inputArray = Float32Array.from(features);
+
+      const inputTensor = new ort.Tensor("float32", inputArray, [1, 52]);
+
+      const feeds: Record<string, ort.Tensor> = {
+        float_input: inputTensor,
+      };
+
+      const results = await session.run(feeds);
+
+      // Get the raw arrays
+      const labelArr = results.label.data as BigInt64Array; // int64 -> BigInt64Array
+
+      const probArr = results.probabilities.data as Float32Array; // float32 -> Float32Array
+
+      // Convert safely
+      const predictedLabelInt = Number(labelArr[0]); // from BigInt to number
+
+      const predictedProbability = probArr[predictedLabelInt]; // probability of predicted label
+
+      console.log("predictedLabelInt", predictedLabelInt);
+
+      console.log("predictedProbability", predictedProbability);
+
+      // If you want a boolean:
+      const predictedLabel = predictedLabelInt === 1;
+
+      // Then save
+      await prisma.predictionScore.create({
+        data: {
+          scanHistoryId: savedScan.id,
+          predictedLabel,
+          predictedProbability, 
+          region: organizationInformation?.state,
+          scanType: "BATCH",
+        },
+      });
+    }
+    catch (onnxError) {
+      console.error("ONNX Runtime Error:", onnxError);
+      return NextResponse.json(
+        { valid: false, error: "ONNX Runtime Error", onnxError },
+        { status: 400 }
+      );
+    }
 
     // 3️⃣ Response
     return NextResponse.json({
       valid: true,
       batch: updatedBatch,
     });
+    
   }
   catch (err: any) {
     console.error("VerifyBatch API Error:", err);

@@ -6,7 +6,6 @@ import { auth } from "@clerk/nextjs/server";
 import { getBatchEventLogs } from "@/lib/hedera";
 import { runAllUnitAuthenticityChecks } from "@/lib/safetyChecks";
 import { currentUser } from "@clerk/nextjs/server";
-import { getComprehensiveUnitVerificationExplanation } from "@/lib/verificationResponse";
 import { encodeFeatures } from "@/lib/formatModelInput";
 import { modelPrediction } from "@/lib/modelPrediction";
 
@@ -16,6 +15,7 @@ export async function GET(
   req: Request,
   context: { params: { serialNumber: string } }
 ) {
+
   const loggedInUser = await currentUser();
 
   const { serialNumber } = await context.params;
@@ -100,16 +100,6 @@ export async function GET(
     unit.batch.organizationId,
     topicId
   );
-
-  const formatedAuthenticityResultCheck = JSON.stringify(
-    authenticityResultCheck
-  );
-
-  const translateAuthenticityChecks =
-    await getComprehensiveUnitVerificationExplanation(
-      "FRENCH",
-      authenticityResultCheck
-    );
 
   // SAVE SCAN HISTORY
 
@@ -256,6 +246,6 @@ export async function GET(
     valid,
     unit,
     batch: unit.batch,
-    geminiResponse: translateAuthenticityChecks,
+    authenticityResultCheck: authenticityResultCheck,
   });
 }

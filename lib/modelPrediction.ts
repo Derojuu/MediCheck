@@ -1,12 +1,9 @@
-import * as ort from "onnxruntime-node";
-import path from "path";
+// import * as ort from "onnxruntime-node";
+import * as ort from "onnxruntime-web";
+// import path from "path";
 
 // Load model once (good for performance)
-const modelPath = path.join(
-  process.cwd(),
-  "public",
-  "counterfeit_predictor.onnx"
-);
+const modelUrl = "/counterfeit_predictor.onnx";
 
 // Reuse the session rather than reloading every call
 let session: ort.InferenceSession | null = null;
@@ -19,8 +16,18 @@ export const modelPrediction = async (
   }
 
   // Lazy-load session
+  // if (!session) {
+  //   session = await ort.InferenceSession.create(modelUrl);
+  // }
+  
   if (!session) {
-    session = await ort.InferenceSession.create(modelPath);
+    // Configure ONNX Runtime Web
+    ort.env.wasm.numThreads = 1;
+    ort.env.wasm.proxy = false;
+
+    session = await ort.InferenceSession.create(modelUrl, {
+      executionProviders: ["wasm"],
+    });
   }
 
   // Convert JS numbers → Float32Array

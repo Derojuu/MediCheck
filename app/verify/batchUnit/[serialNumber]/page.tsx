@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
+import { getComprehensiveUnitVerificationExplanation } from "@/lib/verificationResponse";
 
 export default function VerifyUnitPage() {
     const params = useParams();
@@ -14,8 +15,11 @@ export default function VerifyUnitPage() {
     const [loading, setLoading] = useState(true);
     const [valid, setValid] = useState<boolean | null>(null);
     const [unit, setUnit] = useState<any>(null);
+    const [authenticityResultCheck, setAuthenticityResultCheck] = useState<object>({});
     const [batch, setBatch] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [language, setLanguage] = useState("ENGLISH");
+    const [aiTranslation, setAiTranslation] = useState<object>({})
 
     const getUserLocation = (): Promise< { latitude: number; longitude: number }> => {
         return new Promise((resolve, reject) => {
@@ -34,6 +38,15 @@ export default function VerifyUnitPage() {
             );
         });
     }
+
+    useEffect(() => {
+        if (authenticityResultCheck) {
+            const getComprehensiveInfoFromGemini = async () => {
+                const translateAuthenticityChecks = await getComprehensiveUnitVerificationExplanation("FRENCH", authenticityResultCheck);
+                setAiTranslation(translateAuthenticityChecks);
+            }
+        }
+    }, [])
 
 
     useEffect(() => {
@@ -100,14 +113,10 @@ export default function VerifyUnitPage() {
             {valid ? (
                 <div className="rounded-xl bg-green-100 p-6">
                     <h1 className="text-3xl font-bold text-green-700">✅ Authentic Unit</h1>
-                    <p className="mt-2">Serial Number: {unit.serialNumber}</p>
-                    <p>Batch: {batch.batchId}</p>
-                    <p>Status: {unit.status}</p>
                 </div>
             ) : (
                 <div className="rounded-xl bg-red-100 p-6">
                     <h1 className="text-3xl font-bold text-red-700">⚠️ Invalid Signature</h1>
-                    <p>This QR code does not match any authentic record.</p>
                 </div>
             )}
         </div>

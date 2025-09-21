@@ -1,9 +1,12 @@
 // app/verify/batch/[batchId]/page.tsx
 "use client";
-
+// 
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
 import { useUser, RedirectToSignIn } from "@clerk/nextjs";
+import { getRedirectPath } from "@/utils";
+import { MyPublicMetadata } from "@/utils";
+import Link from "next/link";
 
 export default function VerifyBatchPage() {
   const params = useParams();
@@ -16,11 +19,14 @@ export default function VerifyBatchPage() {
   const [loading, setLoading] = useState(true);
   const [valid, setValid] = useState<boolean | null>(null);
   const [batch, setBatch] = useState<any>(null);
-  const [units, setUnits] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const publicMetadata = user?.publicMetadata as MyPublicMetadata; 
+
   useEffect(() => {
+
     async function verifyBatch(latitude: number, longitude: number) {
+
       if (!batchId || !sig) {
         setError("Missing batch ID or signature");
         setLoading(false);
@@ -33,15 +39,17 @@ export default function VerifyBatchPage() {
 
         if (!res.ok) {
           setError(data.error || "Verification failed");
-        } else {
+        }
+        else {
           setValid(data.valid);
           setBatch(data.batch);
-          setUnits(data.units || []);
         }
-      } catch (err) {
+      }
+      catch (err) {
         console.error(err);
         setError("Something went wrong");
-      } finally {
+      }
+      finally {
         setLoading(false);
       }
     }
@@ -85,28 +93,26 @@ export default function VerifyBatchPage() {
           </h1>
           <p className="mt-2">Batch ID: {batch.batchId}</p>
           <p>Status: {batch.status}</p>
-
-          {units.length > 0 && (
-            <div className="mt-6 text-left">
-              <h2 className="text-xl font-semibold">Units in this batch:</h2>
-              <ul className="list-disc pl-6">
-                {units.map((u) => (
-                  <li key={u.serialNumber}>
-                    {u.serialNumber} – {u.status}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <p>Transfer completed!!</p>
         </div>
-      ) : (
+      )
+      :
+      (
         <div className="rounded-xl bg-red-100 p-6">
-          <h1 className="text-3xl font-bold text-red-700">
-            ⚠️ Invalid Signature
-          </h1>
-          <p>This batch QR code does not match any authentic record.</p>
+            <h1 className="text-3xl font-bold text-red-700">
+              ⚠️ Invalid Signature
+            </h1>
+            <p>This batch QR code does not match any authentic record.</p>
+            <p>Batch transfer has been cancelled, this batch id has been forged</p>
         </div>
-      )}
+        )}
+      <Link
+        className="mt-6 inline-block rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        href={getRedirectPath(publicMetadata?.role, publicMetadata?.organizationType)}
+      >
+        Go To Dashboard
+      </Link>
     </div>
+
   );
 }
