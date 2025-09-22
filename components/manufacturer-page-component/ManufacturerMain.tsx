@@ -142,13 +142,13 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Manufacturer Dashboard</h1>
-                    <p className="text-muted-foreground mt-2">Welcome to PharmaTech Industries Manufacturing Portal</p>
+                    <h1 className="font-bold text-4xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">Manufacturer Dashboard</h1>
+                    <p className="text-muted-foreground text-lg">Welcome to PharmaTech Industries Manufacturing Portal</p>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
+                    <Badge variant="secondary" className="px-4 py-2 bg-primary/10 text-primary border-primary/20 text-sm font-medium">
                         <Building2 className="h-4 w-4 mr-2" />
                         Manufacturer
                     </Badge>
@@ -216,19 +216,35 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
                         <CardDescription className="text-muted-foreground">Common manufacturing tasks</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <Button className="w-full justify-start bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white transition-all duration-200 shadow-lg" onClick={() => setActiveTab("batches")}>
+                        <Button 
+                            variant="gradient"
+                            className="w-full justify-start shadow-lg hover:shadow-xl" 
+                            onClick={() => setActiveTab("batches")}
+                        >
                             <Package className="h-4 w-4 mr-2" />
                             Create New Batch
                         </Button>
-                        <Button variant="outline" className="w-full justify-start bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60" onClick={() => setActiveTab("quality")}>
+                        <Button 
+                            variant="outline" 
+                            className="w-full justify-start hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60" 
+                            onClick={() => setActiveTab("quality")}
+                        >
                             <FlaskConical className="h-4 w-4 mr-2" />
                             Quality Control
                         </Button>
-                        <Button variant="outline" className="w-full justify-start bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60" onClick={() => setActiveTab("transfers")}>
+                        <Button 
+                            variant="outline" 
+                            className="w-full justify-start hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60" 
+                            onClick={() => setActiveTab("transfers")}
+                        >
                             <Truck className="h-4 w-4 mr-2" />
                             Transfer Management
                         </Button>
-                        <Button variant="outline" className="w-full justify-start bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60" onClick={() => setActiveTab("qr-generator")}>
+                        <Button 
+                            variant="outline" 
+                            className="w-full justify-start hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60" 
+                            onClick={() => setActiveTab("qr-generator")}
+                        >
                             <QrCode className="h-4 w-4 mr-2" />
                             Generate QR Codes
                         </Button>

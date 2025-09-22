@@ -2,6 +2,7 @@
 
 import { QRScanner } from '@/components/qr-scanner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { useState } from 'react'
 
 export default function QRScannerDemo() {
@@ -17,7 +18,18 @@ export default function QRScannerDemo() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 relative overflow-hidden min-h-screen">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-48 h-48 bg-blue-500/6 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 left-20 w-64 h-64 bg-green-500/4 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 right-1/3 w-32 h-32 bg-purple-500/8 rounded-full blur-xl"></div>
+      </div>
+      
+      <div className="flex justify-between items-center mb-6 relative z-10">
+        <h1 className="text-2xl font-bold">QR Scanner Demo</h1>
+        <ThemeToggle />
+      </div>
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Simple QR Scanner Demo</CardTitle>

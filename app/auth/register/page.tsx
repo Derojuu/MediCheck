@@ -14,8 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox";
+import { ThemeToggle } from "@/components/theme-toggle";
 // icons
-import { Shield, Building2, User, ArrowLeft } from "lucide-react"
+import { Shield, Building2, User, ArrowLeft, Eye, EyeOff } from "lucide-react"
 // 
 import { toast } from "react-toastify";
 import { ORG_TYPE_MAP, getRedirectPath } from "@/utils";
@@ -29,6 +30,10 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1)
 
   const [isLoading, setIsLoading] = useState(false)
+
+  // Password visibility toggles
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     // Organization fields
@@ -210,42 +215,50 @@ export default function RegisterPage() {
         return (
           <>
             <div>
-              <Label htmlFor="companyName" className="font-medium text-foreground">Company Name</Label>
+              <Label htmlFor="companyName" className="text-sm font-medium text-foreground mb-2 block">
+                Company Name *
+              </Label>
               <Input
                 id="companyName"
                 value={formData.companyName}
                 onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                 placeholder="Enter company name"
-                className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="rcNumber" className="font-medium text-foreground">RC Number (Registration Certificate)</Label>
+              <Label htmlFor="rcNumber" className="text-sm font-medium text-foreground mb-2 block">
+                RC Number (Registration Certificate) *
+              </Label>
               <Input
                 id="rcNumber"
                 value={formData.rcNumber}
                 onChange={(e) => setFormData({ ...formData, rcNumber: e.target.value })}
                 placeholder="Enter RC number"
-                className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="nafdacNumber">NAFDAC Registration Number</Label>
+              <Label htmlFor="nafdacNumber" className="text-sm font-medium text-foreground mb-2 block">
+                NAFDAC Registration Number *
+              </Label>
               <Input
                 id="nafdacNumber"
                 value={formData.nafdacNumber}
                 onChange={(e) => setFormData({ ...formData, nafdacNumber: e.target.value })}
                 placeholder="Enter NAFDAC registration number"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="country">Country of Origin</Label>
+              <Label htmlFor="country" className="text-sm font-medium text-foreground mb-2 block">
+                Country of Origin *
+              </Label>
               <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
@@ -258,9 +271,11 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
+                State *
+              </Label>
               <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -273,14 +288,16 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="address">Headquarters Address</Label>
+              <Label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
+                Headquarters Address *
+              </Label>
               <Textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Enter complete headquarters address"
                 rows={3}
-                className="cursor-pointer"
+                className="resize-none"
                 required
               />
             </div>
@@ -291,34 +308,40 @@ export default function RegisterPage() {
         return (
           <>
             <div>
-              <Label htmlFor="companyName">Company Name</Label>
+              <Label htmlFor="companyName" className="text-sm font-medium text-foreground mb-2 block">
+                Company Name *
+              </Label>
               <Input
                 id="companyName"
                 value={formData.companyName}
                 onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                 placeholder="Enter company name"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="businessRegNumber">Business Registration Number</Label>
+              <Label htmlFor="businessRegNumber" className="text-sm font-medium text-foreground mb-2 block">
+                Business Registration Number *
+              </Label>
               <Input
                 id="businessRegNumber"
                 value={formData.businessRegNumber}
                 onChange={(e) => setFormData({ ...formData, businessRegNumber: e.target.value })}
                 placeholder="Enter business registration number"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="distributorType">Type of Distributor</Label>
+              <Label htmlFor="distributorType" className="text-sm font-medium text-foreground mb-2 block">
+                Type of Distributor *
+              </Label>
               <Select
                 value={formData.distributorType}
                 onValueChange={(value) => setFormData({ ...formData, distributorType: value })}
               >
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select distributor type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -329,9 +352,11 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="country">Country of Origin</Label>
+              <Label htmlFor="country" className="text-sm font-medium text-foreground mb-2 block">
+                Country of Origin *
+              </Label>
               <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
@@ -344,9 +369,11 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
+                State *
+              </Label>
               <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -359,14 +386,16 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="address">Operating Address</Label>
+              <Label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
+                Operating Address *
+              </Label>
               <Textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Enter complete operating address"
                 rows={3}
-                className="cursor-pointer"
+                className="resize-none"
                 required
               />
             </div>
@@ -377,31 +406,37 @@ export default function RegisterPage() {
         return (
           <>
             <div>
-              <Label htmlFor="companyName">Hospital Name</Label>
+              <Label htmlFor="companyName" className="text-sm font-medium text-foreground mb-2 block">
+                Hospital Name *
+              </Label>
               <Input
                 id="companyName"
                 value={formData.companyName}
                 onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                 placeholder="Enter hospital name"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="licenseNumber">License Number</Label>
+              <Label htmlFor="licenseNumber" className="text-sm font-medium text-foreground mb-2 block">
+                License Number *
+              </Label>
               <Input
                 id="licenseNumber"
                 value={formData.licenseNumber}
                 onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
                 placeholder="Enter hospital license number"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="country">Country of Origin</Label>
+              <Label htmlFor="country" className="text-sm font-medium text-foreground mb-2 block">
+                Country of Origin *
+              </Label>
               <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
@@ -414,9 +449,11 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
+                State *
+              </Label>
               <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -429,14 +466,16 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
+                Hospital Address *
+              </Label>
               <Textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Enter complete hospital address"
                 rows={3}
-                className="cursor-pointer"
+                className="resize-none"
                 required
               />
             </div>
@@ -447,53 +486,63 @@ export default function RegisterPage() {
         return (
           <>
             <div>
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName" className="text-sm font-medium text-foreground mb-2 block">
+                Full Name *
+              </Label>
               <Input
                 id="fullName"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 placeholder="Enter your full name"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="pcnNumber">Pharmacist Council of Nigeria (PCN) Registration Number</Label>
+              <Label htmlFor="pcnNumber" className="text-sm font-medium text-foreground mb-2 block">
+                Pharmacist Council of Nigeria (PCN) Registration Number *
+              </Label>
               <Input
                 id="pcnNumber"
                 value={formData.pcnNumber}
                 onChange={(e) => setFormData({ ...formData, pcnNumber: e.target.value })}
                 placeholder="Enter PCN registration number"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="companyName">Pharmacy/Hospital Affiliation (Optional)</Label>
+              <Label htmlFor="companyName" className="text-sm font-medium text-foreground mb-2 block">
+                Pharmacy/Hospital Affiliation (Optional)
+              </Label>
               <Input
                 id="companyName"
                 value={formData.companyName}
                 onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                 placeholder="Enter pharmacy or hospital name"
-                className="cursor-pointer"
+                className="h-11"
               />
             </div>
             <div>
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
+                Address *
+              </Label>
               <Textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Enter complete address"
                 rows={3}
-                className="cursor-pointer"
+                className="resize-none"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="country">Country of Origin</Label>
+              <Label htmlFor="country" className="text-sm font-medium text-foreground mb-2 block">
+                Country of Origin *
+              </Label>
               <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
@@ -506,9 +555,11 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
+                State *
+              </Label>
               <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -527,12 +578,14 @@ export default function RegisterPage() {
         return (
           <>
             <div>
-              <Label htmlFor="agencyName">Agency Name</Label>
+              <Label htmlFor="agencyName" className="text-sm font-medium text-foreground mb-2 block">
+                Agency Name *
+              </Label>
               <Select
                 value={formData.agencyName}
                 onValueChange={(value) => setFormData({ ...formData, agencyName: value })}
               >
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select agency" />
                 </SelectTrigger>
                 <SelectContent>
@@ -542,42 +595,50 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="businessRegNumber">Department/Unit</Label>
+              <Label htmlFor="businessRegNumber" className="text-sm font-medium text-foreground mb-2 block">
+                Department/Unit *
+              </Label>
               <Input
                 id="businessRegNumber"
                 value={formData.businessRegNumber}
                 onChange={(e) => setFormData({ ...formData, businessRegNumber: e.target.value })}
                 placeholder="Enter department or unit"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="officialId">Official ID/Badge Number</Label>
+              <Label htmlFor="officialId" className="text-sm font-medium text-foreground mb-2 block">
+                Official ID/Badge Number *
+              </Label>
               <Input
                 id="officialId"
                 value={formData.officialId}
                 onChange={(e) => setFormData({ ...formData, officialId: e.target.value })}
                 placeholder="Enter official ID or badge number"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName" className="text-sm font-medium text-foreground mb-2 block">
+                Full Name *
+              </Label>
               <Input
                 id="fullName"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 placeholder="Enter your full name"
-                className="cursor-pointer"
+                className="h-11"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="country">Country of Origin</Label>
+              <Label htmlFor="country" className="text-sm font-medium text-foreground mb-2 block">
+                Country of Origin *
+              </Label>
               <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
@@ -590,9 +651,11 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
+                State *
+              </Label>
               <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
-                <SelectTrigger className="cursor-pointer">
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -605,14 +668,16 @@ export default function RegisterPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
+                Address *
+              </Label>
               <Textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Enter complete address"
                 rows={3}
-                className="cursor-pointer"
+                className="resize-none"
                 required
               />
             </div>
@@ -627,127 +692,135 @@ export default function RegisterPage() {
 
   return (
 
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-32 -left-40 w-80 h-80 bg-accent/6 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 -right-32 w-64 h-64 bg-primary/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-2/3 left-1/4 w-40 h-40 bg-accent/8 rounded-full blur-xl"></div>
+      </div>
+      
       {/* Navigation - Updated to match landing page */}
-      <nav className="border-b bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <Link href="/" className="flex items-center space-x-4">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative group cursor-pointer">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                <div className="relative bg-gradient-to-r from-primary to-accent p-2 rounded-xl">
-                  <Shield className="h-8 w-8 text-white" />
+                <div className="relative bg-gradient-to-r from-primary to-accent p-1.5 sm:p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-white group-hover:scale-110 transition-transform duration-300" />
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-2xl text-foreground">MedChain</span>
-                <span className="text-xs text-muted-foreground font-mono">Blockchain Verified</span>
+                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MedChain</span>
+                <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>
-            <Link href="/">
-              <Button 
-                variant="outline"
-                className="cursor-pointer bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeToggle />
+              <Link href="/">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6"
+                >
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Back to Home</span>
+                  <span className="sm:hidden">Back</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Main Content with matching background effects */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8"></div>
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
-
-        <div className="relative max-w-2xl mx-auto animate-slide-in-up">
+      {/* Main Content */}
+      <section className="relative py-8 sm:py-16 px-4 sm:px-6 lg:px-8 min-h-screen">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
+        
+        <div className="relative max-w-4xl mx-auto">
           {!accountType ? (
+            <div className="max-w-2xl mx-auto">
+              <div className="text-center mb-12">
+                <h1 className="text-4xl font-bold text-foreground mb-4">
+                  Create Your Account
+                </h1>
+                <p className="text-lg text-muted-foreground">
+                  Choose the account type that best fits your needs
+                </p>
+              </div>
 
-            <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl">
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Choose Account Type
-                </CardTitle>
-                <CardDescription className="text-muted-foreground mt-2 text-lg">
-                  Select the type of account that best describes your role
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-
-                <div
-                  className="p-8 border-2 border-dashed border-primary/30 hover:border-primary/60 bg-gradient-to-r from-primary/5 to-accent/5 hover:from-primary/10 hover:to-accent/10 cursor-pointer rounded-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl group"
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/50 group"
                   onClick={() => setAccountType("organization")}
                 >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg flex items-center justify-center group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300">
-                      <Building2 className="h-6 w-6 text-primary" />
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors duration-200">
+                      <Building2 className="h-8 w-8 text-primary" />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-xl text-foreground">Organization</h3>
-                      <p className="text-muted-foreground text-sm mt-1">
-                        Manufacturer, Drug Distributor, Hospital, Pharmacy, or Regulator
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-3">Organization</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      For manufacturers, distributors, hospitals, pharmacies, and regulatory agencies
+                    </p>
+                  </CardContent>
+                </Card>
 
-                <div
-                  className="p-8 border-2 border-dashed border-primary/30 hover:border-primary/60 bg-gradient-to-r from-accent/5 to-primary/5 hover:from-accent/10 hover:to-primary/10 cursor-pointer rounded-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl group"
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/50 group"
                   onClick={() => setAccountType("consumer")}
                 >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-accent/20 to-primary/20 rounded-lg flex items-center justify-center group-hover:from-accent/30 group-hover:to-primary/30 transition-all duration-300">
-                      <User className="h-6 w-6 text-primary" />
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/20 transition-colors duration-200">
+                      <User className="h-8 w-8 text-accent" />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-xl text-foreground">Consumer/Patient</h3>
-                      <p className="text-muted-foreground text-sm mt-1">Verify medications and access AI assistance</p>
-                    </div>
-                  </div>
-                </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-3">Consumer</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      For patients and consumers who want to verify medications
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
-              </CardContent>
-            </Card>
-
-          ) :
-          (
-            <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      {accountType === "organization" ? "Organization Registration" : "Consumer Registration"}
-                    </CardTitle>
-                    <CardDescription className="text-muted-foreground mt-2">
-                      {accountType === "organization"
-                        ? "Register your organization to start managing medication verification"
-                        : "Create your consumer account for medication verification"}
-                    </CardDescription>
+          ) : (
+            <div className="max-w-2xl mx-auto">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
+                  {accountType === "organization" ? "Organization Registration" : "Create Account"}
+                </h1>
+                <p className="text-muted-foreground">
+                  {accountType === "organization"
+                    ? "Register your organization to start managing medication verification"
+                    : "Create your consumer account for medication verification"}
+                </p>
+                {accountType === "organization" && (
+                  <div className="mt-4">
+                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                      Step {step} of 2
+                    </Badge>
                   </div>
-                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                    Step {step} of {accountType === "organization" ? "2" : "1"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
+                )}
+              </div>
+
+              <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-8">
                   
                 <form onSubmit={handleSubmit} className="space-y-6">
                     
                   {accountType === "organization" && (
                     <>
                       {step === 1 && (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                           <div>
-                            <Label htmlFor="organizationType">Organization Type</Label>
+                            <Label htmlFor="organizationType" className="text-sm font-medium text-foreground mb-2 block">
+                              Organization Type *
+                            </Label>
                             <Select
                               value={formData.organizationType}
                               onValueChange={(value) => setFormData({ ...formData, organizationType: value })}
                             >
-                              <SelectTrigger className="cursor-pointer">
+                              <SelectTrigger className="h-11">
                                 <SelectValue placeholder="Select organization type" />
                               </SelectTrigger>
                               <SelectContent>                                  
@@ -760,118 +833,181 @@ export default function RegisterPage() {
                             </Select>
                           </div>
 
-                          {formData.organizationType && renderOrganizationSpecificFields()}
+                          {formData.organizationType && (
+                            <div className="space-y-6">
+                              <div className="border-t border-border/50 pt-6">
+                                <h3 className="text-lg font-semibold text-foreground mb-4">
+                                  Organization Details
+                                </h3>
+                                <div className="grid gap-6">
+                                  {renderOrganizationSpecificFields()}
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
-                          <Button
-                            type="button"
-                            onClick={() => setStep(2)}
-                            className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg"
-                            disabled={!formData.organizationType}
-                          >
-                            Continue
-                          </Button>
+                          <div className="pt-4">
+                            <Button
+                              type="button"
+                              variant="default"
+                              size="lg"
+                              onClick={() => setStep(2)}
+                              className="w-full h-12 font-semibold cursor-pointer"
+                              disabled={!formData.organizationType}
+                            >
+                              Continue to Contact Information
+                            </Button>
+                          </div>
                         </div>
                       )}
                         
                       {step === 2 && (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                           <div>
-                            <Label htmlFor="contactPersonName">Contact Person Name</Label>
-                            <Input
-                              id="contactPersonName"
-                              value={formData.contactPersonName}
-                              onChange={(e) => setFormData({ ...formData, contactPersonName: e.target.value })}
-                              placeholder="Enter contact person name"
-                              className="cursor-pointer"
-                              required
-                            />
+                            <h3 className="text-lg font-semibold text-foreground mb-4">
+                              Contact Information
+                            </h3>
+                            <div className="grid gap-6">
+                              <div>
+                                <Label htmlFor="contactPersonName" className="text-sm font-medium text-foreground mb-2 block">
+                                  Contact Person Name *
+                                </Label>
+                                <Input
+                                  id="contactPersonName"
+                                  value={formData.contactPersonName}
+                                  onChange={(e) => setFormData({ ...formData, contactPersonName: e.target.value })}
+                                  placeholder="Enter contact person name"
+                                  className="h-11"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="contactEmail" className="text-sm font-medium text-foreground mb-2 block">
+                                  {formData.organizationType === "Regulator"
+                                    ? "Official Email Address *"
+                                    : "Contact Person Email *"}
+                                </Label>
+                                <Input
+                                  id="contactEmail"
+                                  type="email"
+                                  value={formData.contactEmail}
+                                  onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                                  placeholder="Enter email address"
+                                  className="h-11"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="contactPhone" className="text-sm font-medium text-foreground mb-2 block">
+                                  {formData.organizationType === "Regulator"
+                                    ? "Official Phone Number *"
+                                    : "Contact Person Phone Number *"}
+                                </Label>
+                                <Input
+                                  id="contactPhone"
+                                  type="tel"
+                                  value={formData.contactPhone}
+                                  onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                                  placeholder="Enter phone number"
+                                  className="h-11"
+                                  required
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <Label htmlFor="contactEmail">
-                              {formData.organizationType === "Regulator"
-                                ? "Official Email Address"
-                                : "Contact Person Email"}{" "}
-                            </Label>
-                            <Input
-                              id="contactEmail"
-                              type="email"
-                              value={formData.contactEmail}
-                              onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                              placeholder="Enter email address"
-                              className="cursor-pointer"
-                              required
-                            />
+
+                          <div className="border-t border-border/50 pt-6">
+                            <h3 className="text-lg font-semibold text-foreground mb-4">
+                              Account Security
+                            </h3>
+                            <div className="grid gap-6">
+                              <div>
+                                <Label htmlFor="password" className="text-sm font-medium text-foreground mb-2 block">
+                                  Password *
+                                </Label>
+                                <div className="relative">
+                                  <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    placeholder="Create a secure password"
+                                    className="h-11 pr-10"
+                                    required
+                                  />
+                                  <button
+                                    type="button"
+                                    tabIndex={-1}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+                                    onClick={() => setShowPassword((v) => !v)}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                  >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                  </button>
+                                </div>
+                              </div>
+                              <div>
+                                <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground mb-2 block">
+                                  Confirm Password *
+                                </Label>
+                                <div className="relative">
+                                  <Input
+                                    id="confirmPassword"
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                    placeholder="Confirm your password"
+                                    className="h-11 pr-10"
+                                    required
+                                  />
+                                  <button
+                                    type="button"
+                                    tabIndex={-1}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+                                    onClick={() => setShowConfirmPassword((v) => !v)}
+                                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                  >
+                                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <Label htmlFor="contactPhone">
-                              {formData.organizationType === "Regulator"
-                                ? "Official Phone Number"
-                                : "Contact Person Phone Number"}{" "}
-                            </Label>
-                            <Input
-                              id="contactPhone"
-                              type="tel"
-                              value={formData.contactPhone}
-                              onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                              placeholder="Enter phone number"
-                              className="cursor-pointer"
-                              required
-                            />
+
+                          <div className="border-t border-border/50 pt-6">
+                            <div className="flex items-start space-x-3">
+                              <Checkbox
+                                id="agreeToTerms"
+                                checked={formData.agreeToTerms}
+                                onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: !!checked })}
+                                className="mt-1"
+                              />
+                              <Label htmlFor="agreeToTerms" className="text-sm text-foreground leading-relaxed">
+                                I agree to the <a href="#" className="text-primary hover:underline">Terms and Conditions</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+                              </Label>
+                            </div>
+                            <div className="mt-4">
+                              <div id="clerk-captcha"></div>
+                            </div>
                           </div>
-                          <div>
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                              id="password"
-                              type="password"
-                              value={formData.password}
-                              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                              placeholder="Create a password"
-                              className="cursor-pointer"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input
-                              id="confirmPassword"
-                              type="password"
-                              value={formData.confirmPassword}
-                              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                              placeholder="Confirm your password"
-                              className="cursor-pointer"
-                              required
-                            />
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="agreeToTerms"
-                              checked={formData.agreeToTerms}
-                              onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: !!checked })}
-                              className="cursor-pointer"
-                            />
-                            <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer">
-                              I agree to the Terms and Conditions
-                            </Label>
-                          </div>
-                          <div>
-                            {/* CAPTCHA element for Clerk Smart CAPTCHA */}
-                            <div id="clerk-captcha"></div>
-                          </div>
-                          <div className="flex space-x-4">
+
+                          <div className="flex space-x-4 pt-4">
                             <Button
                               type="button"
                               variant="outline"
                               onClick={() => setStep(1)}
-                              className="flex-1 bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
+                              className="flex-1 h-12 cursor-pointer"
                             >
                               Back
                             </Button>
                             <Button
                               type="submit"
-                              className="flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg"
+                              variant="default"
+                              size="lg"
+                              className="flex-1 h-12 font-semibold cursor-pointer"
                               disabled={isLoading}
                             >
-                                {isLoading ? "Creating Account..." : "Submit Application"}
+                              {isLoading ? "Creating Account..." : "Create Account"}
                             </Button>
                           </div>
                         </div>
@@ -880,141 +1016,211 @@ export default function RegisterPage() {
                   )}
 
                   {accountType === "consumer" && (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       <div>
-                        <Label htmlFor="fullName" className="font-medium text-foreground">Full Name</Label>
-                        <Input
-                          id="fullName"
-                          value={formData.fullName}
-                          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                          placeholder="Enter your full name"
-                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="contactEmail" className="font-medium text-foreground">Email Address</Label>
-                        <Input
-                          id="contactEmail"
-                          type="email"
-                          value={formData.contactEmail}
-                          onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                          placeholder="Enter your email"
-                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="contactPhone" className="font-medium text-foreground">Phone Number</Label>
-                        <Input
-                          id="contactPhone"
-                          type="tel"
-                          value={formData.contactPhone}
-                          onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                          placeholder="Enter your phone number"
-                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="dateOfBirth" className="font-medium text-foreground">Date of Birth</Label>
-                        <Input
-                          id="dateOfBirth"
-                          type="date"
-                          value={formData.dateOfBirth}
-                          onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                          required
-                        />
-                      </div>
-                        <div>
-                          <Label htmlFor="country">Country of Origin</Label>
-                          <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
-                            <SelectTrigger className="cursor-pointer">
-                              <SelectValue placeholder="Select country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country} value={country}>
-                                  {country}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                        <h3 className="text-lg font-semibold text-foreground mb-4">
+                          Personal Information
+                        </h3>
+                        <div className="grid gap-6">
+                          <div>
+                            <Label htmlFor="fullName" className="text-sm font-medium text-foreground mb-2 block">
+                              Full Name *
+                            </Label>
+                            <Input
+                              id="fullName"
+                              value={formData.fullName}
+                              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                              placeholder="Enter your full name"
+                              className="h-11"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="contactEmail" className="text-sm font-medium text-foreground mb-2 block">
+                              Email Address *
+                            </Label>
+                            <Input
+                              id="contactEmail"
+                              type="email"
+                              value={formData.contactEmail}
+                              onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                              placeholder="Enter your email"
+                              className="h-11"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="contactPhone" className="text-sm font-medium text-foreground mb-2 block">
+                              Phone Number *
+                            </Label>
+                            <Input
+                              id="contactPhone"
+                              type="tel"
+                              value={formData.contactPhone}
+                              onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                              placeholder="Enter your phone number"
+                              className="h-11"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="dateOfBirth" className="text-sm font-medium text-foreground mb-2 block">
+                              Date of Birth *
+                            </Label>
+                            <Input
+                              id="dateOfBirth"
+                              type="date"
+                              value={formData.dateOfBirth}
+                              onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                              className="h-11"
+                              required
+                            />
+                          </div>
                         </div>
-                      <div>
-                        <Label htmlFor="state">State</Label>
-                        <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
-                          <SelectTrigger className="cursor-pointer">
-                            <SelectValue placeholder="Select state" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {nigerianStates.map((state) => (
-                              <SelectItem key={state} value={state}>
-                                {state}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      </div>
+
+                      <div className="border-t border-border/50 pt-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">
+                          Location Information
+                        </h3>
+                        <div className="grid gap-6">
+                          <div>
+                            <Label htmlFor="country" className="text-sm font-medium text-foreground mb-2 block">
+                              Country *
+                            </Label>
+                            <Select value={formData.country} onValueChange={(value) => setFormData({ ...formData, country: value })}>
+                              <SelectTrigger className="h-11">
+                                <SelectValue placeholder="Select country" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countries.map((country) => (
+                                  <SelectItem key={country} value={country}>
+                                    {country}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
+                              State *
+                            </Label>
+                            <Select value={formData.state} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+                              <SelectTrigger className="h-11">
+                                <SelectValue placeholder="Select state" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {nigerianStates.map((state) => (
+                                  <SelectItem key={state} value={state}>
+                                    {state}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
+                              Address *
+                            </Label>
+                            <Textarea
+                              id="address"
+                              value={formData.address}
+                              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                              placeholder="Enter your complete address"
+                              rows={3}
+                              className="resize-none"
+                              required
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="address" className="font-medium text-foreground">Address</Label>
-                          <Textarea
-                            id="address"
-                            value={formData.address}
-                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                            placeholder="Enter your address"
-                            rows={3}
-                            className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                            required
+                      </div>
+
+                      <div className="border-t border-border/50 pt-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">
+                          Account Security
+                        </h3>
+                        <div className="grid gap-6">
+                          <div>
+                            <Label htmlFor="password" className="text-sm font-medium text-foreground mb-2 block">
+                              Password *
+                            </Label>
+                            <div className="relative">
+                              <Input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                placeholder="Create a secure password"
+                                className="h-11 pr-10"
+                                required
+                              />
+                              <button
+                                type="button"
+                                tabIndex={-1}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground cursor-pointer"
+                                onClick={() => setShowPassword((v) => !v)}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                              >
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              </button>
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground mb-2 block">
+                              Confirm Password *
+                            </Label>
+                            <div className="relative">
+                              <Input
+                                id="confirmPassword"
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={formData.confirmPassword}
+                                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                placeholder="Confirm your password"
+                                className="h-11 pr-10"
+                                required
+                              />
+                              <button
+                                type="button"
+                                tabIndex={-1}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                onClick={() => setShowConfirmPassword((v) => !v)}
+                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                              >
+                                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-border/50 pt-6">
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            id="agreeToTerms"
+                            checked={formData.agreeToTerms}
+                            onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: !!checked })}
+                            className="mt-1"
                           />
+                          <Label htmlFor="agreeToTerms" className="text-sm text-foreground leading-relaxed">
+                            I agree to the <a href="#" className="text-primary hover:underline">Terms and Conditions</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+                          </Label>
                         </div>
-                      <div>
-                        <Label htmlFor="password" className="font-medium text-foreground">Password *</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          value={formData.password}
-                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                          placeholder="Create a password"
-                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                          required
-                        />
+                        <div className="mt-4">
+                          <div id="clerk-captcha"></div>
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="confirmPassword" className="font-medium text-foreground">Confirm Password</Label>
-                        <Input
-                          id="confirmPassword"
-                          type="password"
-                          value={formData.confirmPassword}
-                          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                          placeholder="Confirm your password"
-                          className="glass-input bg-background/50 border-primary/20 focus:border-primary/50 transition-all duration-200"
-                          required
-                        />
+
+                      <div className="pt-4">
+                        <Button
+                          type="submit"
+                          variant="default"
+                          size="lg"
+                          className="w-full h-12 font-semibold"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? "Creating Account..." : "Create Account"}
+                        </Button>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="agreeToTerms"
-                          checked={formData.agreeToTerms}
-                          onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: !!checked })}
-                          className="cursor-pointer"
-                        />
-                        <Label htmlFor="agreeToTerms" className="text-sm cursor-pointer font-medium text-foreground">
-                          I agree to the Terms and Condition
-                        </Label>
-                      </div>
-                      <div>
-                        {/* CAPTCHA element for Clerk Smart CAPTCHA */}
-                        <div id="clerk-captcha"></div>
-                      </div>
-                      <Button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Creating Account..." : "Create Account"}
-                      </Button>
                     </div>
                   )}
                     
@@ -1024,14 +1230,15 @@ export default function RegisterPage() {
                   <Button 
                     variant="outline"
                     onClick={() => setAccountType(null)} 
-                    className="cursor-pointer bg-transparent hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 font-medium px-6 py-2.5"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     Choose Different Account Type
                   </Button>
                 </div>
                   
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
       </section>
