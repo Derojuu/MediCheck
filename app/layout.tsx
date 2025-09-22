@@ -5,6 +5,8 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkWrapper } from "@/components/ClerkWrapper";
 import { ToastWrapper } from "@/components/ToastWrapper";
+import "leaflet/dist/leaflet.css";
+
 
 const inter = Inter({
   subsets: ["latin"],

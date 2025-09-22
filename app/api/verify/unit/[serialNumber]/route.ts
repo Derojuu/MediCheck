@@ -2,12 +2,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifySignature } from "@/lib/verifySignature";
-import { auth } from "@clerk/nextjs/server";
 import { getBatchEventLogs } from "@/lib/hedera";
 import { runAllUnitAuthenticityChecks } from "@/lib/safetyChecks";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { encodeFeatures } from "@/lib/formatModelInput";
-import { modelPrediction } from "@/lib/modelPrediction";
+import * as ort from "onnxruntime-node";
+import { promises as fs } from "fs";
+import path from "path";
 
 const QR_SECRET = process.env.QR_SECRET || "dev-secret";
 
@@ -16,7 +17,13 @@ export async function GET(
   context: { params: { serialNumber: string } }
 ) {
 
-  const loggedInUser = await currentUser();
+  const { userId } = await auth();
+
+  let loggedInUser = null;
+  
+  if (userId) {
+    loggedInUser = await currentUser();
+  }
 
   const { serialNumber } = await context.params;
 
@@ -26,7 +33,18 @@ export async function GET(
   const longitude = url.searchParams.get("long");
   const latitude = url.searchParams.get("lat");
 
-  const { userId } = await auth();
+
+  const modelPath = path.join(
+    process.cwd(),
+    "models",
+    "counterfeit_predictor.onnx"
+  );
+
+  // Load as Buffer
+  const modelBuffer = await fs.readFile(modelPath);
+
+  // 🔑 Convert Buffer to Uint8Array
+  const modelUint8 = new Uint8Array(modelBuffer);
 
   if (!sig) {
     return NextResponse.json(
@@ -75,7 +93,7 @@ export async function GET(
   // 2️⃣ Recompute signature
   const data = `${unit.serialNumber}|${unit.batch.batchId}|${unit.registrySequence}`;
 
-  const valid = verifySignature(data, sig, QR_SECRET);
+  let valid = verifySignature(data, sig, QR_SECRET);
 
   //
   const topicId = unit.batch.registryTopicId ?? "";
@@ -83,6 +101,8 @@ export async function GET(
   const logEntries = await getBatchEventLogs(topicId);
 
   const logEntriesMessages = logEntries.map((entry) => entry.message);
+
+  console.log("logEntriesMessages", logEntriesMessages);
 
   // logEntries is the array you showed above
   const eventLogs = logEntriesMessages
@@ -92,6 +112,8 @@ export async function GET(
     })
     .filter((entry) => entry && entry.type === "EVENT_LOG");
 
+
+    console.log("works")
   // AUTHENTICITY CHECK
   const authenticityResultCheck = await runAllUnitAuthenticityChecks(
     eventLogs,
@@ -101,6 +123,8 @@ export async function GET(
     topicId
   );
 
+      console.log("works 22")
+
   // SAVE SCAN HISTORY
 
   const consumer = user
@@ -109,6 +133,8 @@ export async function GET(
 
   const authenticityScanResult =
     authenticityResultCheck?.status === "NOT_SAFE" ? "SUSPICIOUS" : "GENUINE";
+  
+  valid = authenticityResultCheck?.status === "NOT_SAFE" ? false : valid;
 
   const organizationInformation = await prisma.organization.findUnique({
     where: { id: unit.batch.organizationId },
@@ -226,20 +252,55 @@ export async function GET(
     user_flag: userFlag,
   });
 
-  // Run ONNX model
-  const predictionArray = await modelPrediction(features);
-  const predictedProbability = predictionArray[0];
-  const predictedLabel = predictedProbability > 0.5;
+  // Initialize ONNX Runtime with proper error handling
+  try {
+    const session = await ort.InferenceSession.create(modelUint8);
 
-  await prisma.predictionScore.create({
-    data: {
-      scanHistoryId: savedScan.id,
-      predictedLabel,
-      predictedProbability,
-      region: organizationInformation?.state,
-      scanType: "BATCH",
-    },
-  });
+    const inputArray = Float32Array.from(features);
+
+    const inputTensor = new ort.Tensor("float32", inputArray, [1, 52]);
+
+    const feeds: Record<string, ort.Tensor> = {
+      float_input: inputTensor,
+    };
+
+    const results = await session.run(feeds);
+
+    // Get the raw arrays
+    const labelArr = results.label.data as BigInt64Array; // int64 -> BigInt64Array
+
+    const probArr = results.probabilities.data as Float32Array; // float32 -> Float32Array
+
+    // Convert safely
+    const predictedLabelInt = Number(labelArr[0]); // from BigInt to number
+
+    const predictedProbability = probArr[predictedLabelInt]; // probability of predicted label
+
+    console.log("predictedLabelInt", predictedLabelInt);
+
+    console.log("predictedProbability", predictedProbability);
+
+    // If you want a boolean:
+    const predictedLabel = predictedLabelInt === 1;
+
+    // Then save
+    await prisma.predictionScore.create({
+      data: {
+        scanHistoryId: savedScan.id,
+        predictedLabel,
+        predictedProbability,
+        region: organizationInformation?.state,
+        scanType: "UNIT",
+      },
+    });
+  }
+  catch (onnxError) {
+    console.error("ONNX Runtime Error:", onnxError);
+    return NextResponse.json(
+      { valid: false, error: "ONNX Runtime Error", onnxError },
+      { status: 400 }
+    );
+  }
 
   // 3️⃣ Response
   return NextResponse.json({

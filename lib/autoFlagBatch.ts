@@ -11,7 +11,7 @@ export async function autoFlagBatch(
 ) {
   // 1. Update the batch in Postgres first
   await prisma.medicationBatch.update({
-    where: { id: batchId },
+    where: { batchId: batchId },
     data: {
       status: "FLAGGED",
     },

@@ -17,10 +17,11 @@ import {
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
 import { authRoutes } from "@/utils";
+import { ManufacturerTab } from "@/utils";
 
 interface RegulatorSidebarProps {
-  activeTab: string
-  setActiveTab: (tab: string) => void
+  activeTab: ManufacturerTab
+  setActiveTab: (tab: ManufacturerTab) => void
 }
 
 export function RegulatorSidebar({ activeTab, setActiveTab }: RegulatorSidebarProps) {
@@ -35,6 +36,7 @@ export function RegulatorSidebar({ activeTab, setActiveTab }: RegulatorSidebarPr
     { id: "alerts", label: "Alerts", icon: AlertTriangle },
     { id: "entities", label: "Registered Entities", icon: Users },
     { id: "settings", label: "Settings", icon: Settings },
+    { id: "analytics", label: "Analytics", icon: Eye },
   ]
 
   return (
@@ -68,9 +70,9 @@ export function RegulatorSidebar({ activeTab, setActiveTab }: RegulatorSidebarPr
           return (
             <Button
               key={item.id}
-              variant={activeTab === item.id ? "secondary" : "ghost"}
+              variant={activeTab === item.id as ManufacturerTab ? "secondary" : "ghost"}
               className="w-full justify-start cursor-pointer"
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => setActiveTab(item.id as ManufacturerTab)}
             >
               <Icon className="h-4 w-4 mr-3" />
               {item.label}

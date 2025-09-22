@@ -3,7 +3,14 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
-import { getComprehensiveUnitVerificationExplanation } from "@/lib/verificationResponse";
+import { africanLanguages } from "@/database";
+
+interface GeminiResponse {
+    Title: [string, string];
+    Summary: [string, string]; 
+    Reasons: [string, string[]]; 
+    RecommendedAction: [string, string[]];
+}
 
 export default function VerifyUnitPage() {
     const params = useParams();
@@ -15,38 +22,58 @@ export default function VerifyUnitPage() {
     const [loading, setLoading] = useState(true);
     const [valid, setValid] = useState<boolean | null>(null);
     const [unit, setUnit] = useState<any>(null);
-    const [authenticityResultCheck, setAuthenticityResultCheck] = useState<object>({});
+    const [authenticityResultCheck, setAuthenticityResultCheck] = useState<object | undefined>();
     const [batch, setBatch] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
-    const [language, setLanguage] = useState("ENGLISH");
-    const [aiTranslation, setAiTranslation] = useState<object>({})
+    const [language, setLanguage] = useState(africanLanguages[0]);
+    const [aiTranslation, setAiTranslation] = useState<GeminiResponse | undefined>()
 
-    const getUserLocation = (): Promise< { latitude: number; longitude: number }> => {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                return reject(new Error("Geolocation not supported"));
-            }
+    // const getUserLocation = (): Promise< { latitude: number; longitude: number }> => {
+    //     return new Promise((resolve, reject) => {
+    //         if (!navigator.geolocation) {
+    //             return reject(new Error("Geolocation not supported"));
+    //         }
 
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    resolve({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
-                },
-                (err) => reject(err)
-            );
-        });
-    }
+    //         navigator.geolocation.getCurrentPosition(
+    //             (position) => {
+    //                 resolve({
+    //                     latitude: position.coords.latitude,
+    //                     longitude: position.coords.longitude,
+    //                 });
+    //             },
+    //             (err) => reject(err)
+    //         );
+    //     });
+    // }
 
     useEffect(() => {
         if (authenticityResultCheck) {
+
+            setAiTranslation(undefined);
+
             const getComprehensiveInfoFromGemini = async () => {
-                const translateAuthenticityChecks = await getComprehensiveUnitVerificationExplanation("FRENCH", authenticityResultCheck);
-                setAiTranslation(translateAuthenticityChecks);
+
+                console.log(language, authenticityResultCheck)
+
+                const res = await fetch("/api/geminiTranslation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        language,
+                        message: authenticityResultCheck
+                    }),
+                });
+
+                const data = await res.json();
+                console.log(data.response)
+                setAiTranslation(data.response as GeminiResponse)
+
+                // if (!res.ok) throw new Error(data.error || "Traslation Failed");
             }
+
+            getComprehensiveInfoFromGemini();
         }
-    }, [])
+    }, [authenticityResultCheck, language])
 
 
     useEffect(() => {
@@ -60,7 +87,6 @@ export default function VerifyUnitPage() {
 
             try {
 
-                console.log(serialNumber, sig)
                 const res = await fetch(`/api/verify/unit/${serialNumber}?sig=${sig}&lat=${latitude}&long=${longitude}`);
                 const data = await res.json();
 
@@ -71,6 +97,7 @@ export default function VerifyUnitPage() {
                     setValid(data.valid);
                     setUnit(data.unit);
                     setBatch(data.batch);
+                    setAuthenticityResultCheck(data.authenticityResultCheck);
                 }
             }
             catch (err) {
@@ -109,16 +136,41 @@ export default function VerifyUnitPage() {
     }
 
     return (
-        <div className="max-w-xl mx-auto p-6 text-center">
-            {valid ? (
-                <div className="rounded-xl bg-green-100 p-6">
-                    <h1 className="text-3xl font-bold text-green-700">✅ Authentic Unit</h1>
+        <div className="max-w-xl p-6">
+            <select onChange={(e) => setLanguage(e.target.value)} className="border-2 border-black" name="" id="">
+                <option value={africanLanguages[0]}>{africanLanguages[0]}</option>
+                {africanLanguages.map((lang) => (
+                    <option value={lang}>{lang}</option>
+                ))}
+            </select>
+            {aiTranslation ? (
+                <div className="space-y-4">
+                    <h1>{aiTranslation?.Title[0]}: <br /> {aiTranslation?.Title[1]}</h1>
+                    <h2>{aiTranslation?.Summary[0]}: <br /> {aiTranslation?.Summary[1]}</h2>
+                    <div>
+                        <h3>{aiTranslation?.Reasons[0]}:</h3>
+                        <ul>
+                            {aiTranslation?.Reasons[1].map((reason, index) => (
+                                <li key={index}>{reason}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>{aiTranslation?.RecommendedAction[0]}:</h3>
+                        <ul>
+                            {aiTranslation?.RecommendedAction[1].map((reason, index) => (
+                                <li key={index}>{reason}</li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
-            ) : (
-                <div className="rounded-xl bg-red-100 p-6">
-                    <h1 className="text-3xl font-bold text-red-700">⚠️ Invalid Signature</h1>
-                </div>
-            )}
+            )
+                :
+                (
+                    <p>LOADING....</p>
+                )
+        }
+
         </div>
     );
 }
