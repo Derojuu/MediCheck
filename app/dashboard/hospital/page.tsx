@@ -98,7 +98,10 @@ export default function HospitalDashboard() {
   if (orgLoading || batchesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-600 animate-pulse">Loading...</p>
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground font-medium">Loading hospital dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -106,13 +109,19 @@ export default function HospitalDashboard() {
 
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-16 left-16 w-80 h-80 bg-primary/4 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-16 right-16 w-60 h-60 bg-accent/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 left-1/3 w-36 h-36 bg-primary/7 rounded-full blur-xl"></div>
+      </div>
 
       <HospitalSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative z-10">
 
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
 
           {activeTab === "dashboard" && (
             <HospitalMain setActiveTab={setActiveTab} orgId={orgId} />

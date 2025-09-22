@@ -10,10 +10,12 @@ const nextConfig = {
     unoptimized: true,
   },
   // Moved from experimental to top-level config
-  serverExternalPackages: ["@hashgraphonline/standards-sdk"],
-  experimental: {
-    // Keep this empty or remove it if you don't have other experimental features
-  },
+  serverExternalPackages: [
+    "@hashgraphonline/standards-sdk",
+    "onnxruntime-node",
+  ],
+
+
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.resolve.fallback = {
@@ -21,8 +23,10 @@ const nextConfig = {
         worker_threads: false,
       };
     }
+
     return config;
   },
+
   // Optional: Enable standalone output for better server deployment
   output: "standalone",
 };

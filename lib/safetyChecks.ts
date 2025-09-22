@@ -97,6 +97,7 @@ export function checkExpired(events: HederaEvent[]) {
       reasonIfFail: `Batch expired on ${created.expiryDate}.`,
     };
   }
+    console.log("check 4");
   return { passed: true, reasonIfFail: "" };
 }
 
@@ -108,6 +109,7 @@ export function checkOwnership(events: HederaEvent[]) {
   const incomplete = ownershipTransfers.some(
     (t) => !t.transferFrom || !t.transferTo
   );
+    console.log("check 5");
   return incomplete
     ? { passed: false, reasonIfFail: "Ownership transfer mismatch detected." }
     : { passed: true, reasonIfFail: "" };
@@ -132,6 +134,8 @@ export async function checkDuplicateScan(
     // Auto-flag the batch immediately with reason
     await autoFlagBatch(batchId, topicId ?? "", organizationId, reason);
 
+    console.log("check 6");
+    
     return {
       passed: false,
       reasonIfFail: reason,
@@ -139,6 +143,7 @@ export async function checkDuplicateScan(
     };
   }
 
+    console.log("check 6");
   // No previous scan found
   return {
     passed: true,
@@ -167,6 +172,7 @@ export async function runAllUnitAuthenticityChecks(
 
   // --- Async checks ---
   let duplicateCheckResult = null;
+  console.log(unitId, batchId, organizationId, topicId)
   if (unitId && batchId && organizationId && topicId) {
     duplicateCheckResult = await checkDuplicateScan(
       unitId,
@@ -203,6 +209,7 @@ export async function runAllUnitAuthenticityChecks(
     reasons,
     recommendedAction,
   };
+  console.log("results yess")
   return restul;
 }
 

@@ -5,6 +5,8 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkWrapper } from "@/components/ClerkWrapper";
 import { ToastWrapper } from "@/components/ToastWrapper";
+import "leaflet/dist/leaflet.css";
+
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,11 +41,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="..." suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+      <body className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable} min-h-screen bg-background font-sans antialiased theme-transition`} suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <ClerkWrapper>
             <ToastWrapper />
-            {children}
+            <main className="page-transition">
+              {children}
+            </main>
           </ClerkWrapper>
         </ThemeProvider>
       </body>

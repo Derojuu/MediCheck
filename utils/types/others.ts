@@ -12,7 +12,6 @@ export interface ProductProps {
   storageConditions: string
 }
 
-
 export type ManufacturerTab =
   | "dashboard"
   | "batches"
@@ -26,8 +25,11 @@ export type ManufacturerTab =
   | "inventory"
   | "alerts"
   | "qr-scanner"
-  | "settings";
-
+  | "settings"
+  | "investigations"
+  | "analytics"
+  | "entities"
+  | "compliance";
 
 export interface ProductProps {
   name: string;
@@ -46,7 +48,6 @@ export interface MedicationBatchInfoProps extends MedicationBatchProp {
     medicationUnits: number;
   };
 }
-
 
 export interface TransferProps {
   id: string;
@@ -95,4 +96,9 @@ export interface HederaLogPayload {
   // flag
   flagReason?: string
 
+}
+
+export interface MyPublicMetadata {
+  role?: string;
+  organizationType?: string;
 }

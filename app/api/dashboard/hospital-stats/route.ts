@@ -16,93 +16,146 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization ID is required' }, { status: 400 });
     }
 
-    // Get total medications count (total batch size)
-    const totalMedicationsResult = await prisma.medicationBatch.aggregate({
+    // Verify user has access to this organization
+    const organization = await prisma.organization.findFirst({
       where: {
-        organizationId: orgId,
-      },
-      _sum: {
-        batchSize: true,
-      },
+        id: orgId,
+        organizationType: "HOSPITAL",
+        OR: [
+          { adminId: userId },
+          { teamMembers: { some: { userId: userId } } }
+        ]
+      }
     });
 
-    // Get last month's total for comparison
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
-    
-    const lastMonthTotal = await prisma.medicationBatch.aggregate({
-      where: {
-        organizationId: orgId,
-        createdAt: {
-          lt: lastMonth,
-        },
-      },
-      _sum: {
-        batchSize: true,
-      },
-    });
+    if (!organization) {
+      return NextResponse.json({ error: "Organization not found or access denied" }, { status: 403 });
+    }
 
-    // Get verified today (batches received today)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    // Get current date and start of today for calculations
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday.getTime() - 24 * 60 * 60 * 1000);
 
-    const verifiedToday = await prisma.ownershipTransfer.count({
+    // 1. Total medications in hospital inventory (from completed transfers TO the hospital)
+    const completedTransfers = await prisma.ownershipTransfer.findMany({
       where: {
         toOrgId: orgId,
-        status: 'COMPLETED',
-        createdAt: {
-          gte: today,
-          lt: tomorrow,
-        },
+        status: "COMPLETED"
       },
+      include: {
+        batch: {
+          select: {
+            batchSize: true,
+            expiryDate: true,
+            status: true
+          }
+        }
+      }
     });
 
-    // Get yesterday's verified count for comparison
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    // Count total units from completed transfers (excluding expired batches)
+    const totalMedications = completedTransfers.reduce((total, transfer) => {
+      if (transfer.batch && transfer.batch.expiryDate > now && transfer.batch.status !== "EXPIRED") {
+        return total + transfer.batch.batchSize;
+      }
+      return total;
+    }, 0);
+
+    // Calculate medication growth (transfers completed this month vs last month)
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     
-    const verifiedYesterday = await prisma.ownershipTransfer.count({
+    const thisMonthTransfers = await prisma.ownershipTransfer.count({
       where: {
         toOrgId: orgId,
-        status: 'COMPLETED',
-        createdAt: {
-          gte: yesterday,
-          lt: today,
-        },
-      },
+        status: "COMPLETED",
+        transferDate: { gte: thisMonthStart }
+      }
     });
 
-    // Get pending verifications (pending transfers to this hospital)
+    const lastMonthTransfers = await prisma.ownershipTransfer.count({
+      where: {
+        toOrgId: orgId,
+        status: "COMPLETED",
+        transferDate: { 
+          gte: lastMonthStart,
+          lt: thisMonthStart
+        }
+      }
+    });
+
+    const medicationGrowth = lastMonthTransfers > 0 
+      ? Math.round(((thisMonthTransfers - lastMonthTransfers) / lastMonthTransfers) * 100)
+      : thisMonthTransfers > 0 ? 100 : 0;
+
+    // 2. Verifications today (scans by hospital team members)
+    const verifiedToday = await prisma.scanHistory.count({
+      where: {
+        scanDate: { gte: startOfToday },
+        teamMember: {
+          organizationId: orgId
+        },
+        scanResult: "GENUINE"
+      }
+    });
+
+    // Verifications yesterday for comparison
+    const verifiedYesterday = await prisma.scanHistory.count({
+      where: {
+        scanDate: { 
+          gte: startOfYesterday,
+          lt: startOfToday
+        },
+        teamMember: {
+          organizationId: orgId
+        },
+        scanResult: "GENUINE"
+      }
+    });
+
+    const verificationDifference = verifiedToday - verifiedYesterday;
+
+    // 3. Pending verifications (pending transfers TO this hospital)
     const pendingVerifications = await prisma.ownershipTransfer.count({
       where: {
         toOrgId: orgId,
-        status: 'PENDING',
-      },
+        status: "PENDING"
+      }
     });
 
-    // Get alerts (expired batches + expiring soon batches)
-    const tenDaysFromNow = new Date();
-    tenDaysFromNow.setDate(tenDaysFromNow.getDate() + 10);
+    // 4. Active alerts (expiring medications from hospital inventory)
+    const hospitalBatches = completedTransfers
+      .filter(transfer => transfer.batch && transfer.batch.expiryDate > now)
+      .map(transfer => transfer.batch);
 
-    const alerts = await prisma.medicationBatch.count({
+    // Count medications expiring within 30 days
+    const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const expiringMedications = hospitalBatches.filter(batch => 
+      batch && batch.expiryDate <= thirtyDaysFromNow
+    ).length;
+
+    // Count critical counterfeit reports for batches in hospital inventory
+    const criticalReports = await prisma.counterfeitReport.count({
       where: {
-        organizationId: orgId,
-        expiryDate: {
-          lte: tenDaysFromNow,
+        batch: {
+          ownershipTransfers: {
+            some: {
+              toOrgId: orgId,
+              status: "COMPLETED"
+            }
+          }
         },
-      },
+        status: {
+          in: ["PENDING", "INVESTIGATING"]
+        },
+        severity: {
+          in: ["HIGH", "CRITICAL"]
+        }
+      }
     });
 
-    // Calculate percentages
-    const totalMedications = totalMedicationsResult._sum.batchSize || 0;
-    const lastMonthMedications = lastMonthTotal._sum.batchSize || 0;
-    const medicationGrowth = lastMonthMedications > 0 
-      ? Math.round(((totalMedications - lastMonthMedications) / lastMonthMedications) * 100)
-      : 0;
-
-    const verificationDifference = verifiedToday - verifiedYesterday;
+    const alerts = expiringMedications + criticalReports;
 
     const stats = {
       totalMedications,
@@ -110,14 +163,15 @@ export async function GET(request: NextRequest) {
       verifiedToday,
       verificationDifference,
       pendingVerifications,
-      alerts,
+      alerts
     };
 
     return NextResponse.json(stats);
+
   } catch (error) {
-    console.error('Error fetching hospital stats:', error);
+    console.error("Error fetching hospital stats:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch hospital stats' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
