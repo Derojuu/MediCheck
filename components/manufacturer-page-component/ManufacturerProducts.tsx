@@ -182,7 +182,7 @@ const ManufacturerProducts = ({ orgId }: ManufacturerProductsProps) => {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={createProduct} className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Product Name *</Label>
                   <Input
@@ -224,7 +224,7 @@ const ManufacturerProducts = ({ orgId }: ManufacturerProductsProps) => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="dosageForm">Dosage Form</Label>
                   <Select 
@@ -264,7 +264,7 @@ const ManufacturerProducts = ({ orgId }: ManufacturerProductsProps) => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="nafdacNumber">NAFDAC Number</Label>
                   <Input
