@@ -14,7 +14,6 @@ import Transfers from "@/components/Transfers";
 import ManufacturerMain from "@/components/manufacturer-page-component/ManufacturerMain"
 import { LoadingSpinner } from "@/components/ui/loading"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
 // icons
 import { Menu, Shield, X } from "lucide-react"
 // 
@@ -122,7 +121,8 @@ export default function ManufacturerDashboard() {
             <span className="font-bold text-lg">MediCheck</span>
           </div>
           
-          <ThemeToggle />
+          {/* Spacer to balance layout */}
+          <div className="w-10"></div>
         </div>
       </div>
 

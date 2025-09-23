@@ -110,16 +110,17 @@ export function ManufacturerSidebar({
       )}
 
       <div className={`${isMobile ? 'p-4' : 'px-4 sm:px-6 pb-4'}`}>
-        <div className="bg-sidebar-accent rounded-lg p-3 sm:p-4">
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-sidebar-primary rounded-lg flex items-center justify-center">
-              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-sidebar-primary-foreground" />
+        <div className="bg-card/50 border border-border/20 rounded-xl p-3 sm:p-4 backdrop-blur-sm hover:bg-card/60 transition-colors duration-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center ring-2 ring-primary/20">
+              <Building2 className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-medium text-sidebar-foreground text-sm sm:text-base truncate">{orgName}</p>
-              <Badge variant="secondary" className="text-xs">
-                Manufacturer
-              </Badge>
+              <p className="font-semibold text-foreground text-sm sm:text-base truncate">{orgName}</p>
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <span className="text-xs text-muted-foreground">Active • Manufacturer</span>
+              </div>
             </div>
           </div>
         </div>
@@ -143,13 +144,19 @@ export function ManufacturerSidebar({
         })}
       </nav>
 
-      <div className={`${isMobile ? 'p-4 border-t' : 'absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4'} space-y-2`}>
-        <div className="flex items-center justify-center">
-          <ThemeToggle />
+      <div className={`${isMobile ? 'p-4 border-t mt-auto' : 'absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4'} space-y-3`}>
+        {/* Theme Toggle */}
+        <div className="flex items-center justify-start">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
+            <span className={isMobile ? 'text-base' : 'hidden sm:inline'}>Theme</span>
+            <ThemeToggle />
+          </div>
         </div>
+        
+        {/* Sign Out Button */}
         <Button
           variant="ghost"
-          className={`w-full justify-start text-muted-foreground cursor-pointer ${isMobile ? 'text-base h-12' : 'text-xs sm:text-sm'}`}
+          className={`w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors ${isMobile ? 'text-base h-12' : 'text-xs sm:text-sm'}`}
           onClick={handleSignOut}
           disabled={isSigningOut}
         >

@@ -247,7 +247,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                             <DialogDescription>Create a new manufacturing batch</DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreateBatch} method="post">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="product">Product</Label>
                                     <Select
@@ -299,7 +299,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                         onChange={(e) => setNewBatch({ ...newBatch, expiryDate: e.target.value })}
                                     />
                                 </div>
-                                <div className="col-span-2 space-y-2">
+                                <div className="sm:col-span-2 space-y-2">
                                     <Label htmlFor="composition">Composition</Label>
                                     <Textarea
                                         id="composition"
@@ -308,7 +308,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                         onChange={(e) => setNewBatch({ ...newBatch, composition: e.target.value })}
                                     />
                                 </div>
-                                <div className="col-span-2 space-y-2">
+                                <div className="sm:col-span-2 space-y-2">
                                     <Label htmlFor="notes">Storage Instructions</Label>
                                     <Textarea
                                         id="notes"
@@ -356,11 +356,11 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                 <TableRow>
                                     <TableHead className="min-w-[120px]">Batch ID</TableHead>
                                     <TableHead className="min-w-[150px]">Product</TableHead>
-                                    <TableHead className="min-w-[120px]">Production Date</TableHead>
-                                    <TableHead className="min-w-[120px]">Expiry Date</TableHead>
-                                    <TableHead className="min-w-[100px]">Batch Size</TableHead>
+                                    <TableHead className="min-w-[120px] hidden sm:table-cell">Production Date</TableHead>
+                                    <TableHead className="min-w-[120px] hidden md:table-cell">Expiry Date</TableHead>
+                                    <TableHead className="min-w-[100px] hidden sm:table-cell">Batch Size</TableHead>
                                     <TableHead className="min-w-[120px]">Status</TableHead>
-                                    <TableHead className="min-w-[120px]">Location</TableHead>
+                                    <TableHead className="min-w-[120px] hidden md:table-cell">Location</TableHead>
                                     <TableHead className="min-w-[140px]">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -369,16 +369,16 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                     <TableRow key={batch.batchId}>
                                         <TableCell className="font-medium">{batch.batchId}</TableCell>
                                         <TableCell className="font-medium">{batch.drugName}</TableCell>
-                                        <TableCell>{new Date(batch.manufacturingDate).toLocaleDateString()}</TableCell>
-                                        <TableCell>{new Date(batch.expiryDate).toLocaleDateString()}</TableCell>
-                                        <TableCell>{batch.batchSize.toLocaleString()}</TableCell>
+                                        <TableCell className="hidden sm:table-cell">{new Date(batch.manufacturingDate).toLocaleDateString()}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{new Date(batch.expiryDate).toLocaleDateString()}</TableCell>
+                                        <TableCell className="hidden sm:table-cell">{batch.batchSize.toLocaleString()}</TableCell>
                                         <TableCell>
                                             <Badge variant={getStatusColor(batch.status)} className="flex items-center gap-1 w-fit">
                                                 {getStatusIcon(batch.status)}
                                                 <span className="text-xs">{getStatusDisplay(batch.status)}</span>
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>{batch.currentLocation || 'Not set'}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{batch.currentLocation || 'Not set'}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-col sm:flex-row gap-2">
                                                 <Button
