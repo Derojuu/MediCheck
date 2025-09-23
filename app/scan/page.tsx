@@ -222,7 +222,7 @@ export default function ScanPage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MedChain</span>
+                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MediCheck</span>
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>

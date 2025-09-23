@@ -712,7 +712,7 @@ export default function RegisterPage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MedChain</span>
+                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MediCheck</span>
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>
@@ -1007,7 +1007,7 @@ export default function RegisterPage() {
                               className="flex-1 h-12 font-semibold cursor-pointer"
                               disabled={isLoading}
                             >
-                              {isLoading ? "Creating Account..." : "Create Account"}
+                              {isLoading ? "Registering..." : "Create Account"}
                             </Button>
                           </div>
                         </div>
@@ -1218,7 +1218,7 @@ export default function RegisterPage() {
                           className="w-full h-12 font-semibold"
                           disabled={isLoading}
                         >
-                          {isLoading ? "Creating Account..." : "Create Account"}
+                          {isLoading ? "Registering..." : "Create Account"}
                         </Button>
                       </div>
                     </div>

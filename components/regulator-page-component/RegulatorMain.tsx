@@ -1,10 +1,11 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Shield, AlertTriangle, FileText, TrendingUp, Clock, CheckCircle, XCircle, Eye, Building2 } from "lucide-react";
 import { ManufacturerTab } from "@/utils";
 
@@ -13,13 +14,52 @@ const RegulatorMain = ({ setActiveTab }: {
 }) => {
 
     const [investigationNotes, setInvestigationNotes] = useState("")
+    const [stats, setStats] = useState({
+        activeInvestigations: 0,
+        investigationGrowth: 0,
+        complianceChecks: 0,
+        complianceGrowth: 0,
+        pendingReviews: 0,
+        pendingGrowth: 0,
+        violationsFound: 0,
+        violationChange: 0,
+    })
+    const [activities, setActivities] = useState<any[]>([])
+    const [alerts, setAlerts] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
 
-    const stats = {
-        activeInvestigations: 12,
-        complianceChecks: 89,
-        pendingReviews: 34,
-        violationsFound: 5,
-    }
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [statsResponse, activitiesResponse, alertsResponse] = await Promise.all([
+                    fetch('/api/dashboard/regulator-stats'),
+                    fetch('/api/dashboard/regulator-activities'),
+                    fetch('/api/regulator/alerts')
+                ])
+
+                if (statsResponse.ok) {
+                    const statsData = await statsResponse.json()
+                    setStats(statsData)
+                }
+
+                if (activitiesResponse.ok) {
+                    const activitiesData = await activitiesResponse.json()
+                    setActivities(Array.isArray(activitiesData) ? activitiesData : activitiesData.activities || [])
+                }
+
+                if (alertsResponse.ok) {
+                    const alertsData = await alertsResponse.json()
+                    setAlerts(alertsData.alerts || [])
+                }
+            } catch (error) {
+                console.error('Error fetching regulator data:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchData()
+    }, [])
 
     const handleStartInvestigation = () => {
         if (investigationNotes.trim()) {
@@ -42,55 +82,6 @@ const RegulatorMain = ({ setActiveTab }: {
         setActiveTab("reports")
     }
 
-    const recentActivities = [
-        {
-            id: "REG001",
-            type: "Inspection",
-            target: "PharmaCorp Ltd",
-            status: "completed",
-            priority: "high",
-            time: "2 hours ago",
-            inspector: "Dr. Adebayo",
-            findings: "Minor compliance issues"
-        },
-        {
-            id: "REG002",
-            type: "Compliance Review",
-            target: "MedDistribute Inc",
-            status: "in-progress",
-            priority: "medium",
-            time: "4 hours ago",
-            inspector: "Dr. Okafor",
-            findings: "Under review"
-        },
-        {
-            id: "REG003",
-            type: "Investigation",
-            target: "HealthPlus Pharmacy",
-            status: "pending",
-            priority: "high",
-            time: "6 hours ago",
-            inspector: "Dr. Emeka",
-            findings: "Suspicious batch detected"
-        },
-        {
-            id: "REG004",
-            type: "License Renewal",
-            target: "CureAll Hospital",
-            status: "approved",
-            priority: "low",
-            time: "1 day ago",
-            inspector: "Dr. Nkem",
-            findings: "All requirements met"
-        },
-    ]
-
-    const alerts = [
-        { id: "ALT001", message: "Counterfeit batch detected: PAR2024001", severity: "critical", time: "30 mins ago", location: "Lagos", reporter: "Hospital Inspector" },
-        { id: "ALT002", message: "Unusual distribution pattern flagged", severity: "warning", time: "2 hours ago", location: "Abuja", reporter: "System Alert" },
-        { id: "ALT003", message: "License expiration reminder: 5 facilities", severity: "info", time: "4 hours ago", location: "Multiple", reporter: "Automated System" },
-    ]
-
     return (
         <div className="space-y-8">
             {/* Header */}
@@ -100,6 +91,7 @@ const RegulatorMain = ({ setActiveTab }: {
                     <p className="text-muted-foreground mt-2">NAFDAC - Drug Enforcement Division</p>
                 </div>
                 <div className="flex items-center space-x-4">
+                    <ThemeToggle />
                     <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
                         <Building2 className="h-4 w-4 mr-2" />
                         Regulator
@@ -115,9 +107,11 @@ const RegulatorMain = ({ setActiveTab }: {
                         <Eye className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-foreground">{stats.activeInvestigations}</div>
+                        <div className="text-2xl font-bold text-foreground">{loading ? "..." : stats.activeInvestigations}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-accent font-medium">+3</span> from last month
+                            <span className={`font-medium ${stats.investigationGrowth >= 0 ? 'text-accent' : 'text-red-500'}`}>
+                                {stats.investigationGrowth >= 0 ? '+' : ''}{stats.investigationGrowth}%
+                            </span> from last month
                         </p>
                     </CardContent>
                 </Card>
@@ -128,9 +122,11 @@ const RegulatorMain = ({ setActiveTab }: {
                         <CheckCircle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.complianceChecks}</div>
+                        <div className="text-2xl font-bold">{loading ? "..." : stats.complianceChecks}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-primary">+15%</span> this month
+                            <span className={`${stats.complianceGrowth >= 0 ? 'text-primary' : 'text-red-500'}`}>
+                                {stats.complianceGrowth >= 0 ? '+' : ''}{stats.complianceGrowth}%
+                            </span> this month
                         </p>
                     </CardContent>
                 </Card>
@@ -141,9 +137,11 @@ const RegulatorMain = ({ setActiveTab }: {
                         <Clock className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-orange-600">{stats.pendingReviews}</div>
+                        <div className="text-2xl font-bold text-orange-600">{loading ? "..." : stats.pendingReviews}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-orange-600">+7%</span> increase
+                            <span className={`${stats.pendingGrowth >= 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                                {stats.pendingGrowth >= 0 ? '+' : ''}{stats.pendingGrowth}%
+                            </span> change
                         </p>
                     </CardContent>
                 </Card>
@@ -154,9 +152,11 @@ const RegulatorMain = ({ setActiveTab }: {
                         <XCircle className="h-4 w-4 text-destructive" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-destructive">{stats.violationsFound}</div>
+                        <div className="text-2xl font-bold text-destructive">{loading ? "..." : stats.violationsFound}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-green-600">-2</span> from last month
+                            <span className={`${stats.violationChange >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                {stats.violationChange >= 0 ? '+' : ''}{stats.violationChange}
+                            </span> from last month
                         </p>
                     </CardContent>
                 </Card>
@@ -172,30 +172,78 @@ const RegulatorMain = ({ setActiveTab }: {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-3">
-                        {alerts.map((alert) => (
-                            <div key={alert.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
-                                <div className="flex-1">
-                                    <p className="font-medium">{alert.message}</p>
-                                    <p className="text-sm text-gray-600">{alert.location} - {alert.reporter} - {alert.time}</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Badge
-                                        variant={
-                                            alert.severity === "critical"
-                                                ? "destructive"
-                                                : alert.severity === "warning"
-                                                    ? "secondary"
-                                                    : "outline"
-                                        }
-                                    >
-                                        {alert.severity}
-                                    </Badge>
-                                    <Button size="sm" onClick={() => window.alert(`Investigating ${alert.id}...`)}>
-                                        Investigate
-                                    </Button>
+                        {loading ? (
+                            <div className="flex items-center justify-center py-8">
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                                    <span className="text-muted-foreground">Loading alerts...</span>
                                 </div>
                             </div>
-                        ))}
+                        ) : alerts.length === 0 ? (
+                            <div className="text-center py-8">
+                                <p className="text-muted-foreground">No critical alerts at this time</p>
+                                <p className="text-sm text-muted-foreground mt-1">System is monitoring for issues</p>
+                            </div>
+                        ) : (
+                            alerts.map((alert) => (
+                                <div key={alert.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                                    <div className="flex-1">
+                                        <p className="font-medium">{alert.message}</p>
+                                        <p className="text-sm text-gray-600">{alert.location} - {alert.reporter} - {alert.time}</p>
+                                        {alert.details && (
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                {alert.details.batchId && `Batch: ${alert.details.batchId}`}
+                                                {alert.details.manufacturer && ` | Mfg: ${alert.details.manufacturer}`}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Badge
+                                            variant={
+                                                alert.severity === "critical"
+                                                    ? "destructive"
+                                                    : alert.severity === "high"
+                                                        ? "destructive"
+                                                        : alert.severity === "warning"
+                                                            ? "secondary"
+                                                            : "outline"
+                                            }
+                                            className={
+                                                alert.severity === "critical" || alert.severity === "high"
+                                                    ? "bg-red-100 text-red-800 animate-pulse"
+                                                    : ""
+                                            }
+                                        >
+                                            {alert.severity}
+                                        </Badge>
+                                        <Button 
+                                            size="sm" 
+                                            onClick={() => {
+                                                if (alert.type === 'counterfeit_report') {
+                                                    setActiveTab("investigations")
+                                                } else if (alert.type === 'failed_transfer') {
+                                                    setActiveTab("compliance")
+                                                } else if (alert.type === 'license_expiring') {
+                                                    setActiveTab("entities")
+                                                } else {
+                                                    window.alert(`Investigating ${alert.id}: ${alert.message}`)
+                                                }
+                                            }}
+                                            className={
+                                                alert.severity === "critical" || alert.severity === "high"
+                                                    ? "bg-red-600 hover:bg-red-700 text-white"
+                                                    : ""
+                                            }
+                                        >
+                                            {alert.type === 'counterfeit_report' ? 'Investigate' :
+                                             alert.type === 'failed_transfer' ? 'Review' :
+                                             alert.type === 'license_expiring' ? 'Check License' :
+                                             'View'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </CardContent>
             </Card>
@@ -209,42 +257,63 @@ const RegulatorMain = ({ setActiveTab }: {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {recentActivities.map((activity) => (
-                                <div key={activity.id} className="flex items-center space-x-4">
-                                    <div className="w-2 h-2 bg-primary rounded-full"></div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">{activity.type} - {activity.target}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {activity.inspector} - {activity.findings}
-                                        </p>
+                            {activities.length > 0 ? (
+                                activities.map((activity: any) => (
+                                    <div key={activity.id} className="flex items-center space-x-4">
+                                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium">{activity.type} - {activity.target}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {activity.inspector} - {activity.findings}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <Badge
+                                                variant={
+                                                    activity.priority === "high"
+                                                        ? "destructive"
+                                                        : activity.priority === "medium"
+                                                            ? "secondary"
+                                                            : "outline"
+                                                }
+                                            >
+                                                {activity.priority}
+                                            </Badge>
+                                            <Badge
+                                                variant={
+                                                    activity.status === "completed"
+                                                        ? "default"
+                                                        : activity.status === "in-progress"
+                                                            ? "secondary"
+                                                            : "outline"
+                                                }
+                                            >
+                                                {activity.status}
+                                            </Badge>
+                                            <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <Badge
-                                            variant={
-                                                activity.priority === "high"
-                                                    ? "destructive"
-                                                    : activity.priority === "medium"
-                                                        ? "secondary"
-                                                        : "outline"
-                                            }
-                                        >
-                                            {activity.priority}
-                                        </Badge>
-                                        <Badge
-                                            variant={
-                                                activity.status === "completed"
-                                                    ? "default"
-                                                    : activity.status === "in-progress"
-                                                        ? "secondary"
-                                                        : "outline"
-                                            }
-                                        >
-                                            {activity.status}
-                                        </Badge>
-                                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                ))
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-8 text-center">
+                                    <div className="rounded-full bg-muted p-4 mb-4">
+                                        <Clock className="h-8 w-8 text-muted-foreground" />
                                     </div>
+                                    <h3 className="font-semibold text-lg mb-2">No Recent Activities</h3>
+                                    <p className="text-muted-foreground text-sm mb-4 max-w-sm">
+                                        There are no recent regulatory activities or inspections to display. 
+                                        Activities will appear here when investigations, compliance reviews, or inspections are conducted.
+                                    </p>
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => setActiveTab("investigations")}
+                                    >
+                                        <Eye className="h-4 w-4 mr-2" />
+                                        Start New Investigation
+                                    </Button>
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </CardContent>
                 </Card>

@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ThemeToggle } from "@/components/theme-toggle"
 import {
   Shield,
   LayoutDashboard,
@@ -14,6 +13,7 @@ import {
   Settings,
   LogOut,
   Building2,
+  X,
 } from "lucide-react"
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
@@ -23,15 +23,17 @@ import { ManufacturerTab } from "@/utils";
 interface RegulatorSidebarProps {
   activeTab: ManufacturerTab
   setActiveTab: (tab: ManufacturerTab) => void
+  isOpen?: boolean
+  onClose?: () => void
 }
 
-export function RegulatorSidebar({ activeTab, setActiveTab }: RegulatorSidebarProps) {
+export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onClose }: RegulatorSidebarProps) {
 
   const { signOut } = useClerk();
   
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "investigations", label: "Investigations", icon: Eye },
+    // { id: "investigations", label: "Investigations", icon: Eye },
     { id: "compliance", label: "Compliance", icon: CheckCircle },
     { id: "reports", label: "Reports", icon: FileText },
     { id: "alerts", label: "Alerts", icon: AlertTriangle },
@@ -40,14 +42,47 @@ export function RegulatorSidebar({ activeTab, setActiveTab }: RegulatorSidebarPr
     { id: "analytics", label: "Analytics", icon: Eye },
   ]
 
+  const handleTabClick = (tab: ManufacturerTab) => {
+    setActiveTab(tab);
+    // Close sidebar on mobile after selection
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="w-64 sm:w-64 bg-sidebar border-r border-sidebar-border">
-      <div className="p-4 sm:p-6">
-        <Link href="/" className="flex items-center space-x-2">
-          <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
-          <span className="font-montserrat font-bold text-lg sm:text-xl text-sidebar-foreground">MedChain</span>
-        </Link>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:relative inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Mobile Close Button */}
+        <div className="lg:hidden absolute top-4 right-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="p-4 sm:p-6">
+          <Link href="/" className="flex items-center space-x-2">
+            <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
+            <span className="font-montserrat font-bold text-lg sm:text-xl text-sidebar-foreground">Medicheck</span>
+          </Link>
+        </div>
 
       <div className="px-4 sm:px-6 pb-4">
         <div className="bg-sidebar-accent rounded-lg p-3 sm:p-4">
@@ -65,40 +100,36 @@ export function RegulatorSidebar({ activeTab, setActiveTab }: RegulatorSidebarPr
         </div>
       </div>
 
-      <nav className="px-2 sm:px-4 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon
-          return (
-            <Button
-              key={item.id}
-              variant={activeTab === item.id as ManufacturerTab ? "secondary" : "ghost"}
-              className="w-full justify-start cursor-pointer"
-              onClick={() => setActiveTab(item.id as ManufacturerTab)}
-            >
-              <Icon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3" />
-              <span className="hidden sm:inline">{item.label}</span>
-              <span className="sm:hidden">{item.label.split(' ')[0]}</span>
-            </Button>
-          )
-        })}
-      </nav>
+        <nav className="px-2 sm:px-4 space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <Button
+                key={item.id}
+                variant={activeTab === item.id as ManufacturerTab ? "secondary" : "ghost"}
+                className="w-full justify-start cursor-pointer"
+                onClick={() => handleTabClick(item.id as ManufacturerTab)}
+              >
+                <Icon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3" />
+                <span className="text-sm">{item.label}</span>
+              </Button>
+            )
+          })}
+        </nav>
 
-      <div className="absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4 space-y-2">
-        <div className="flex items-center justify-center">
-          <ThemeToggle />
+        <div className="absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4 space-y-2">
+          <Link href="/auth/login">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-muted-foreground cursor-pointer text-xs sm:text-sm"
+              onClick={() => signOut({ redirectUrl: authRoutes.login })}
+            >
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3" />
+              <span>Sign Out</span>
+            </Button>
+          </Link>
         </div>
-        <Link href="/auth/login">
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-muted-foreground cursor-pointer text-xs sm:text-sm"
-            onClick={() => signOut({ redirectUrl: authRoutes.login })}
-          >
-            <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3" />
-            <span className="hidden sm:inline">Sign Out</span>
-            <span className="sm:hidden">Out</span>
-          </Button>
-        </Link>
       </div>
-    </div>
+    </>
   )
 }

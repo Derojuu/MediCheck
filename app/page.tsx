@@ -75,7 +75,7 @@ export default function HomePage() {
       </div>
       
       {/* Navigation */}
-      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 shadow-lg glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -86,7 +86,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MedChain</span>
+                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MediCheck</span>
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden pt-24 sm:pt-28 lg:pt-36">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 gradient-transition"></div>
         <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[12000ms]"></div>
         <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[10000ms] delay-2000"></div>
@@ -465,7 +465,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-3xl text-foreground">MedChain</span>
+                <span className="font-bold text-3xl text-foreground">MediCheck</span>
                 <span className="text-sm text-muted-foreground font-mono">Enterprise Blockchain Security</span>
               </div>
             </div>
@@ -495,7 +495,7 @@ export default function HomePage() {
           </div>
           <div className="pt-12 border-t text-center">
             <p className="text-muted-foreground leading-relaxed text-lg mb-3">
-              &copy; 2024 MedChain. All rights reserved. Securing medication authenticity with enterprise blockchain
+              &copy; 2024 MediCheck. All rights reserved. Securing medication authenticity with enterprise blockchain
               technology.
             </p>
             <p className="text-base text-muted-foreground/80">

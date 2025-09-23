@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import { useState, useEffect } from "react"
-import { Save, AlertCircle } from "lucide-react"
+import { Save, AlertCircle, Building2 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface OrganizationData {
   id: string;
@@ -36,6 +38,7 @@ const RegulatorSettings = () => {
     isVerified: false,
     isActive: true
   });
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,11 +53,27 @@ const RegulatorSettings = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setSettings(data);
+          console.log('Fetched organization data:', data); // Debug log
+          
+          // Ensure all fields are properly set, even if they're null in the database
+          setSettings({
+            id: data.id || "",
+            companyName: data.companyName || "",
+            contactEmail: data.contactEmail || "",
+            contactPhone: data.contactPhone || "",
+            contactPersonName: data.contactPersonName || "",
+            address: data.address || "",
+            country: data.country || "",
+            state: data.state || "",
+            agencyName: data.agencyName || "",
+            officialId: data.officialId || "",
+            isVerified: data.isVerified || false,
+            isActive: data.isActive !== undefined ? data.isActive : true
+          });
         } else if (response.status === 404) {
           // Organization not found - this is expected for new organizations
-          // Don't show an error, just use default empty settings
           console.log('No regulator organization found, using default settings');
+          setError('No organization found. Please contact your administrator to set up your regulatory agency.');
         } else {
           const errorData = await response.json();
           setError(errorData.error || 'Failed to fetch settings');
@@ -107,7 +126,24 @@ const RegulatorSettings = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setSettings(data.organization);
+        
+        // Update local state with the saved data
+        if (data.organization) {
+          setSettings({
+            id: data.organization.id || "",
+            companyName: data.organization.companyName || "",
+            contactEmail: data.organization.contactEmail || "",
+            contactPhone: data.organization.contactPhone || "",
+            contactPersonName: data.organization.contactPersonName || "",
+            address: data.organization.address || "",
+            country: data.organization.country || "",
+            state: data.organization.state || "",
+            agencyName: data.organization.agencyName || "",
+            officialId: data.organization.officialId || "",
+            isVerified: data.organization.isVerified || false,
+            isActive: data.organization.isActive !== undefined ? data.organization.isActive : true
+          });
+        }
         setSuccessMessage('Settings saved successfully!');
       } else {
         const errorData = await response.json();
@@ -124,18 +160,21 @@ const RegulatorSettings = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
+          <ThemeToggle />
+        </div>
         <Card>
           <CardHeader>
-            <CardTitle>Regulatory Agency Settings</CardTitle>
-            <CardDescription>Loading settings...</CardDescription>
+            <CardTitle>Loading Settings...</CardTitle>
+            <CardDescription>Please wait while we load your organization settings</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-24"></div>
-                  <div className="h-10 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                 </div>
               ))}
             </div>
@@ -147,12 +186,15 @@ const RegulatorSettings = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
+        <ThemeToggle />
+      </div>
 
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-800">
+            <div className="flex items-center gap-2 text-red-800 dark:text-red-200">
               <AlertCircle className="h-4 w-4" />
               <span>{error}</span>
             </div>
@@ -161,9 +203,9 @@ const RegulatorSettings = () => {
       )}
 
       {successMessage && (
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-green-800">
+            <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
               <Save className="h-4 w-4" />
               <span>{successMessage}</span>
             </div>
@@ -173,8 +215,11 @@ const RegulatorSettings = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Regulatory Agency Settings</CardTitle>
-          <CardDescription>Manage regulatory system preferences and configurations</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5" />
+            Organization Settings
+          </CardTitle>
+          <CardDescription>Manage your regulatory agency information and contact details</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
@@ -280,13 +325,17 @@ const RegulatorSettings = () => {
 
             <div className="pt-4 border-t">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  <p>Status: <span className={settings.isActive ? 'text-green-600' : 'text-red-600'}>
-                    {settings.isActive ? 'Active' : 'Inactive'}
-                  </span></p>
-                  <p>Verified: <span className={settings.isVerified ? 'text-green-600' : 'text-orange-600'}>
-                    {settings.isVerified ? 'Yes' : 'Pending'}
-                  </span></p>
+                <div className="flex items-center gap-4">
+                  <div className="text-sm text-muted-foreground">
+                    <p>Status: <Badge variant={settings.isActive ? 'default' : 'destructive'}>
+                      {settings.isActive ? 'Active' : 'Inactive'}
+                    </Badge></p>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p>Verified: <Badge variant={settings.isVerified ? 'default' : 'secondary'}>
+                      {settings.isVerified ? 'Verified' : 'Pending'}
+                    </Badge></p>
+                  </div>
                 </div>
 
                 <Button
