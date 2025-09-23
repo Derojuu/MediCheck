@@ -756,8 +756,8 @@ export default function RegisterPage() {
                   onClick={() => setAccountType("organization")}
                 >
                   <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors duration-200">
-                      <Building2 className="h-8 w-8 text-primary" />
+                    <div className="text-6xl mb-6 group-hover:scale-110 transition-all duration-200">
+                      🏢
                     </div>
                     <h3 className="text-xl font-semibold text-foreground mb-3">Organization</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
@@ -771,8 +771,8 @@ export default function RegisterPage() {
                   onClick={() => setAccountType("consumer")}
                 >
                   <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/20 transition-colors duration-200">
-                      <User className="h-8 w-8 text-accent" />
+                    <div className="text-6xl mb-6 group-hover:scale-110 transition-all duration-200">
+                      👤
                     </div>
                     <h3 className="text-xl font-semibold text-foreground mb-3">Consumer</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
@@ -983,7 +983,7 @@ export default function RegisterPage() {
                                 className="mt-1"
                               />
                               <Label htmlFor="agreeToTerms" className="text-sm text-foreground leading-relaxed">
-                                I agree to the <a href="#" className="text-primary hover:underline">Terms and Conditions</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+                                I agree to the <a href="#" className="text-primary hover:underline">Terms and Conditions</a>
                               </Label>
                             </div>
                             <div className="mt-4">
@@ -1202,7 +1202,7 @@ export default function RegisterPage() {
                             className="mt-1"
                           />
                           <Label htmlFor="agreeToTerms" className="text-sm text-foreground leading-relaxed">
-                            I agree to the <a href="#" className="text-primary hover:underline">Terms and Conditions</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+                            I agree to the <a href="#" className="text-primary hover:underline">Terms and Conditions</a>  
                           </Label>
                         </div>
                         <div className="mt-4">

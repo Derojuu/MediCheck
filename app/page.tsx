@@ -160,7 +160,6 @@ export default function HomePage() {
                     >
                       <span className="hidden sm:inline">Get Started</span>
                       <span className="sm:hidden">Start</span>
-                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
                     </Button>
                   </Link>
                 </div>
@@ -182,16 +181,6 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto text-center">
           <div className="scroll-animate">
-            <Badge
-              variant="secondary"
-              className="mb-8 px-6 py-3 text-sm font-semibold bg-gradient-to-r from-primary/15 to-accent/15 text-primary border-primary/30 hover:bg-gradient-to-r hover:from-primary/20 hover:to-accent/20 transition-all duration-300 cursor-pointer"
-            >
-              <Award className="h-4 w-4 mr-2" />
-              Enterprise-Grade Blockchain Security
-            </Badge>
-          </div>
-
-          <div className="scroll-animate">
             <h1 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-foreground mb-8 sm:mb-10 leading-[0.9] tracking-tight">
               Verify Any Medicine
               <span className="text-gradient block mt-2 sm:mt-4">Instantly & Securely</span>
@@ -203,32 +192,6 @@ export default function HomePage() {
               Protect yourself and your loved ones with our enterprise-grade blockchain medication verification system.
               <span className="text-primary font-medium"> Scan, verify, and trust</span> with military-level security.
             </p>
-          </div>
-
-          <div className="scroll-animate">
-            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center mb-12 sm:mb-16 px-4">
-              <Link href={publicRoutes.scan}>
-                <Button
-                  variant="gradient"
-                  size="xl"
-                  className="text-lg sm:text-xl px-8 sm:px-12 py-6 sm:py-8 cursor-pointer shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 group font-semibold w-full sm:w-auto"
-                >
-                  <Scan className="h-6 w-6 sm:h-7 sm:w-7 mr-3 sm:mr-4 group-hover:rotate-12 transition-transform duration-300" />
-                  Scan Medicine Now
-                  <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 ml-2 sm:ml-3 group-hover:translate-x-2 transition-transform duration-300" />
-                </Button>
-              </Link>
-              <Link href={authRoutes.register}>
-                <Button
-                  variant="outline"
-                  size="xl"
-                  className="text-lg sm:text-xl px-8 sm:px-12 py-6 sm:py-8 cursor-pointer border-2 border-primary/40 hover:border-primary hover:bg-primary/10 transition-all duration-500 group font-semibold w-full sm:w-auto"
-                >
-                  <Building2 className="h-6 w-6 sm:h-7 sm:w-7 mr-3 sm:mr-4 group-hover:scale-110 transition-transform duration-300" />
-                  Register Organization
-                </Button>
-              </Link>
-            </div>
           </div>
 
           <div className="scroll-animate">
@@ -274,15 +237,6 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-24">
             <div className="scroll-animate">
-              <Badge
-                variant="outline"
-                className="mb-6 px-6 py-3 text-sm font-semibold border-primary/30 text-primary bg-primary/5"
-              >
-                <Star className="h-4 w-4 mr-2" />
-                Complete Enterprise Solution
-              </Badge>
-            </div>
-            <div className="scroll-animate">
               <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
                 Complete Medication
                 <span className="text-gradient block mt-2">Traceability Ecosystem</span>
@@ -300,8 +254,8 @@ export default function HomePage() {
             <div className="scroll-animate">
               <Card className="group text-center hover:shadow-2xl transition-all duration-500 border-0 bg-card/60 backdrop-blur-sm hover:bg-card/90 hover:-translate-y-2 cursor-pointer glass-effect">
                 <CardHeader className="pb-6">
-                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
-                    <Building2 className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
+                  <div className="mx-auto text-6xl mb-8 group-hover:scale-110 transition-all duration-500">
+                    🏭
                   </div>
                   <CardTitle className="font-bold text-2xl mb-4">Manufacturers</CardTitle>
                 </CardHeader>
@@ -316,8 +270,8 @@ export default function HomePage() {
             <div className="scroll-animate">
               <Card className="group text-center hover:shadow-2xl transition-all duration-500 border-0 bg-card/60 backdrop-blur-sm hover:bg-card/90 hover:-translate-y-2 cursor-pointer glass-effect">
                 <CardHeader className="pb-6">
-                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
-                    <Globe className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
+                  <div className="mx-auto text-6xl mb-8 group-hover:scale-110 transition-all duration-500">
+                    🚚
                   </div>
                   <CardTitle className="font-bold text-2xl mb-4">Distributors</CardTitle>
                 </CardHeader>
@@ -332,8 +286,8 @@ export default function HomePage() {
             <div className="scroll-animate">
               <Card className="group text-center hover:shadow-2xl transition-all duration-500 border-0 bg-card/60 backdrop-blur-sm hover:bg-card/90 hover:-translate-y-2 cursor-pointer glass-effect">
                 <CardHeader className="pb-6">
-                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
-                    <Pill className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
+                  <div className="mx-auto text-6xl mb-8 group-hover:scale-110 transition-all duration-500">
+                    🏥
                   </div>
                   <CardTitle className="font-bold text-2xl mb-4">Pharmacies</CardTitle>
                 </CardHeader>
@@ -348,8 +302,8 @@ export default function HomePage() {
             <div className="scroll-animate">
               <Card className="group text-center hover:shadow-2xl transition-all duration-500 border-0 bg-card/60 backdrop-blur-sm hover:bg-card/90 hover:-translate-y-2 cursor-pointer glass-effect">
                 <CardHeader className="pb-6">
-                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
-                    <Users className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
+                  <div className="mx-auto text-6xl mb-8 group-hover:scale-110 transition-all duration-500">
+                    👥
                   </div>
                   <CardTitle className="font-bold text-2xl mb-4">Patients</CardTitle>
                 </CardHeader>
@@ -424,9 +378,9 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="scroll-animate">
-                <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
+                <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white mb-8">
                   Ready to Verify
-                  <span className="text-gradient block mt-4">Your Medicine?</span>
+                  <span className="block mt-4">Your Medicine?</span>
                 </h2>
               </div>
               <div className="scroll-animate">
@@ -440,11 +394,12 @@ export default function HomePage() {
                   <Button
                     variant="gradient"
                     size="xl"
-                    className="text-2xl px-16 py-10 cursor-pointer shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 group font-semibold"
+                    className="text-lg sm:text-xl md:text-2xl px-8 sm:px-12 md:px-16 py-6 sm:py-8 md:py-10 cursor-pointer shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 group font-semibold w-full sm:w-auto"
                   >
-                    <Scan className="h-8 w-8 mr-5 group-hover:rotate-12 transition-transform duration-300" />
-                    Start Scanning Now
-                    <ChevronRight className="h-7 w-7 ml-4 group-hover:translate-x-3 transition-transform duration-300" />
+                    <Scan className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 mr-3 sm:mr-4 md:mr-5 group-hover:rotate-12 transition-transform duration-300" />
+                    <span className="hidden sm:inline">Start Scanning Now</span>
+                    <span className="sm:hidden">Scan Now</span>
+                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 ml-2 sm:ml-3 md:ml-4 group-hover:translate-x-3 transition-transform duration-300" />
                   </Button>
                 </Link>
               </div>
