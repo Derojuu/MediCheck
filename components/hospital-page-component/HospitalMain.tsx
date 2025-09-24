@@ -61,7 +61,7 @@ const HospitalMain = ({ setActiveTab, orgId }: {
     if (loading) {
         return (
             <div className="space-y-8">
-                <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hospital Dashboard</h1>
+                <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hospital Dashboard</h1>
                 <div className="flex items-center justify-center p-8">
                     <LoadingSpinner size="large" text="Loading dashboard..." />
                 </div>
@@ -72,13 +72,13 @@ const HospitalMain = ({ setActiveTab, orgId }: {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hospital Dashboard</h1>
-                    <p className="text-muted-foreground mt-2">Welcome to Lagos University Teaching Hospital</p>
+            <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
+                <div className="min-w-0 flex-1">
+                    <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hospital Dashboard</h1>
+                    <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">Welcome to Lagos University Teaching Hospital</p>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
+                <div className="flex items-center justify-start sm:justify-end">
+                    <Badge variant="secondary" className="px-3 py-1.5 bg-primary/10 text-primary border-primary/20 text-sm">
                         <Building2 className="h-4 w-4 mr-2" />
                         Hospital
                     </Badge>
