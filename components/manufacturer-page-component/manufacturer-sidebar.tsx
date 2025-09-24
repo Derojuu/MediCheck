@@ -97,9 +97,9 @@ export function ManufacturerSidebar({
   }
 
   return (
-    <div className={`${isMobile ? 'w-full h-full' : 'w-64'} bg-sidebar relative border-r border-sidebar-border shadow-lg`}>
+    <div className={`${isMobile ? 'w-full h-full flex flex-col' : 'w-64 h-screen'} bg-sidebar relative border-r border-sidebar-border shadow-lg flex flex-col`}>
       {!isMobile && (
-        <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6 border-b border-border flex-shrink-0">
           <Link href="/" className="flex items-center space-x-2 group">
             <div className="relative group-hover:scale-110 transition-transform duration-300">
               <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
@@ -109,7 +109,7 @@ export function ManufacturerSidebar({
         </div>
       )}
 
-      <div className={`${isMobile ? 'p-4' : 'px-4 sm:px-6 pb-4'}`}>
+      <div className={`${isMobile ? 'p-4' : 'px-4 sm:px-6 pb-4'} flex-shrink-0`}>
         <div className="bg-card/50 border border-border/20 rounded-xl p-3 sm:p-4 backdrop-blur-sm hover:bg-card/60 transition-colors duration-200">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center ring-2 ring-primary/20">
@@ -126,7 +126,7 @@ export function ManufacturerSidebar({
         </div>
       </div>
 
-      <nav className={`${isMobile ? 'px-2 flex-1' : 'px-2 sm:px-4'} space-y-1 ${isMobile ? 'overflow-y-auto' : 'overflow-y-auto h-[50vh]'}`}>
+      <nav className={`${isMobile ? 'px-2 flex-1 overflow-y-auto max-h-[40vh]' : 'px-2 sm:px-4 flex-1'} space-y-1 overflow-y-auto`}>
         {menuItems.map((item) => {
           const Icon = item.icon
           return (
@@ -144,15 +144,7 @@ export function ManufacturerSidebar({
         })}
       </nav>
 
-      <div className={`${isMobile ? 'p-4 border-t mt-auto' : 'absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4'} space-y-3`}>
-        {/* Theme Toggle */}
-        <div className="flex items-center justify-start">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
-            <span className={isMobile ? 'text-base' : 'hidden sm:inline'}>Theme</span>
-            <ThemeToggle />
-          </div>
-        </div>
-        
+      <div className={`${isMobile ? 'p-4 border-t flex-shrink-0' : 'p-4 border-t flex-shrink-0'} space-y-3`}>
         {/* Sign Out Button */}
         <Button
           variant="ghost"
@@ -161,7 +153,7 @@ export function ManufacturerSidebar({
           disabled={isSigningOut}
         >
           <LogOut className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3'} ${isSigningOut ? 'animate-spin' : ''}`} />
-          <span className={isMobile ? '' : 'hidden sm:inline'}>{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>
+          <span className={isMobile ? 'block' : 'hidden sm:inline'}>{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>
           {!isMobile && <span className="sm:hidden">{isSigningOut ? '...' : 'Out'}</span>}
         </Button>
       </div>

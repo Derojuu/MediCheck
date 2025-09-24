@@ -201,9 +201,9 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <h1 className="font-montserrat font-bold text-3xl text-foreground">Batch Transfers</h1>
-        <div className="flex items-center justify-center p-8">
+      <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+        <h1 className="font-montserrat font-bold text-2xl sm:text-3xl text-foreground">Batch Transfers</h1>
+        <div className="flex items-center justify-center p-6 sm:p-8">
           <LoadingSpinner size="large" text="Loading transfers..." />
         </div>
       </div>
@@ -211,35 +211,36 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="font-montserrat font-bold text-3xl text-foreground">Batch Transfers</h1>
-          <p className="text-muted-foreground">Track all batch transfers and ownership changes</p>
+          <h1 className="font-montserrat font-bold text-2xl sm:text-3xl text-foreground">Batch Transfers</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Track all batch transfers and ownership changes</p>
         </div>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button className="cursor-pointer" disabled={!currentOrgId || !availableBatches.length}>
+            <Button className="cursor-pointer w-full sm:w-auto" disabled={!currentOrgId || !availableBatches.length}>
               <Plus className="h-4 w-4 mr-2" />
-              Create Transfer
+              <span className="hidden sm:inline">Create Transfer</span>
+              <span className="sm:hidden">New Transfer</span>
               {!availableBatches.length && " (No batches)"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create New Transfer</DialogTitle>
-              <DialogDescription className="text-wrap">
+              <DialogTitle className="text-lg sm:text-xl">Create New Transfer</DialogTitle>
+              <DialogDescription className="text-sm text-wrap">
                 Transfer batch ownership to another organization
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="batch">Batch</Label>
+            <div className="space-y-3 sm:space-y-4 py-2 sm:py-4">
+              <div className="space-y-1 sm:space-y-2">
+                <Label htmlFor="batch" className="text-sm font-medium">Batch</Label>
                 <Select
                   value={newTransfer.batchId}
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, batchId: value }))}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full h-10 sm:h-11">
                     <SelectValue placeholder="Select a batch" />
                   </SelectTrigger>
                   <SelectContent>
@@ -260,13 +261,13 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                   <p className="text-sm text-muted-foreground text-wrap">No batches available for transfer</p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="organization">To Organization</Label>
+              <div className="space-y-1 sm:space-y-2">
+                <Label htmlFor="organization" className="text-sm font-medium">To Organization</Label>
                 <Select
                   value={newTransfer.toOrgId}
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, toOrgId: value }))}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full h-10 sm:h-11">
                     <SelectValue placeholder="Select destination organization" />
                   </SelectTrigger>
                   <SelectContent>
@@ -290,21 +291,30 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
 
 
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (Optional)</Label>
+              <div className="space-y-1 sm:space-y-2">
+                <Label htmlFor="notes" className="text-sm font-medium">Notes (Optional)</Label>
                 <Textarea
                   id="notes"
                   placeholder="Add transfer notes..."
                   value={newTransfer.notes}
                   onChange={(e) => setNewTransfer(prev => ({ ...prev, notes: e.target.value }))}
+                  className="min-h-[60px] sm:min-h-[80px] resize-none"
                 />
               </div>
             </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-0 sm:space-x-2 pt-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCreateDialog(false)}
+                className="w-full sm:w-auto order-2 sm:order-1"
+              >
                 Cancel
               </Button>
-              <Button onClick={createTransfer} disabled={creating}>
+              <Button 
+                onClick={createTransfer} 
+                disabled={creating}
+                className="w-full sm:w-auto order-1 sm:order-2"
+              >
                 {creating ? "Creating..." : "Create Transfer"}
               </Button>
             </div>
@@ -312,139 +322,154 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transfers</CardTitle>
-            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Transfers</CardTitle>
+            <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{transfers.length}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{transfers.length}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Outgoing</CardTitle>
-            <ArrowUpRight className="h-4 w-4 text-blue-600" />
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">Outgoing</CardTitle>
+            <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">
               {transfers.filter(t => t.direction === 'OUTGOING').length}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Incoming</CardTitle>
-            <ArrowDownLeft className="h-4 w-4 text-green-600" />
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">Incoming</CardTitle>
+            <ArrowDownLeft className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">
               {transfers.filter(t => t.direction === 'INCOMING').length}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
-            <RefreshCw className="h-4 w-4 text-yellow-600" />
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">Pending Approval</CardTitle>
+            <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">
               {transfers.filter(t => t.canApprove).length}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Transfer History</CardTitle>
-          <CardDescription>All batch transfers involving your organization</CardDescription>
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">Transfer History</CardTitle>
+          <CardDescription className="text-sm">All batch transfers involving your organization</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0">
           {transfers.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-6 sm:py-8 text-muted-foreground text-sm sm:text-base">
               No transfers found. Create your first transfer to get started.
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Direction</TableHead>
-                  <TableHead>Batch ID</TableHead>
-                  <TableHead>Product</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  {/* <TableHead>Actions</TableHead> */}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop Table View - Hidden on mobile */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Direction</TableHead>
+                      <TableHead>Batch ID</TableHead>
+                      <TableHead>Product</TableHead>
+                      <TableHead>From</TableHead>
+                      <TableHead>To</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transfers.map((transfer) => (
+                      <TableRow key={transfer.id}>
+                        <TableCell>
+                          <div className="flex items-center">
+                            {transfer.direction === 'OUTGOING' ? (
+                              <ArrowUpRight className="h-4 w-4 text-blue-600 mr-2" />
+                            ) : (
+                              <ArrowDownLeft className="h-4 w-4 text-green-600 mr-2" />
+                            )}
+                            <span className="text-sm">{transfer.direction}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">{transfer.batch.batchId}</TableCell>
+                        <TableCell>{transfer.batch.drugName}</TableCell>
+                        <TableCell>{transfer.fromOrg.companyName}</TableCell>
+                        <TableCell>{transfer.toOrg.companyName}</TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusVariant(transfer.status)} className={getStatusColor(transfer.status)}>
+                            {transfer.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(transfer.createdAt).toLocaleDateString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Card View - Hidden on desktop */}
+              <div className="md:hidden grid grid-cols-1 gap-4">
                 {transfers.map((transfer) => (
-                  <TableRow key={transfer.id}>
-                    <TableCell>
-                      <div className="flex items-center">
-                        {transfer.direction === 'OUTGOING' ? (
-                          <ArrowUpRight className="h-4 w-4 text-blue-600 mr-2" />
-                        ) : (
-                          <ArrowDownLeft className="h-4 w-4 text-green-600 mr-2" />
-                        )}
-                        <span className="text-sm">{transfer.direction}</span>
+                  <Card key={transfer.id} className="border border-gray-200 w-full">
+                    <CardContent className="p-2">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center">
+                          {transfer.direction === 'OUTGOING' ? (
+                            <ArrowUpRight className="h-4 w-4 text-blue-600 mr-2 mt-0.5" />
+                          ) : (
+                            <ArrowDownLeft className="h-4 w-4 text-green-600 mr-2 mt-0.5" />
+                          )}
+                          <div>
+                            <div className="font-medium text-sm">{transfer.direction}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(transfer.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant={getStatusVariant(transfer.status)} className={getStatusColor(transfer.status)}>
+                          {transfer.status}
+                        </Badge>
                       </div>
-                    </TableCell>
-                    <TableCell className="font-medium">{transfer.batch.batchId}</TableCell>
-                    <TableCell>{transfer.batch.drugName}</TableCell>
-                    <TableCell>{transfer.fromOrg.companyName}</TableCell>
-                    <TableCell>{transfer.toOrg.companyName}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(transfer.status)} className={getStatusColor(transfer.status)}>
-                        {transfer.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(transfer.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    {/* <TableCell>
-                      <div className="flex space-x-2">
-                        {transfer.canApprove && transfer.status === 'PENDING' && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => updateTransferStatus(transfer.id, 'IN_PROGRESS')}
-                              disabled={updating === transfer.id}
-                            >
-                              Accept
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => updateTransferStatus(transfer.id, 'CANCELLED')}
-                              disabled={updating === transfer.id}
-                            >
-                              Reject
-                            </Button>
-                          </>
-                        )}
-                        {transfer.status === 'IN_PROGRESS' && transfer.direction === 'OUTGOING' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateTransferStatus(transfer.id, 'COMPLETED')}
-                            disabled={updating === transfer.id}
-                          >
-                            Complete
-                          </Button>
-                        )}
-                        {updating === transfer.id && (
-                          <RefreshCw className="h-4 w-4 animate-spin" />
-                        )}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">Batch ID</span>
+                          <span className="text-sm font-medium">{transfer.batch.batchId}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-muted-foreground">Product</span>
+                          <span className="text-sm">{transfer.batch.drugName}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-muted-foreground">From</span>
+                          <span className="text-sm">{transfer.fromOrg.companyName}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-muted-foreground">To</span>
+                          <span className="text-sm">{transfer.toOrg.companyName}</span>
+                        </div>
                       </div>
-                    </TableCell> */}
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

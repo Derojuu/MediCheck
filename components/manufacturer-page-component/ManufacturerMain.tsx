@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { LoadingSpinner, LoadingTable } from "@/components/ui/loading"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
     Factory,
     Package,
@@ -147,6 +148,9 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
                     <h1 className="font-bold text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Manufacturer Dashboard
                     </h1>
+                </div>
+                <div className="hidden lg:block">
+                    <ThemeToggle />
                 </div>
             </div>
 

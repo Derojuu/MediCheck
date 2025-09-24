@@ -126,24 +126,24 @@ export default function LoginPage() {
       </nav>
 
       {/* Main Content with matching background effects */}
-      <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden pt-24 sm:pt-28 lg:pt-36">
+      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden pt-16 sm:pt-20 pb-8">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 gradient-transition"></div>
         <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[12000ms]"></div>
         <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[10000ms] delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
 
-        <div className="relative max-w-md mx-auto animate-slide-in-up">
+        <div className="relative w-full max-w-md mx-auto animate-slide-in-up">
           <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl theme-transition card hover:shadow-3xl transition-all duration-300">
-            <CardHeader className="text-center pb-8">
-              <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <CardHeader className="text-center pb-6 sm:pb-8">
+              <CardTitle className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Welcome Back
               </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2 text-lg">
+              <CardDescription className="text-muted-foreground mt-2 text-base sm:text-lg">
                 Sign in to your MediCheck account
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <CardContent className="px-4 sm:px-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
                   <Input
@@ -152,7 +152,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-4 py-3"
+                    className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3"
                     required
                   />
                 </div>
@@ -165,7 +165,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-4 py-3 pr-12"
+                      className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 pr-10 sm:pr-12"
                       required
                     />
                     <button
@@ -174,9 +174,9 @@ export default function LoginPage() {
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer"
                     >
                       {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
+                        <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                       ) : (
-                        <Eye className="h-5 w-5" />
+                        <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                       )}
                     </button>
                   </div>
@@ -186,14 +186,14 @@ export default function LoginPage() {
                   type="submit" 
                   variant="gradient"
                   size="lg"
-                  className="w-full cursor-pointer font-medium shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                  className="w-full cursor-pointer font-medium shadow-xl hover:shadow-2xl transform hover:-translate-y-1 py-2 sm:py-3"
                 >
                   {isLoading ? "Logging in..." : "Sign In"}
                 </Button>
               </form>
 
-              <div className="mt-8 text-center">
-                <p className="text-sm text-muted-foreground">
+              <div className="mt-6 sm:mt-8 text-center">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Don't have an account?{" "}
                   <Link href="/auth/register" className="text-primary hover:text-accent transition-colors duration-300 font-medium hover:underline">
                     Register here
