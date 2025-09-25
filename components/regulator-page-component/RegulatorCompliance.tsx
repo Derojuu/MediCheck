@@ -193,8 +193,7 @@ const RegulatorCompliance = () => {
         return (
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                    <h1 className="font-montserrat font-bold text-3xl text-foreground">Compliance Monitoring</h1>
-                    <ThemeToggle />
+                    <h1 className="font-montserrat font-bold text-2xl sm:text-3xl text-foreground">Compliance Monitoring</h1>
                 </div>
                 <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -208,11 +207,15 @@ const RegulatorCompliance = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="font-montserrat font-bold text-3xl text-foreground">Compliance Monitoring</h1>
-                <ThemeToggle />
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+                <div className="flex flex-row items-center gap-2">
+                    <h1 className="font-montserrat font-bold text-2xl sm:text-3xl text-foreground">Compliance Monitoring</h1>
+                </div>
+                {/* Hide ThemeToggle on mobile, show on desktop */}
+                <div className="hidden sm:block">
+                    <ThemeToggle />
+                </div>
             </div>
-
             {error && (
                 <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
                     <CardContent className="pt-6">

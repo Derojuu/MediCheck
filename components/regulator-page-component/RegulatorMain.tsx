@@ -85,12 +85,18 @@ const RegulatorMain = ({ setActiveTab }: {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Regulator Dashboard</h1>
-                    <p className="text-muted-foreground mt-2">NAFDAC - Drug Enforcement Division</p>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+                {/* On mobile, stack heading and subheading vertically, but keep them together */}
+                <div className="flex flex-col sm:flex-row sm:items-center">
+                    <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        Regulator Dashboard
+                    </h1>
+                    <span className="text-muted-foreground mt-1 sm:mt-0 sm:ml-2">
+                        NAFDAC - Drug Enforcement Division
+                    </span>
                 </div>
-                <div className="flex items-center space-x-4">
+                {/* Hide ThemeToggle and badge on mobile, show on desktop */}
+                <div className="hidden sm:flex items-center space-x-4">
                     <ThemeToggle />
                     <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
                         <Building2 className="h-4 w-4 mr-2" />
@@ -99,66 +105,31 @@ const RegulatorMain = ({ setActiveTab }: {
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Active Investigations</CardTitle>
-                        <Eye className="h-4 w-4 text-primary" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-foreground">{loading ? "..." : stats.activeInvestigations}</div>
-                        <p className="text-xs text-muted-foreground">
-                            <span className={`font-medium ${stats.investigationGrowth >= 0 ? 'text-accent' : 'text-red-500'}`}>
-                                {stats.investigationGrowth >= 0 ? '+' : ''}{stats.investigationGrowth}%
-                            </span> from last month
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Compliance Checks</CardTitle>
-                        <CheckCircle className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{loading ? "..." : stats.complianceChecks}</div>
-                        <p className="text-xs text-muted-foreground">
-                            <span className={`${stats.complianceGrowth >= 0 ? 'text-primary' : 'text-red-500'}`}>
-                                {stats.complianceGrowth >= 0 ? '+' : ''}{stats.complianceGrowth}%
-                            </span> this month
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-orange-600">{loading ? "..." : stats.pendingReviews}</div>
-                        <p className="text-xs text-muted-foreground">
-                            <span className={`${stats.pendingGrowth >= 0 ? 'text-orange-600' : 'text-green-600'}`}>
-                                {stats.pendingGrowth >= 0 ? '+' : ''}{stats.pendingGrowth}%
-                            </span> change
-                        </p>
-                    </CardContent>
-                </Card>
-
+            {/* Card Layout for Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Violations Found</CardTitle>
-                        <XCircle className="h-4 w-4 text-destructive" />
+                    <CardHeader>
+                        <CardTitle>Active Investigations</CardTitle>
+                        <CardDescription>{stats.activeInvestigations}</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-destructive">{loading ? "..." : stats.violationsFound}</div>
-                        <p className="text-xs text-muted-foreground">
-                            <span className={`${stats.violationChange >= 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                {stats.violationChange >= 0 ? '+' : ''}{stats.violationChange}
-                            </span> from last month
-                        </p>
-                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Compliance Checks</CardTitle>
+                        <CardDescription>{stats.complianceChecks}</CardDescription>
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pending Reviews</CardTitle>
+                        <CardDescription>{stats.pendingReviews}</CardDescription>
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Violations Found</CardTitle>
+                        <CardDescription>{stats.violationsFound}</CardDescription>
+                    </CardHeader>
                 </Card>
             </div>
 
@@ -248,8 +219,9 @@ const RegulatorMain = ({ setActiveTab }: {
                 </CardContent>
             </Card>
 
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Activity & Quick Actions */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                {/* Recent Activities */}
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-montserrat">Recent Activities</CardTitle>
@@ -259,15 +231,20 @@ const RegulatorMain = ({ setActiveTab }: {
                         <div className="space-y-4">
                             {activities.length > 0 ? (
                                 activities.map((activity: any) => (
-                                    <div key={activity.id} className="flex items-center space-x-4">
-                                        <div className="w-2 h-2 bg-primary rounded-full"></div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium">{activity.type} - {activity.target}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {activity.inspector} - {activity.findings}
-                                            </p>
+                                    <div
+                                        key={activity.id}
+                                        className="flex flex-col xl:flex-row xl:items-center gap-2 xl:gap-4 p-2 rounded-lg border border-muted/30"
+                                    >
+                                        <div className="flex items-center gap-2 flex-1">
+                                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                            <div>
+                                                <p className="text-sm font-medium">{activity.type} - {activity.target}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {activity.inspector} - {activity.findings}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="text-right">
+                                        <div className="flex flex-row xl:flex-col items-center xl:items-end gap-2 xl:gap-1 text-right min-w-[120px]">
                                             <Badge
                                                 variant={
                                                     activity.priority === "high"
@@ -318,6 +295,7 @@ const RegulatorMain = ({ setActiveTab }: {
                     </CardContent>
                 </Card>
 
+                {/* Quick Actions */}
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-montserrat">Quick Actions</CardTitle>
@@ -366,6 +344,8 @@ const RegulatorMain = ({ setActiveTab }: {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* ...existing code... */}
         </div>
     )
 }

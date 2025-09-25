@@ -7,40 +7,35 @@ import { auth } from "@clerk/nextjs/server";
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Find ANY organization for this user (admin or team member)
-    let organization = await prisma.organization.findFirst({
+    // Ensure the user exists in the users table
+    await prisma.user.upsert({
+      where: { id: userId },
+      update: {},
+      create: {
+        id: userId,
+        userRole: "SUPER_ADMIN",
+        clerkUserId: userId,
+      },
+    });
+
+    // Find the regulator organization for this user
+    const organization = await prisma.organization.findFirst({
       where: {
         OR: [
           { adminId: userId },
           { teamMembers: { some: { userId: userId } } }
-        ]
+        ],
+        organizationType: "REGULATOR"
       }
     });
 
-    // If no organization exists, create a default regulator one
     if (!organization) {
-      organization = await prisma.organization.create({
-        data: {
-          adminId: userId,
-          organizationType: "REGULATOR",
-          companyName: "NAFDAC Regulatory Authority",
-          contactEmail: "regulator@nafdac.gov.ng",
-          contactPhone: "+234-1-234-5678",
-          contactPersonName: "Regulatory Officer",
-          address: "NAFDAC Headquarters, Abuja",
-          country: "Nigeria",
-          state: "FCT",
-          agencyName: "NAFDAC",
-          officialId: "REG-" + userId.slice(-8).toUpperCase(),
-          isVerified: true,
-          isActive: true
-        }
-      });
+      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
 
     return NextResponse.json(organization);
@@ -99,3 +94,5 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
+

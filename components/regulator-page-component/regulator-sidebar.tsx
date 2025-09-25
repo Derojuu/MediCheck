@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
 import { authRoutes } from "@/utils";
 import { ManufacturerTab } from "@/utils";
+import { useEffect, useState } from "react";
 
 interface RegulatorSidebarProps {
   activeTab: ManufacturerTab
@@ -31,6 +32,22 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
 
   const { signOut } = useClerk();
   
+  // TODO: Replace with actual organization name from context, props, or API
+  const [orgName, setOrgName] = useState<string>("Regulator Org");
+
+  useEffect(() => {
+    async function fetchOrgName() {
+      try {
+        const res = await fetch("/api/organization"); // Update endpoint as needed
+        const data = await res.json();
+        setOrgName(data.name || "Regulator Org");
+      } catch {
+        setOrgName("Regulator Org");
+      }
+    }
+    fetchOrgName();
+  }, []);
+
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     // { id: "investigations", label: "Investigations", icon: Eye },
@@ -55,7 +72,7 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 backdrop-blur-md z-40 lg:hidden transition-all duration-300"
           onClick={onClose}
         />
       )}
@@ -77,30 +94,33 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
           </Button>
         </div>
 
-        <div className="p-4 sm:p-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
-            <span className="font-montserrat font-bold text-lg sm:text-xl text-sidebar-foreground">Medicheck</span>
+        {/* Sidebar Header */}
+        <div className="p-4 sm:p-6 border-b border-border flex-shrink-0">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative group-hover:scale-110 transition-transform duration-300">
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
+            </div>
+            <span className="font-bold text-lg sm:text-xl text-sidebar-foreground bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/80 bg-clip-text">
+              MediCheck
+            </span>
           </Link>
         </div>
 
-      <div className="px-4 sm:px-6 pb-4">
-        <div className="bg-sidebar-accent rounded-lg p-3 sm:p-4">
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-sidebar-primary rounded-lg flex items-center justify-center">
-              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-sidebar-primary-foreground" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-medium text-sidebar-foreground text-sm sm:text-base truncate">NAFDAC</p>
-              <Badge variant="secondary" className="text-xs">
-                Regulator
-              </Badge>
-            </div>
+        {/* Organization Card */}
+        <div className="p-4 pt-6 flex flex-col items-center border-b border-border bg-gradient-to-b from-sidebar-primary/10 to-transparent rounded-b-xl shadow-sm mb-2">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="secondary" className="px-3 py-1 text-xs rounded-full shadow bg-gradient-to-r from-blue-500/80 to-green-400/80 text-white border-0">
+              <Shield className="h-3 w-3 mr-1 inline-block" />
+              Regulator
+            </Badge>
           </div>
+          <span className="font-bold text-base text-sidebar-foreground text-center tracking-wide mb-1">
+            {orgName}
+          </span>
+          <span className="text-xs text-muted-foreground text-center italic">Regulatory Authority</span>
         </div>
-      </div>
 
-        <nav className="px-2 sm:px-4 space-y-1">
+        <nav className="flex-1 px-2 py-4 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon
             return (
@@ -117,7 +137,8 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
           })}
         </nav>
 
-        <div className="absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4 space-y-2">
+        {/* Sign Out Button */}
+        <div className="p-4 border-t flex-shrink-0 space-y-3">
           <Link href="/auth/login">
             <Button
               variant="ghost"

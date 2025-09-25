@@ -2,17 +2,19 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
+import { Shield } from "lucide-react"; // Ensure you have this import
 // 
 import { RegulatorSidebar } from "@/components/regulator-page-component/regulator-sidebar";
 import RegulatorInvestigations from "@/components/regulator-page-component/RegulatorInvestigations";
 import RegulatorCompliance from "@/components/regulator-page-component/RegulatorCompliance";
 import RegulatorSettings from "@/components/regulator-page-component/RegulatorSettings";
 import RegulatorAlerts from "@/components/regulator-page-component/RegulatorAlerts";
-import RegulatorReports from "@/components/regulator-page-component/RegulatorResports";
+import RegulatorReports from "@/components/regulator-page-component/RegulatorReports";
 import RegulatorEntities from "@/components/regulator-page-component/RegulatorEntities";
 import RegulatorMain from "@/components/regulator-page-component/RegulatorMain";
 import RegulatorAnalytics from "@/components/regulator-page-component/RegulatorAnalytics";
 import { ManufacturerTab } from "@/utils";
+import { ThemeToggle } from "@/components/theme-toggle"
 // 
 
 export default function RegulatorDashboard() {
@@ -43,8 +45,13 @@ export default function RegulatorDashboard() {
           >
             <Menu className="h-4 w-4" />
           </Button>
-          <h1 className="font-semibold text-lg">Regulator Dashboard</h1>
-          <div className="w-8" /> {/* Spacer for centering */}
+          <div className="flex items-center">
+            <Shield className="h-6 w-6 text-sidebar-primary mr-2" /> {/* Shield icon */}
+            <h1 className="font-semibold text-lg">MediCheck</h1>
+          </div>
+          <div className="flex items-center justify-end w-8">
+            <ThemeToggle />
+          </div>
         </div>
 
         <div className="p-4 lg:p-8">
