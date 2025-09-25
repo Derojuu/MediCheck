@@ -54,8 +54,7 @@ const RegulatorSettings = () => {
         if (response.ok) {
           const data = await response.json();
           console.log('Fetched organization data:', data); // Debug log
-          
-          // Ensure all fields are properly set, even if they're null in the database
+
           setSettings({
             id: data.id || "",
             companyName: data.companyName || "",
@@ -126,24 +125,22 @@ const RegulatorSettings = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
-        // Update local state with the saved data
-        if (data.organization) {
-          setSettings({
-            id: data.organization.id || "",
-            companyName: data.organization.companyName || "",
-            contactEmail: data.organization.contactEmail || "",
-            contactPhone: data.organization.contactPhone || "",
-            contactPersonName: data.organization.contactPersonName || "",
-            address: data.organization.address || "",
-            country: data.organization.country || "",
-            state: data.organization.state || "",
-            agencyName: data.organization.agencyName || "",
-            officialId: data.organization.officialId || "",
-            isVerified: data.organization.isVerified || false,
-            isActive: data.organization.isActive !== undefined ? data.organization.isActive : true
-          });
-        }
+        const org = data.organization || data; // fallback if API returns flat object
+
+        setSettings({
+          id: org.id || "",
+          companyName: org.companyName || "",
+          contactEmail: org.contactEmail || "",
+          contactPhone: org.contactPhone || "",
+          contactPersonName: org.contactPersonName || "",
+          address: org.address || "",
+          country: org.country || "",
+          state: org.state || "",
+          agencyName: org.agencyName || "",
+          officialId: org.officialId || "",
+          isVerified: org.isVerified || false,
+          isActive: org.isActive !== undefined ? org.isActive : true
+        });
         setSuccessMessage('Settings saved successfully!');
       } else {
         const errorData = await response.json();
@@ -162,7 +159,10 @@ const RegulatorSettings = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
-          <ThemeToggle />
+          <div className="sm:block">
+            <ThemeToggle />
+            </div>
+          
         </div>
         <Card>
           <CardHeader>
@@ -188,7 +188,10 @@ const RegulatorSettings = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
-        <ThemeToggle />
+        {/* Hide ThemeToggle on mobile, show on desktop */}
+        <div className="hidden sm:block">
+          <ThemeToggle />
+        </div>
       </div>
 
       {error && (

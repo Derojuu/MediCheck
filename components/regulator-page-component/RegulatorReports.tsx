@@ -134,7 +134,6 @@ const RegulatorReports = () => {
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <h1 className="font-montserrat font-bold text-3xl text-foreground">Reports & Analytics</h1>
-                    <ThemeToggle />
                 </div>
                 <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -147,7 +146,10 @@ const RegulatorReports = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="font-montserrat font-bold text-3xl text-foreground">Reports & Analytics</h1>
-                <ThemeToggle />
+                {/* Hide ThemeToggle on mobile, show on desktop */}
+                <div className="hidden sm:block">
+                    <ThemeToggle />
+                </div>
             </div>
 
             {error && (
@@ -337,13 +339,16 @@ const RegulatorReports = () => {
             {/* Report Generation Section */}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    {/* Make header stack on mobile, row on desktop */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <CardTitle className="flex items-center gap-2">
                                 <Download className="h-5 w-5" />
                                 Generate Reports
                             </CardTitle>
-                            <CardDescription>Download detailed regulatory reports in various formats</CardDescription>
+                            <CardDescription>
+                                Download detailed regulatory reports in various formats
+                            </CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -358,24 +363,25 @@ const RegulatorReports = () => {
                     </div>
                 </CardHeader>
                 <CardContent>
+                    {/* Use grid for proper wrapping and prevent overflow */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
+                        <div className="space-y-3 min-w-0">
                             <h4 className="font-medium text-sm text-muted-foreground">COMPLIANCE REPORTS</h4>
                             <Button 
                                 variant="outline" 
-                                className="w-full justify-start h-auto p-4" 
+                                className="w-full justify-start h-auto p-4 break-words whitespace-normal"
                                 onClick={() => generateReport("compliance")}
                                 disabled={generatingReport === "compliance"}
                             >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-3 w-full">
                                     {generatingReport === "compliance" ? (
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mt-1"></div>
                                     ) : (
                                         <CheckCircle className="h-4 w-4 text-green-600 mt-1" />
                                     )}
-                                    <div className="text-left">
-                                        <div className="font-medium">Compliance Report</div>
-                                        <div className="text-xs text-muted-foreground">
+                                    <div className="text-left w-full min-w-0">
+                                        <div className="font-medium break-words">Compliance Report</div>
+                                        <div className="text-xs text-muted-foreground break-words">
                                             Ownership transfers, compliance rates, and regulatory approvals
                                         </div>
                                     </div>
@@ -384,19 +390,19 @@ const RegulatorReports = () => {
 
                             <Button 
                                 variant="outline" 
-                                className="w-full justify-start h-auto p-4" 
+                                className="w-full justify-start h-auto p-4 break-words whitespace-normal"
                                 onClick={() => generateReport("investigations")}
                                 disabled={generatingReport === "investigations"}
                             >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-3 w-full">
                                     {generatingReport === "investigations" ? (
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mt-1"></div>
                                     ) : (
                                         <FileText className="h-4 w-4 text-blue-600 mt-1" />
                                     )}
-                                    <div className="text-left">
-                                        <div className="font-medium">Investigation Report</div>
-                                        <div className="text-xs text-muted-foreground">
+                                    <div className="text-left w-full min-w-0">
+                                        <div className="font-medium break-words">Investigation Report</div>
+                                        <div className="text-xs text-muted-foreground break-words">
                                             Active cases, counterfeit reports, and investigation outcomes
                                         </div>
                                     </div>
@@ -404,23 +410,23 @@ const RegulatorReports = () => {
                             </Button>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-3 min-w-0">
                             <h4 className="font-medium text-sm text-muted-foreground">ENTITY REPORTS</h4>
                             <Button 
                                 variant="outline" 
-                                className="w-full justify-start h-auto p-4" 
+                                className="w-full justify-start h-auto p-4 break-words whitespace-normal"
                                 onClick={() => generateReport("entities")}
                                 disabled={generatingReport === "entities"}
                             >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-3 w-full">
                                     {generatingReport === "entities" ? (
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mt-1"></div>
                                     ) : (
                                         <Users className="h-4 w-4 text-purple-600 mt-1" />
                                     )}
-                                    <div className="text-left">
-                                        <div className="font-medium">Entity Report</div>
-                                        <div className="text-xs text-muted-foreground">
+                                    <div className="text-left w-full min-w-0">
+                                        <div className="font-medium break-words">Entity Report</div>
+                                        <div className="text-xs text-muted-foreground break-words">
                                             Organization registry, verification status, and activities
                                         </div>
                                     </div>
@@ -429,19 +435,19 @@ const RegulatorReports = () => {
 
                             <Button 
                                 variant="outline" 
-                                className="w-full justify-start h-auto p-4" 
+                                className="w-full justify-start h-auto p-4 break-words whitespace-normal"
                                 onClick={() => generateReport("violations")}
                                 disabled={generatingReport === "violations"}
                             >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-3 w-full">
                                     {generatingReport === "violations" ? (
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mt-1"></div>
                                     ) : (
                                         <AlertTriangle className="h-4 w-4 text-red-600 mt-1" />
                                     )}
-                                    <div className="text-left">
-                                        <div className="font-medium">Violation Report</div>
-                                        <div className="text-xs text-muted-foreground">
+                                    <div className="text-left w-full min-w-0">
+                                        <div className="font-medium break-words">Violation Report</div>
+                                        <div className="text-xs text-muted-foreground break-words">
                                             High-severity incidents, violations, and enforcement actions
                                         </div>
                                     </div>
@@ -451,7 +457,8 @@ const RegulatorReports = () => {
                     </div>
 
                     <div className="mt-6 pt-4 border-t">
-                        <div className="flex items-center justify-between">
+                        {/* Stack summary section on mobile */}
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h4 className="font-medium text-sm">Summary Report</h4>
                                 <p className="text-xs text-muted-foreground">
@@ -461,7 +468,7 @@ const RegulatorReports = () => {
                             <Button 
                                 onClick={() => generateReport("summary")}
                                 disabled={generatingReport === "summary"}
-                                className="bg-primary hover:bg-primary/90"
+                                className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
                             >
                                 {generatingReport === "summary" ? (
                                     <>

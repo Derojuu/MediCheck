@@ -149,19 +149,19 @@ const RegulatorEntities = () => {
 
     
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="space-y-6 px-2 sm:px-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="font-montserrat font-bold text-3xl text-foreground">Registered Entities</h1>
-                    <p className="text-muted-foreground">All registered pharmaceutical entities</p>
+                    <h1 className="font-montserrat font-bold text-2xl sm:text-3xl text-foreground">Registered Entities</h1>
+                    <p className="text-muted-foreground text-sm sm:text-base">All registered pharmaceutical entities</p>
                 </div>
-                <div className="flex items-center space-x-3">
-                    <ThemeToggle />
+                <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto">
                     <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
                         <DialogTrigger asChild>
-                            <Button>
+                            <Button className="w-full sm:w-auto">
                                 <Plus className="h-4 w-4 mr-2" />
-                                Register Entity
+                                <span className="hidden sm:inline">Register Entity</span>
+                                <span className="sm:hidden">Register</span>
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -171,13 +171,11 @@ const RegulatorEntities = () => {
                                     Add a new pharmaceutical entity to the regulatory database
                                 </DialogDescription>
                             </DialogHeader>
-                            
                             <div className="grid gap-4 py-4">
                                 {/* Basic Information */}
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Basic Information</h3>
-                                    
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <Label htmlFor="companyName">Company Name *</Label>
                                             <Input
@@ -203,7 +201,7 @@ const RegulatorEntities = () => {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <Label htmlFor="contactEmail">Contact Email *</Label>
                                             <Input
@@ -251,7 +249,7 @@ const RegulatorEntities = () => {
                                         />
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <Label htmlFor="country">Country *</Label>
                                             <Input
@@ -277,7 +275,7 @@ const RegulatorEntities = () => {
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Regulatory Information</h3>
                                     
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <Label htmlFor="licenseNumber">License Number</Label>
                                             <Input
@@ -298,7 +296,7 @@ const RegulatorEntities = () => {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <Label htmlFor="businessRegNumber">Business Registration Number</Label>
                                             <Input
@@ -359,7 +357,7 @@ const RegulatorEntities = () => {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end space-x-2">
+                            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
                                 <Button variant="outline" onClick={() => setShowRegisterDialog(false)}>
                                     Cancel
                                 </Button>
@@ -375,80 +373,135 @@ const RegulatorEntities = () => {
                 </div>
             </div>
 
-            <Card>
+            <Card className="overflow-x-auto">
                 <CardHeader>
                     <CardTitle>All Registered Entities</CardTitle>
                     <CardDescription>Complete database of registered pharmaceutical entities</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Company Name</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Location</TableHead>
-                                <TableHead>License</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {loading ? (
+                <CardContent className="p-0">
+                    {/* Responsive Table: Show table on md+ screens, show cards on mobile */}
+                    <div className="hidden md:block w-full overflow-x-auto">
+                        <Table className="min-w-[700px]">
+                            <TableHeader>
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-center py-8">
-                                        Loading entities...
-                                    </TableCell>
+                                    <TableHead>Company Name</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>Location</TableHead>
+                                    <TableHead>License</TableHead>
+                                    <TableHead>Contact</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
-                            ) : entities.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={7} className="text-center py-8">
-                                        No entities found
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                entities.map((entity) => (
-                                    <TableRow key={entity.id}>
-                                        <TableCell className="font-medium">{entity.companyName}</TableCell>
-                                        <TableCell>{getOrganizationType(entity.organizationType)}</TableCell>
-                                        <TableCell>{entity.state ? `${entity.address}, ${entity.state}` : entity.address}</TableCell>
-                                        <TableCell>{entity.licenseNumber || entity.nafdacNumber || 'N/A'}</TableCell>
-                                        <TableCell>{entity.contactEmail}</TableCell>
-                                        <TableCell>{getStatusBadge(entity)}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center space-x-2">
-                                                {!entity.isVerified && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => handleVerifyEntity(entity.id, true)}
-                                                        className="text-green-600 hover:bg-green-50"
-                                                    >
-                                                        <CheckCircle className="h-4 w-4 mr-1" />
-                                                        Verify
-                                                    </Button>
-                                                )}
-                                                {entity.isVerified && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => handleVerifyEntity(entity.id, false)}
-                                                        className="text-red-600 hover:bg-red-50"
-                                                    >
-                                                        <XCircle className="h-4 w-4 mr-1" />
-                                                        Suspend
-                                                    </Button>
-                                                )}
-                                                <Button size="sm" variant="ghost">
-                                                    <Eye className="h-4 w-4" />
-                                                </Button>
-                                            </div>
+                            </TableHeader>
+                            <TableBody>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="text-center py-8">
+                                            Loading entities...
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                ) : entities.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="text-center py-8">
+                                            No entities found
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    entities.map((entity) => (
+                                        <TableRow key={entity.id}>
+                                            <TableCell className="font-medium whitespace-nowrap max-w-[140px] overflow-hidden text-ellipsis">{entity.companyName}</TableCell>
+                                            <TableCell className="whitespace-nowrap">{getOrganizationType(entity.organizationType)}</TableCell>
+                                            <TableCell className="whitespace-nowrap">{entity.state ? `${entity.address}, ${entity.state}` : entity.address}</TableCell>
+                                            <TableCell className="whitespace-nowrap">{entity.licenseNumber || entity.nafdacNumber || 'N/A'}</TableCell>
+                                            <TableCell className="whitespace-nowrap">{entity.contactEmail}</TableCell>
+                                            <TableCell>{getStatusBadge(entity)}</TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-2">
+                                                    {!entity.isVerified && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => handleVerifyEntity(entity.id, true)}
+                                                            className="text-green-600 hover:bg-green-50"
+                                                        >
+                                                            <CheckCircle className="h-4 w-4 mr-1" />
+                                                            <span className="hidden sm:inline">Verify</span>
+                                                            <span className="sm:hidden">✔</span>
+                                                        </Button>
+                                                    )}
+                                                    {entity.isVerified && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => handleVerifyEntity(entity.id, false)}
+                                                            className="text-red-600 hover:bg-red-50"
+                                                        >
+                                                            <XCircle className="h-4 w-4 mr-1" />
+                                                            <span className="hidden sm:inline">Suspend</span>
+                                                            <span className="sm:hidden">✖</span>
+                                                        </Button>
+                                                    )}
+                                                    <Button size="sm" variant="ghost">
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    {/* Mobile Card List */}
+                    <div className="block md:hidden w-full">
+                        {loading ? (
+                            <div className="py-8 text-center text-muted-foreground">Loading entities...</div>
+                        ) : entities.length === 0 ? (
+                            <div className="py-8 text-center text-muted-foreground">No entities found</div>
+                        ) : (
+                            <div className="flex flex-col gap-4 p-2">
+                                {entities.map((entity) => (
+                                    <div key={entity.id} className="rounded-lg border bg-card p-4 shadow-sm flex flex-col gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="font-semibold text-base">{entity.companyName}</span>
+                                            {getStatusBadge(entity)}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">{getOrganizationType(entity.organizationType)}</div>
+                                        <div className="text-sm">{entity.state ? `${entity.address}, ${entity.state}` : entity.address}</div>
+                                        <div className="text-xs">License: <span className="font-medium">{entity.licenseNumber || entity.nafdacNumber || 'N/A'}</span></div>
+                                        <div className="text-xs">Contact: <span className="font-medium">{entity.contactEmail}</span></div>
+                                        <div className="flex gap-2 mt-2">
+                                            {!entity.isVerified && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleVerifyEntity(entity.id, true)}
+                                                    className="text-green-600 hover:bg-green-50 flex-1"
+                                                >
+                                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                                    Verify
+                                                </Button>
+                                            )}
+                                            {entity.isVerified && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleVerifyEntity(entity.id, false)}
+                                                    className="text-red-600 hover:bg-red-50 flex-1"
+                                                >
+                                                    <XCircle className="h-4 w-4 mr-1" />
+                                                    Suspend
+                                                </Button>
+                                            )}
+                                            <Button size="sm" variant="ghost" className="flex-1">
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         </div>

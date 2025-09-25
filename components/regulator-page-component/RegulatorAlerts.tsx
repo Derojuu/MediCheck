@@ -154,7 +154,6 @@ const RegulatorAlerts = () => {
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <h1 className="font-montserrat font-bold text-3xl text-foreground">Alerts & Notifications</h1>
-                    <ThemeToggle />
                 </div>
                 <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -173,7 +172,10 @@ const RegulatorAlerts = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="font-montserrat font-bold text-3xl text-foreground">Alerts & Notifications</h1>
-                <ThemeToggle />
+                {/* Hide ThemeToggle on mobile, show on desktop */}
+                <div className="hidden sm:block">
+                    <ThemeToggle />
+                </div>
             </div>
 
             {error && (
