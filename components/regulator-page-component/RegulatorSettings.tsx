@@ -49,6 +49,7 @@ const RegulatorSettings = () => {
       try {
         setLoading(true);
         setError(null);
+        console.log('Fetching regulator settings...');
         const response = await fetch('/api/regulator/settings');
 
         if (response.ok) {

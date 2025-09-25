@@ -3,35 +3,26 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 
-
 export async function GET(request: NextRequest) {
+
   try {
     const { userId } = await auth();
+
+    console.log(userId)
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Ensure the user exists in the users table
-    await prisma.user.upsert({
+    const loggedInUser = await prisma.user.findUnique({
       where: { id: userId },
-      update: {},
-      create: {
-        id: userId,
-        userRole: "SUPER_ADMIN",
-        clerkUserId: userId,
-      },
     });
 
     // Find the regulator organization for this user
     const organization = await prisma.organization.findFirst({
       where: {
-        OR: [
-          { adminId: userId },
-          { teamMembers: { some: { userId: userId } } }
-        ],
-        organizationType: "REGULATOR"
-      }
+        adminId: loggedInUser?.id
+      },
     });
 
     if (!organization) {
@@ -40,16 +31,26 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(organization);
 
-  } catch (error) {
+  }
+
+  catch (error) {
+
     console.error("Error fetching regulator settings:", error);
+
     return NextResponse.json(
+    
       { error: "Internal server error", details: error instanceof Error ? error.message : 'Unknown error' },
+
       { status: 500 }
+
     );
   }
+
 }
 
+
 export async function PUT(request: NextRequest) {
+
   try {
     const { userId } = await auth();
     
@@ -86,13 +87,19 @@ export async function PUT(request: NextRequest) {
       organization: updatedOrganization
     });
 
-  } catch (error) {
+  }
+
+  catch (error) {
     console.error("Error updating regulator settings:", error);
+
     return NextResponse.json(
       { error: "Internal server error", details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
-  }
-}
 
+      { status: 500 }
+       
+    );
+
+  }
+
+}
 
