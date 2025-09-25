@@ -113,18 +113,33 @@ export const QRScanner = forwardRef<QRScannerRef, QRScannerProps>(({
 
   // Stop camera stream
   const stopCamera = useCallback(() => {
+    // Stop all media stream tracks
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current.getTracks().forEach(track => {
+        track.stop()
+        console.log(`Stopped camera track: ${track.kind}`)
+      })
       streamRef.current = null
     }
     
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current)
+    // Clear video element
+    if (videoRef.current) {
+      videoRef.current.srcObject = null
+      videoRef.current.load()
     }
     
+    // Cancel any ongoing animation frames
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current)
+      animationRef.current = undefined
+    }
+    
+    // Reset all states
     setIsScanning(false)
     setHasPermission(null)
     setError(null)
+    setLastScanResult(null)
+    console.log('Camera completely stopped and resources released')
   }, [])
 
   // Expose methods to parent component via ref
@@ -297,36 +312,42 @@ export const QRScanner = forwardRef<QRScannerRef, QRScannerProps>(({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="relative">
+        <div className="relative flex justify-center items-center">
           {/* Video element for camera feed */}
           <video
             ref={videoRef}
-            style={{ width, height }}
-            className="border rounded-lg bg-gray-100"
+            style={{ 
+              width: `${width}px`, 
+              height: `${height}px`,
+              maxWidth: '100%',
+              maxHeight: '100%'
+            }}
+            className="border rounded-lg bg-gray-100 mx-auto object-cover block"
             playsInline
             muted
           />
+          
+          {/* Camera off overlay */}
+          {!isScanning && !isLoading && hasPermission !== false && (
+            <div 
+              className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-gray-900/80 flex flex-col items-center justify-center rounded-lg"
+              style={{ 
+                width: `${width}px`, 
+                height: `${height}px`,
+                maxWidth: '100%',
+                maxHeight: '100%'
+              }}
+            >
+              <Camera className="w-12 h-12 text-gray-400 mb-2" />
+              <p className="text-gray-300 text-sm text-center px-4">Camera is off<br />Click "Start Scanning" to begin</p>
+            </div>
+          )}
           
           {/* Canvas for image processing (hidden) */}
           <canvas
             ref={canvasRef}
             className="hidden"
           />
-          
-          {/* Scanning overlay */}
-          {isScanning && (
-            <div 
-              className="absolute inset-0 border-2 border-blue-500 rounded-lg pointer-events-none"
-              style={{ width, height }}
-            >
-              <div className="absolute inset-4 border border-white/50 rounded">
-                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-blue-500 rounded-tl"></div>
-                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-blue-500 rounded-tr"></div>
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-blue-500 rounded-bl"></div>
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-blue-500 rounded-br"></div>
-              </div>
-            </div>
-          )}
           
           {/* Loading overlay */}
           {isLoading && (

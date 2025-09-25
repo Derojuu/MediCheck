@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { ArrowLeft, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { ConsumerQRScanner, ConsumerChatAI } from "@/components/consumer-page-component"
 
@@ -56,7 +55,6 @@ export default function ConsumerScanPage() {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
             <Button variant="outline" onClick={() => setShowAIChat(!showAIChat)} className="cursor-pointer border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-sm sm:text-base">
               <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-primary" />
               <span className="hidden sm:inline">AI Assistant</span>

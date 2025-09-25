@@ -8,9 +8,11 @@ import { QrCode, Download, Check, Upload } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { toast } from 'react-toastify';
 import { MedicationBatchInfoProps, MedicationUnitProp } from '@/utils';
-
+import { useTheme } from 'next-themes';
 
 const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoProps[] }) => {
+
+    const { resolvedTheme } = useTheme();
 
     const [batches, setBatches] = useState<MedicationBatchInfoProps[]>(allBatches);
 
