@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { toast } from "react-toastify";
-import { Plus, ArrowUpRight, ArrowDownLeft, RefreshCw } from "lucide-react";
+import { Plus, ArrowUpRight, ArrowDownLeft, RefreshCw, Search, Filter, X } from "lucide-react";
 import { TransferProps, MedicationBatchInfoProps, OrganizationProp } from "@/utils";
 import { BatchStatus } from "@/lib/generated/prisma";
 
@@ -30,6 +31,10 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState(orgId || "");
 
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [directionFilter, setDirectionFilter] = useState("ALL");
 
   // Create transfer form state
   const [newTransfer, setNewTransfer] = useState({
@@ -198,6 +203,27 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
     }
   };
 
+  // Filter and search functionality
+  const filteredTransfers = transfers.filter(transfer => {
+    const matchesSearch = searchQuery === "" || 
+      transfer.batch.batchId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transfer.batch.drugName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transfer.fromOrg.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transfer.toOrg.companyName.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === "ALL" || transfer.status === statusFilter;
+    const matchesDirection = directionFilter === "ALL" || transfer.direction === directionFilter;
+
+    return matchesSearch && matchesStatus && matchesDirection;
+  });
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("ALL");
+    setDirectionFilter("ALL");
+  };
+
+  const hasActiveFilters = searchQuery !== "" || statusFilter !== "ALL" || directionFilter !== "ALL";
 
   if (loading) {
     return (
@@ -227,27 +253,30 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-[95vw] sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl">Create New Transfer</DialogTitle>
-              <DialogDescription className="text-sm text-wrap">
+            <DialogHeader className="pb-4">
+              <DialogTitle className="text-lg sm:text-xl font-semibold">Create New Transfer</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground mt-2">
                 Transfer batch ownership to another organization
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-3 sm:space-y-4 py-2 sm:py-4">
-              <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="batch" className="text-sm font-medium">Batch</Label>
+            <div className="space-y-5 py-1">
+              <div className="space-y-2">
+                <Label htmlFor="batch" className="text-sm font-medium text-foreground">Select Batch *</Label>
                 <Select
                   value={newTransfer.batchId}
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, batchId: value }))}
                 >
-                  <SelectTrigger className="w-full h-10 sm:h-11">
-                    <SelectValue placeholder="Select a batch" />
+                  <SelectTrigger className="w-full h-12 text-left">
+                    <SelectValue placeholder="Choose a batch to transfer" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableBatches && availableBatches.length > 0 ? (
                       availableBatches.map((batch) => (
-                        <SelectItem key={batch.batchId} value={batch.batchId}>
-                          {batch.batchId} - {batch.drugName} ({batch.batchSize} units)
+                        <SelectItem key={batch.batchId} value={batch.batchId} className="py-3">
+                          <div className="flex flex-col">
+                            <span className="font-medium">{batch.batchId}</span>
+                            <span className="text-sm text-muted-foreground">{batch.drugName} • {batch.batchSize} units</span>
+                          </div>
                         </SelectItem>
                       ))
                     ) : (
@@ -258,17 +287,20 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                   </SelectContent>
                 </Select>
                 {!availableBatches.length && (
-                  <p className="text-sm text-muted-foreground text-wrap">No batches available for transfer</p>
+                  <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+                    <p className="text-sm text-orange-700 dark:text-orange-300">No batches available for transfer</p>
+                  </div>
                 )}
               </div>
-              <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="organization" className="text-sm font-medium">To Organization</Label>
+
+              <div className="space-y-2">
+                <Label htmlFor="organization" className="text-sm font-medium text-foreground">Destination Organization *</Label>
                 <Select
                   value={newTransfer.toOrgId}
                   onValueChange={(value) => setNewTransfer(prev => ({ ...prev, toOrgId: value }))}
                 >
-                  <SelectTrigger className="w-full h-10 sm:h-11">
-                    <SelectValue placeholder="Select destination organization" />
+                  <SelectTrigger className="w-full h-12 text-left">
+                    <SelectValue placeholder="Choose destination organization" />
                   </SelectTrigger>
                   <SelectContent>
 
@@ -276,8 +308,11 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                       organizations
                         .filter(org => org.id !== currentOrgId)
                         .map((org) => (
-                          <SelectItem key={org.id} value={org.id}>
-                            {org.companyName} ({org.organizationType})
+                          <SelectItem key={org.id} value={org.id} className="py-3">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{org.companyName}</span>
+                              <span className="text-sm text-muted-foreground capitalize">{org.organizationType.toLowerCase()}</span>
+                            </div>
                           </SelectItem>
                         ))
                     ) : (
@@ -291,81 +326,192 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
 
 
               </div>
-              <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="notes" className="text-sm font-medium">Notes (Optional)</Label>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes" className="text-sm font-medium text-foreground">Transfer Notes</Label>
                 <Textarea
                   id="notes"
-                  placeholder="Add transfer notes..."
+                  placeholder="Add any additional notes or instructions for this transfer..."
                   value={newTransfer.notes}
                   onChange={(e) => setNewTransfer(prev => ({ ...prev, notes: e.target.value }))}
-                  className="min-h-[60px] sm:min-h-[80px] resize-none"
+                  className="min-h-[80px] resize-none"
                 />
+                <p className="text-xs text-muted-foreground">Optional - Add context or special instructions</p>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-0 sm:space-x-2 pt-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowCreateDialog(false)}
-                className="w-full sm:w-auto order-2 sm:order-1"
-              >
-                Cancel
-              </Button>
+            <div className="flex flex-col gap-3 pt-4 border-t border-border/40">
               <Button 
                 onClick={createTransfer} 
-                disabled={creating}
-                className="w-full sm:w-auto order-1 sm:order-2"
+                disabled={creating || !newTransfer.batchId || !newTransfer.toOrgId}
+                className="w-full h-12 font-medium"
+                size="lg"
               >
-                {creating ? "Creating..." : "Create Transfer"}
+                {creating ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Creating Transfer...</span>
+                  </div>
+                ) : (
+                  "Create Transfer"
+                )}
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowCreateDialog(false)}
+                className="w-full h-10"
+                disabled={creating}
+              >
+                Cancel
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Transfers</CardTitle>
-            <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
+            <CardTitle className="text-sm sm:text-base font-medium">Total Transfers</CardTitle>
+            <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold">{transfers.length}</div>
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="text-2xl sm:text-3xl font-bold">
+              {hasActiveFilters ? filteredTransfers.length : transfers.length}
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              {hasActiveFilters ? "Filtered results" : "All time"}
+            </p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
-            <CardTitle className="text-xs sm:text-sm font-medium">Outgoing</CardTitle>
-            <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+        <Card className="shadow-sm border-2 border-blue-200 dark:border-blue-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
+            <CardTitle className="text-sm sm:text-base font-medium">Outgoing</CardTitle>
+            <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold">
-              {transfers.filter(t => t.direction === 'OUTGOING').length}
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="text-2xl sm:text-3xl font-bold text-blue-600">
+              {hasActiveFilters ? 
+                filteredTransfers.filter(t => t.direction === 'OUTGOING').length :
+                transfers.filter(t => t.direction === 'OUTGOING').length
+              }
             </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Sent out</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
-            <CardTitle className="text-xs sm:text-sm font-medium">Incoming</CardTitle>
-            <ArrowDownLeft className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+        <Card className="shadow-sm border-2 border-green-200 dark:border-green-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
+            <CardTitle className="text-sm sm:text-base font-medium">Incoming</CardTitle>
+            <ArrowDownLeft className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold">
-              {transfers.filter(t => t.direction === 'INCOMING').length}
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="text-2xl sm:text-3xl font-bold text-green-600">
+              {hasActiveFilters ? 
+                filteredTransfers.filter(t => t.direction === 'INCOMING').length :
+                transfers.filter(t => t.direction === 'INCOMING').length
+              }
             </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Received</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
-            <CardTitle className="text-xs sm:text-sm font-medium">Pending Approval</CardTitle>
-            <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
+        <Card className="shadow-sm border-2 border-orange-200 dark:border-orange-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
+            <CardTitle className="text-sm sm:text-base font-medium">Pending Approval</CardTitle>
+            <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold">
-              {transfers.filter(t => t.canApprove).length}
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="text-2xl sm:text-3xl font-bold text-orange-600">
+              {hasActiveFilters ? 
+                filteredTransfers.filter(t => t.canApprove).length :
+                transfers.filter(t => t.canApprove).length
+              }
             </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Need action</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Search and Filter Section */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by batch ID, product, or organization..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10"
+              />
+            </div>
+
+            {/* Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] h-10">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Status</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="FAILED">Failed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={directionFilter} onValueChange={setDirectionFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] h-10">
+                  <SelectValue placeholder="Direction" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Types</SelectItem>
+                  <SelectItem value="OUTGOING">Outgoing</SelectItem>
+                  <SelectItem value="INCOMING">Incoming</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {hasActiveFilters && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={clearFilters}
+                  className="h-10 px-3 text-xs"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Active filters indicator */}
+          {hasActiveFilters && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {searchQuery && (
+                <Badge variant="secondary" className="text-xs">
+                  Search: "{searchQuery}"
+                </Badge>
+              )}
+              {statusFilter !== "ALL" && (
+                <Badge variant="secondary" className="text-xs">
+                  Status: {statusFilter}
+                </Badge>
+              )}
+              {directionFilter !== "ALL" && (
+                <Badge variant="secondary" className="text-xs">
+                  Type: {directionFilter}
+                </Badge>
+              )}
+              <span className="text-xs text-muted-foreground self-center">
+                {filteredTransfers.length} of {transfers.length} transfers
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="border-0 shadow-sm">
         <CardHeader className="p-4 sm:p-6">
@@ -376,6 +522,15 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
           {transfers.length === 0 ? (
             <div className="text-center py-6 sm:py-8 text-muted-foreground text-sm sm:text-base">
               No transfers found. Create your first transfer to get started.
+            </div>
+          ) : filteredTransfers.length === 0 ? (
+            <div className="text-center py-6 sm:py-8">
+              <div className="text-muted-foreground text-sm sm:text-base mb-2">
+                No transfers match your search criteria
+              </div>
+              <Button variant="outline" size="sm" onClick={clearFilters}>
+                Clear filters
+              </Button>
             </div>
           ) : (
             <>
@@ -391,10 +546,11 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                       <TableHead>To</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {transfers.map((transfer) => (
+                    {filteredTransfers.map((transfer) => (
                       <TableRow key={transfer.id}>
                         <TableCell>
                           <div className="flex items-center">
@@ -418,6 +574,32 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                         <TableCell>
                           {new Date(transfer.createdAt).toLocaleDateString()}
                         </TableCell>
+                        <TableCell>
+                          {transfer.canApprove ? (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 px-3 text-xs"
+                                onClick={() => updateTransferStatus(transfer.id, "COMPLETED")}
+                                disabled={updating === transfer.id}
+                              >
+                                {updating === transfer.id ? "..." : "Accept"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 px-3 text-xs text-red-600 hover:text-red-700"
+                                onClick={() => updateTransferStatus(transfer.id, "CANCELLED")}
+                                disabled={updating === transfer.id}
+                              >
+                                Decline
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -425,44 +607,85 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
               </div>
 
               {/* Mobile Card View - Hidden on desktop */}
-              <div className="md:hidden grid grid-cols-1 gap-4">
-                {transfers.map((transfer) => (
-                  <Card key={transfer.id} className="border border-gray-200 w-full">
-                    <CardContent className="p-2">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center">
+              <div className="md:hidden space-y-3">
+                {filteredTransfers.map((transfer) => (
+                  <Card key={transfer.id} className="shadow-sm border-0 bg-card">
+                    <CardContent className="p-4">
+                      {/* Header with direction and status */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-2">
                           {transfer.direction === 'OUTGOING' ? (
-                            <ArrowUpRight className="h-4 w-4 text-blue-600 mr-2 mt-0.5" />
-                          ) : (
-                            <ArrowDownLeft className="h-4 w-4 text-green-600 mr-2 mt-0.5" />
-                          )}
-                          <div>
-                            <div className="font-medium text-sm">{transfer.direction}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {new Date(transfer.createdAt).toLocaleDateString()}
+                            <div className="flex items-center space-x-2 text-blue-600">
+                              <ArrowUpRight className="h-4 w-4" />
+                              <span className="font-medium text-sm">Outgoing</span>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="flex items-center space-x-2 text-green-600">
+                              <ArrowDownLeft className="h-4 w-4" />
+                              <span className="font-medium text-sm">Incoming</span>
+                            </div>
+                          )}
                         </div>
-                        <Badge variant={getStatusVariant(transfer.status)} className={getStatusColor(transfer.status)}>
+                        <Badge variant={getStatusVariant(transfer.status)} className={`${getStatusColor(transfer.status)} text-xs`}>
                           {transfer.status}
                         </Badge>
                       </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center gap-2">
-                          <span className="text-xs font-medium text-muted-foreground">Batch ID</span>
-                          <span className="text-sm font-medium">{transfer.batch.batchId}</span>
+
+                      {/* Main content */}
+                      <div className="space-y-3">
+                        <div className="bg-muted/30 rounded-lg p-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Batch</span>
+                            <span className="font-mono text-sm font-semibold">{transfer.batch.batchId}</span>
+                          </div>
+                          <div className="mt-1">
+                            <span className="text-sm text-foreground">{transfer.batch.drugName}</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-muted-foreground">Product</span>
-                          <span className="text-sm">{transfer.batch.drugName}</span>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">From</span>
+                            <p className="text-sm font-medium text-foreground leading-tight">{transfer.fromOrg.companyName}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">To</span>
+                            <p className="text-sm font-medium text-foreground leading-tight">{transfer.toOrg.companyName}</p>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-muted-foreground">From</span>
-                          <span className="text-sm">{transfer.fromOrg.companyName}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-muted-foreground">To</span>
-                          <span className="text-sm">{transfer.toOrg.companyName}</span>
+
+                        <div className="pt-3 border-t border-border/40 flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(transfer.createdAt).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}
+                          </span>
+                          
+                          {/* Quick actions for mobile */}
+                          {transfer.canApprove && (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => updateTransferStatus(transfer.id, "COMPLETED")}
+                                disabled={updating === transfer.id}
+                              >
+                                {updating === transfer.id ? "..." : "Accept"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
+                                onClick={() => updateTransferStatus(transfer.id, "CANCELLED")}
+                                disabled={updating === transfer.id}
+                              >
+                                Decline
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>

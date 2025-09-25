@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading";
-import { AlertTriangle, TrendingUp } from "lucide-react";
+import { AlertTriangle, TrendingUp, FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 
 interface MonthlyStats {
@@ -136,7 +136,7 @@ const HospitalReports = () => {
     if (loading) {
         return (
             <div className="space-y-6">
-                <h1 className="font-montserrat font-bold text-3xl text-foreground">Reports & Analytics</h1>
+                <h1 className="font-bold text-2xl sm:text-3xl text-foreground">Reports & Analytics</h1>
                 <div className="flex items-center justify-center p-8">
                     <LoadingSpinner size="large" text="Loading reports..." />
                 </div>
@@ -148,9 +148,66 @@ const HospitalReports = () => {
 
     return (
         <div className="space-y-6">
-            <h1 className="font-montserrat font-bold text-3xl text-foreground">Reports & Analytics</h1>
+            <h1 className="font-bold text-2xl sm:text-3xl text-foreground">Reports & Analytics</h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Visual Statistics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card className="border-2 border-blue-200 dark:border-blue-800">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">Total Reports</p>
+                                <p className="text-2xl font-bold text-blue-600">{reportsData?.recentReports?.length || 0}</p>
+                            </div>
+                            <FileText className="h-8 w-8 text-blue-500" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card  className="border-2 border-orange-200 dark:border-orange-800">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                                <p className="text-2xl font-bold text-orange-600">
+                                    {reportsData?.recentReports?.filter(r => r.status.toLowerCase() === 'pending').length || 0}
+                                </p>
+                            </div>
+                            <Clock className="h-8 w-8 text-orange-500" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-2 border-green-200 dark:border-green-800">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">Resolved</p>
+                                <p className="text-2xl font-bold text-green-600">
+                                    {reportsData?.recentReports?.filter(r => r.status.toLowerCase() === 'resolved').length || 0}
+                                </p>
+                            </div>
+                            <CheckCircle className="h-8 w-8 text-green-500" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-2 border-red-200 dark:border-red-800">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">Critical</p>
+                                <p className="text-2xl font-bold text-red-600">
+                                    {reportsData?.recentReports?.filter(r => r.severity.toLowerCase() === 'critical').length || 0}
+                                </p>
+                            </div>
+                            <AlertCircle className="h-8 w-8 text-red-500" />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -160,20 +217,33 @@ const HospitalReports = () => {
                         <CardDescription>Monthly verification trends</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {reportsData?.monthlyStats.slice(-3).map((stat) => (
-                                <div key={stat.month} className="flex justify-between items-center">
-                                    <span className="text-sm">{stat.month}</span>
-                                    <div className="text-right">
-                                        <span className="font-semibold">{stat.verifications} verifications</span>
-                                        {stat.suspiciousScans > 0 && (
-                                            <p className="text-xs text-orange-600">
-                                                {stat.suspiciousScans} suspicious scans
-                                            </p>
-                                        )}
+                        <div className="space-y-3 sm:space-y-4">
+                            {reportsData?.monthlyStats.slice(-3).map((stat, index, array) => {
+                                const maxVerifications = Math.max(...array.map(s => s.verifications));
+                                const progressWidth = maxVerifications > 0 ? (stat.verifications / maxVerifications) * 100 : 0;
+                                
+                                return (
+                                    <div key={stat.month} className="space-y-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium">{stat.month}</span>
+                                            <div className="text-right">
+                                                <span className="font-semibold text-sm sm:text-base">{stat.verifications} verifications</span>
+                                                {stat.suspiciousScans > 0 && (
+                                                    <p className="text-xs text-orange-600 mt-1">
+                                                        {stat.suspiciousScans} suspicious
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                            <div 
+                                                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
+                                                style={{ width: `${progressWidth}%` }}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                             <div className="pt-4 border-t">
                                 <p className="text-sm text-muted-foreground">
                                     <span className={reportsData && reportsData.growthPercentage >= 0 ? "text-green-600" : "text-red-600"}>
@@ -193,11 +263,11 @@ const HospitalReports = () => {
                         </CardTitle>
                         <CardDescription>Report suspected counterfeit medications</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-4 sm:space-y-6">
                         <div className="space-y-2">
-                            <Label htmlFor="report-type">Report Type *</Label>
+                            <Label htmlFor="report-type" className="text-sm font-medium">Report Type *</Label>
                             <Select value={reportType} onValueChange={setReportType}>
-                                <SelectTrigger>
+                                <SelectTrigger className={`h-10 sm:h-11 ${reportType ? 'border-green-500' : 'border-border'}`}>
                                     <SelectValue placeholder="Select report type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -211,9 +281,9 @@ const HospitalReports = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="severity">Severity *</Label>
+                            <Label htmlFor="severity" className="text-sm font-medium">Severity *</Label>
                             <Select value={severity} onValueChange={setSeverity}>
-                                <SelectTrigger>
+                                <SelectTrigger className={`h-10 sm:h-11 ${severity ? 'border-green-500' : 'border-border'}`}>
                                     <SelectValue placeholder="Select severity level" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -226,20 +296,35 @@ const HospitalReports = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="report">Report Details *</Label>
+                            <div className="flex justify-between items-center">
+                                <Label htmlFor="report" className="text-sm font-medium">Report Details *</Label>
+                                <span className="text-xs text-muted-foreground">
+                                    {reportMessage.length}/500
+                                </span>
+                            </div>
                             <Textarea
                                 id="report"
                                 placeholder="Describe the suspected counterfeit medication in detail..."
                                 value={reportMessage}
                                 onChange={(e) => setReportMessage(e.target.value)}
                                 rows={4}
+                                maxLength={500}
+                                className={`min-h-[100px] text-sm sm:text-base ${
+                                    reportMessage.length > 0 ? 'border-green-500' : 'border-border'
+                                }`}
                             />
+                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                                <div 
+                                    className="bg-blue-500 h-1 rounded-full transition-all"
+                                    style={{ width: `${Math.min((reportMessage.length / 500) * 100, 100)}%` }}
+                                />
+                            </div>
                         </div>
 
                         <Button 
                             onClick={handleReportCounterfeit} 
-                            disabled={submitting}
-                            className="w-full"
+                            disabled={submitting || !reportType || !severity || !reportMessage.trim()}
+                            className="w-full h-10 sm:h-11"
                         >
                             <AlertTriangle className="h-4 w-4 mr-2" />
                             {submitting ? 'Submitting...' : 'Submit Report'}
@@ -255,44 +340,56 @@ const HospitalReports = () => {
                         <CardDescription>Latest reports from your hospital</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Batch ID</TableHead>
-                                    <TableHead>Medication</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Severity</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {reportsData.recentReports.map((report) => (
-                                    <TableRow key={report.id}>
-                                        <TableCell className="text-sm">
-                                            {formatDate(report.createdAt)}
-                                        </TableCell>
-                                        <TableCell className="font-mono text-sm">
-                                            {report.batchId}
-                                        </TableCell>
-                                        <TableCell>{report.drugName}</TableCell>
-                                        <TableCell className="text-sm">
-                                            {report.reportType.replace('_', ' ').toLowerCase()}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={getSeverityColor(report.severity) as any}>
-                                                {report.severity.toLowerCase()}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant="outline">
-                                                {report.status.toLowerCase()}
-                                            </Badge>
-                                        </TableCell>
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead className="hidden sm:table-cell">Batch ID</TableHead>
+                                        <TableHead>Medication</TableHead>
+                                        <TableHead className="hidden md:table-cell">Type</TableHead>
+                                        <TableHead>Severity</TableHead>
+                                        <TableHead className="hidden sm:table-cell">Status</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {reportsData.recentReports.map((report) => (
+                                        <TableRow key={report.id}>
+                                            <TableCell>
+                                                <div className="text-sm">
+                                                    {formatDate(report.createdAt)}
+                                                </div>
+                                                <div className="sm:hidden text-xs text-muted-foreground mt-1">
+                                                    {report.batchId}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="hidden sm:table-cell font-mono text-sm">
+                                                {report.batchId}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="font-medium">{report.drugName}</div>
+                                                <div className="md:hidden text-xs text-muted-foreground mt-1">
+                                                    {report.reportType.replace('_', ' ').toLowerCase()}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell text-sm">
+                                                {report.reportType.replace('_', ' ').toLowerCase()}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant={getSeverityColor(report.severity) as any} className="text-xs">
+                                                    {report.severity.toLowerCase()}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="hidden sm:table-cell">
+                                                <Badge variant="outline" className="text-xs">
+                                                    {report.status.toLowerCase()}
+                                                </Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </CardContent>
                 </Card>
             )}
