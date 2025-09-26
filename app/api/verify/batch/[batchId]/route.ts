@@ -78,8 +78,15 @@ export async function GET(
       );
     }
 
-    // 2️⃣ Recompute signature
-    const data = `BATCH|${batch.batchId}|${batch.registryTopicId}`;
+    if (batch.status === "FLAGGED") {
+      return NextResponse.json(
+        { valid: false, error: "This batch has been flagged as suspicious, please contact the sender." },
+        { status: 400 }
+      );
+    }
+
+      // 2️⃣ Recompute signature
+      const data = `BATCH|${batch.batchId}|${batch.registryTopicId}`;
     const valid = verifySignature(data, sig, QR_SECRET);
 
     if (!valid) {
