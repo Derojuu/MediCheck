@@ -35,7 +35,7 @@ export async function GET(
     const modelPath = path.join(
       process.cwd(),
       "models",
-      "counterfeit_predictor.onnx"
+      "scan-classifier.onnx"
     );
 
     // Load as Buffer

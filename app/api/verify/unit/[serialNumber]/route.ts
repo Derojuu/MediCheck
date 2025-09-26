@@ -34,11 +34,7 @@ export async function GET(
   const latitude = url.searchParams.get("lat");
 
 
-  const modelPath = path.join(
-    process.cwd(),
-    "models",
-    "counterfeit_predictor.onnx"
-  );
+  const modelPath = path.join(process.cwd(), "models", "scan-classifier.onnx");
 
   // Load as Buffer
   const modelBuffer = await fs.readFile(modelPath);

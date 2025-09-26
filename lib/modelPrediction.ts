@@ -1,9 +1,11 @@
+// NOT IN USE
+
 // import * as ort from "onnxruntime-node";
 import * as ort from "onnxruntime-web";
 // import path from "path";
 
 // Load model once (good for performance)
-const modelUrl = "/counterfeit_predictor.onnx";
+const modelUrl = "/scan-classifier.onnx";
 
 // Reuse the session rather than reloading every call
 let session: ort.InferenceSession | null = null;

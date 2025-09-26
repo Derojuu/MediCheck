@@ -1,3 +1,5 @@
+// NOT IN USE
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as ort from "onnxruntime-node";
 import path from "path";
@@ -8,11 +10,7 @@ type PredictionResponse = {
 };
 
 // Model path (inside public/)
-const modelPath = path.join(
-  process.cwd(),
-  "public",
-  "counterfeit_predictor.onnx"
-);
+const modelPath = path.join(process.cwd(), "public", "scan-classifier.onnx");
 
 export default async function handler(
   req: NextApiRequest,
