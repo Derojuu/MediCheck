@@ -154,7 +154,7 @@ const QRGenerationComponent = ({ allBatches }: {allBatches: MedicationBatchInfoP
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div className="bg-transparent rounded-lg shadow-sm border mb-6">
             <div className="p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-800">QR Code Generation</h2>
                 <p className="text-sm text-gray-600 mt-1">

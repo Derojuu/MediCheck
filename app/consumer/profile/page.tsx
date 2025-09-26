@@ -470,10 +470,10 @@ export default function ConsumerProfile() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 h-auto p-1 gap-1">
-            <TabsTrigger value="profile" className="text-xs sm:text-sm px-1 py-2">Profile</TabsTrigger>
-            <TabsTrigger value="history" className="text-xs sm:text-sm px-1 py-2">History</TabsTrigger>
-            <TabsTrigger value="ai-chat" className="text-xs sm:text-sm px-1 py-2">AI Chat</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm px-1 py-2">Settings</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs cursor-pointer sm:text-sm px-1 py-2">Profile</TabsTrigger>
+            <TabsTrigger value="history" className="text-xs cursor-pointer sm:text-sm px-1 py-2">History</TabsTrigger>
+            <TabsTrigger value="ai-chat" className="text-xs cursor-pointer sm:text-sm px-1 py-2">AI Chat</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs cursor-pointer sm:text-sm px-1 py-2">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
