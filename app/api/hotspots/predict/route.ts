@@ -149,7 +149,7 @@ function getPredictedTimeframe(riskScore: number): string {
 export async function POST(request: Request) {
   try {
     console.log("=== LOADING ONNX MODEL ===");
-    const modelPath = path.join(process.cwd(), 'models', 'hotspot_prediction_model.onnx');
+    const modelPath = path.join(process.cwd(), 'models', 'hotspot_predictor.onnx');
     const session = await ort.InferenceSession.create(modelPath);
     console.log("✅ Model loaded successfully");
     console.log("Model inputs:", session.inputNames);
@@ -226,16 +226,16 @@ export async function POST(request: Request) {
         // Extract prediction
         let riskScore = 0;
         
-        if (results['output_probability']) {
+        if (results['probabilities']) {
           // Use probability output (preferred)
-          const probData = results['output_probability'].data as Float32Array;
+          const probData = results['probabilities'].data as Float32Array;
           console.log("Probability output data:", Array.from(probData));
           
           // For binary classification, take probability of positive class
           riskScore = probData.length > 1 ? probData[1] : probData[0];
-        } else if (results['output_label']) {
+        } else if (results['label']) {
           // Fallback to label output
-          const labelData = results['output_label'].data;
+          const labelData = results['label'].data;
           const label = Number(labelData[0]);
           riskScore = label === 1 ? 0.8 : 0.2; // Convert binary to probability-like score
           console.log("Using label output:", label, "→ risk score:", riskScore);
@@ -246,7 +246,7 @@ export async function POST(request: Request) {
         console.log(`✅ Final risk score for ${area.region}: ${riskScore}`);
 
         // Only include areas above minimum threshold
-        if (riskScore >= 0.1) {
+        if (riskScore >= 0.01) {
           const prediction: Prediction = {
             latitude: area.latitude,
             longitude: area.longitude,
