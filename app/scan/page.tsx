@@ -26,15 +26,10 @@ import {
 import Link from "next/link"
 
 export default function ScanPage() {
-  
   const [scanResult, setScanResult] = useState<any>(null);
-
   const [isScanning, setIsScanning] = useState(false);
-
   const { user, isSignedIn } = useUser();
-
   const role = user?.publicMetadata.role as string | undefined;
-
   const organizationType = user?.publicMetadata.organizationType as string | undefined;
 
   // Handle QR code scan results
@@ -200,8 +195,22 @@ export default function ScanPage() {
     }
   }
 
+  // Mobile header for extra polish
+  const MobileHeader = () => (
+    <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center space-x-2">
+          <Shield className="h-6 w-6 text-primary" />
+          <span className="font-bold text-lg">MediCheck</span>
+        </div>
+        <ThemeToggle />
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
+      <MobileHeader />
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/4 rounded-full blur-3xl"></div>
@@ -209,9 +218,9 @@ export default function ScanPage() {
         <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-primary/3 rounded-full blur-3xl"></div>
         <div className="absolute top-3/4 left-1/3 w-48 h-48 bg-accent/8 rounded-full blur-xl"></div>
       </div>
-      
+
       {/* Navigation */}
-      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-40 shadow-lg glass-effect hidden lg:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <Link href={publicRoutes.home} className="flex items-center space-x-2 sm:space-x-4">
@@ -226,48 +235,45 @@ export default function ScanPage() {
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>
-            {isSignedIn ?
-              (
-                <div className="flex items-center space-x-2 sm:space-x-4">
-                  <ThemeToggle />
-                  <Link href={getRedirectPath(role, organizationType)}>
-                    <Button 
-                      variant="gradient"
-                      size="sm"
-                      className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
-                    >
-                      <span className="hidden sm:inline">Dashboard</span>
-                      <span className="sm:hidden">Dash</span>
-                    </Button>
-                  </Link>
-                </div>
-              )
-              :
-              (
-                <div className="flex items-center space-x-2 sm:space-x-4">
-                  <ThemeToggle />
-                  <Link href={authRoutes.register}>
-                    <Button variant="outline" size="sm" className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6">
-                      <span className="hidden sm:inline">Create Account</span>
-                      <span className="sm:hidden">Sign Up</span>
-                    </Button>
-                  </Link>
-                  <Link href={authRoutes.login}>
-                    <Button 
-                      variant="gradient"
-                      size="sm"
-                      className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
-                    >
-                      Sign In
-                    </Button>
-                  </Link>
-                </div>
-              )}
+            {isSignedIn ? (
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <ThemeToggle />
+                <Link href={getRedirectPath(role, organizationType)}>
+                  <Button 
+                    variant="gradient"
+                    size="sm"
+                    className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
+                  >
+                    <span className="hidden sm:inline">Dashboard</span>
+                    <span className="sm:hidden">Dash</span>
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <ThemeToggle />
+                <Link href={authRoutes.register}>
+                  <Button variant="outline" size="sm" className="cursor-pointer font-medium text-xs sm:text-sm px-3 sm:px-6">
+                    <span className="hidden sm:inline">Create Account</span>
+                    <span className="sm:hidden">Sign Up</span>
+                  </Button>
+                </Link>
+                <Link href={authRoutes.login}>
+                  <Button 
+                    variant="gradient"
+                    size="sm"
+                    className="cursor-pointer font-medium shadow-lg hover:shadow-xl text-xs sm:text-sm px-3 sm:px-6"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main className="flex-1 w-full max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="text-center mb-6 sm:mb-8">
           <Link
             href={publicRoutes.home}
@@ -296,8 +302,8 @@ export default function ScanPage() {
                     <QRScanner
                       onScan={handleQRScan}
                       onError={handleQRError}
-                      width={400}
-                      height={300}
+                      width={320}
+                      height={240}
                       facingMode="environment"
                       className="mx-auto"
                     />
@@ -391,7 +397,7 @@ export default function ScanPage() {
 
                 {scanResult.status === "suspicious" && (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">Batch ID</p>
                         <p className="font-medium text-black">{scanResult.batchId}</p>
@@ -498,7 +504,7 @@ export default function ScanPage() {
             </Card>
           </div>
         )}
-      </div>
+      </main>
     </div>
   )
 }

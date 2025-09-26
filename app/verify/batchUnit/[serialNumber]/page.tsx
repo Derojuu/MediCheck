@@ -135,7 +135,8 @@ export default function VerifyUnitPage() {
                 <div className="absolute bottom-20 left-20 w-48 h-48 bg-blue-500/8 rounded-full blur-xl"></div>
                 <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-purple-500/10 rounded-full blur-lg transform -translate-x-1/2 -translate-y-1/2"></div>
             </div>
-            <div className="w-full max-w-lg mx-auto bg-white/90 rounded-xl shadow-lg p-4 sm:p-8 mt-24 sm:mt-32 relative z-10">
+            <div className="w-full max-w-lg mx-auto rounded-xl shadow-lg p-4 sm:p-8 mt-24 sm:mt-32 relative z-10
+                bg-white/90 dark:bg-zinc-900/90 border border-border dark:border-zinc-800 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
                     <div>
                         <h1 className="font-bold text-xl sm:text-2xl text-primary">Batch Unit Verification</h1>
@@ -151,7 +152,7 @@ export default function VerifyUnitPage() {
                         id="language"
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
-                        className="border border-border rounded px-2 py-1 text-sm focus:outline-none"
+                        className="border border-border rounded px-2 py-1 text-sm focus:outline-none bg-background dark:bg-zinc-900"
                     >
                         {africanLanguages.map((lang) => (
                             <option key={lang} value={lang}>{lang}</option>
