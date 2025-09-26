@@ -128,16 +128,16 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
 
       <CardContent className="space-y-4 sm:space-y-6">
         {/* QR Scanner */}
-        <div className="flex justify-center px-4 sm:px-8 md:px-12">
+        <div className="flex justify-center px-0 xs:px-2 sm:px-8 md:px-12">
           <QRScanner
             ref={qrScannerRef}
             onScan={handleQRScan}
             onError={handleQRError}
-            width={300}
-            height={200}
+            width={220}
+            height={160}
             facingMode="environment"
             autoStart={false}
-            className="mx-auto sm:w-[450px] sm:h-[350px] md:w-[500px] md:h-[400px] lg:w-[550px] lg:h-[450px]"
+            className="mx-auto w-full max-w-[95vw] xs:max-w-[320px] sm:w-[450px] sm:h-[350px] md:w-[500px] md:h-[400px] lg:w-[550px] lg:h-[450px]"
           />
         </div>
 
@@ -146,7 +146,7 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
           <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <CardHeader>
               <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between font-bold gap-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent text-lg sm:text-xl">Verification Result</span>
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent text-base xs:text-lg sm:text-xl">Verification Result</span>
                 <Badge className={`${getStatusColor(scanResult.status)} border-primary/20 text-xs sm:text-sm`}>
                   {getStatusIcon(scanResult.status)}
                   <span className="ml-2 capitalize">{scanResult.status}</span>
@@ -154,15 +154,15 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="space-y-4 sm:space-y-6">
+            <CardContent className="space-y-3 xs:space-y-4 sm:space-y-6">
               {/* Drug Information */}
-              <div className="space-y-3 sm:space-y-4">
+              <div className="space-y-2 xs:space-y-3 sm:space-y-4">
                 <div>
-                  <h3 className="font-semibold text-base sm:text-lg text-slate-900 dark:text-slate-100 break-words">{scanResult.drugName}</h3>
-                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 break-words">Manufactured by {scanResult.manufacturer}</p>
+                  <h3 className="font-semibold text-sm xs:text-base sm:text-lg text-slate-900 dark:text-slate-100 break-words">{scanResult.drugName}</h3>
+                  <p className="text-xs xs:text-sm sm:text-base text-slate-600 dark:text-slate-400 break-words">Manufactured by {scanResult.manufacturer}</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 xs:gap-3 sm:gap-4 text-xs xs:text-sm sm:text-base">
                   <div>
                     <span className="text-slate-600 dark:text-slate-400">Batch ID:</span>
                     <p className="font-medium break-all">{scanResult.batchId}</p>
@@ -175,21 +175,21 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
               </div>
 
               {/* Safety Information */}
-              <div className={`p-3 sm:p-4 rounded-lg border-2 border-primary/10 bg-gradient-to-r from-primary/5 to-accent/5 ${getStatusColor(scanResult.status)}`}>
-                <h4 className="font-bold mb-2 text-sm sm:text-base">Safety Assessment</h4>
+              <div className={`p-2 xs:p-3 sm:p-4 rounded-lg border-2 border-primary/10 bg-gradient-to-r from-primary/5 to-accent/5 ${getStatusColor(scanResult.status)}`}>
+                <h4 className="font-bold mb-1 xs:mb-2 text-xs xs:text-sm sm:text-base">Safety Assessment</h4>
                 <p className="text-xs sm:text-sm">{scanResult.safetyRating}</p>
               </div>
 
               {/* Dosage Information */}
-              <div className="space-y-2">
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base">Recommended Dosage</h4>
+              <div className="space-y-1 xs:space-y-2">
+                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs xs:text-sm sm:text-base">Recommended Dosage</h4>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 break-words">{scanResult.dosage}</p>
               </div>
 
               {/* Side Effects */}
-              <div className="space-y-2">
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base">Possible Side Effects</h4>
-                <div className="flex flex-wrap gap-1 sm:gap-2">
+              <div className="space-y-1 xs:space-y-2">
+                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs xs:text-sm sm:text-base">Possible Side Effects</h4>
+                <div className="flex flex-wrap gap-1 xs:gap-2">
                   {scanResult.sideEffects.map((effect: string, index: number) => (
                     <Badge key={index} variant="outline" className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5 dark:border-primary/40 dark:hover:bg-primary/10">
                       {effect}

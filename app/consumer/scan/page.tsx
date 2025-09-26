@@ -42,41 +42,51 @@ export default function ConsumerScanPage() {
         <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-primary/8 rounded-full blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
       </div>
       
-      <div className="container mx-auto px-4 py-4 sm:py-8 relative z-10">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 relative z-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 w-full">
             <Link href="/consumer/profile" className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </Link>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Verify Your Medication</h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">Scan to check authenticity and get AI guidance</p>
+              <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Verify Your Medication
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-base">
+                Scan to check authenticity and get AI guidance
+              </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" onClick={() => setShowAIChat(!showAIChat)} className="cursor-pointer border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-sm sm:text-base">
-              <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-primary" />
+          <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowAIChat(!showAIChat)}
+              className="cursor-pointer border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-xs sm:text-base w-full sm:w-auto"
+            >
+              <MessageCircle className="w-4 h-4 mr-2 text-primary" />
               <span className="hidden sm:inline">AI Assistant</span>
               <span className="sm:hidden">AI</span>
             </Button>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Scanner Section */}
-          <div className="lg:col-span-2">
-            <ConsumerQRScanner 
+          <div className="lg:col-span-2 w-full">
+            <ConsumerQRScanner
               onScanResult={handleScanResult}
               onScanTime={handleScanTime}
             />
           </div>
 
           {/* AI Chat Assistant */}
-          <ConsumerChatAI 
-            scanResult={scanResult}
-            showChat={showAIChat}
-          />
+          <div className="w-full">
+            <ConsumerChatAI
+              scanResult={scanResult}
+              showChat={showAIChat}
+            />
+          </div>
         </div>
       </div>
     </div>
