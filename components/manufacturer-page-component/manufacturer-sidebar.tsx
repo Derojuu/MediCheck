@@ -11,7 +11,6 @@ import {
   QrCode,
   Settings,
   LogOut,
-  Building2,
   Truck,
 } from "lucide-react"
 import Link from "next/link"
@@ -24,15 +23,30 @@ interface ManufacturerSidebarProps {
   activeTab: string
   setActiveTab: (tab: ManufacturerTab) => void
   orgId: string
+  orgName?: string
+  isMobile?: boolean
+  onTabSelect?: () => void
 }
 
-export function ManufacturerSidebar({ activeTab, setActiveTab, orgId }: ManufacturerSidebarProps) {
+export function ManufacturerSidebar({ 
+  activeTab, 
+  setActiveTab, 
+  orgId, 
+  orgName: propOrgName, 
+  isMobile = false, 
+  onTabSelect 
+}: ManufacturerSidebarProps) {
   const { signOut } = useClerk()
-  const [orgName, setOrgName] = useState("Loading...")
+  const [orgName, setOrgName] = useState(propOrgName || "Loading...")
   const [isSigningOut, setIsSigningOut] = useState(false)
 
-  // Fetch organization info
+  // Fetch organization info only if not provided via props
   useEffect(() => {
+    if (propOrgName) {
+      setOrgName(propOrgName)
+      return
+    }
+
     const fetchOrgInfo = async () => {
       if (!orgId) return
       
@@ -49,7 +63,7 @@ export function ManufacturerSidebar({ activeTab, setActiveTab, orgId }: Manufact
     }
 
     fetchOrgInfo()
-  }, [orgId])
+  }, [orgId, propOrgName])
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
@@ -65,75 +79,80 @@ export function ManufacturerSidebar({ activeTab, setActiveTab, orgId }: Manufact
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "batches", label: "Batch Management", icon: Package },
     { id: "products", label: "Product Catalog", icon: Factory },
-    // { id: "quality", label: "Quality Control", icon: FlaskConical },
     { id: "transfers", label: "Batch Transfers", icon: Truck },
-    // { id: "transport", label: "Transport Management", icon: Truck },
     { id: "qr-generator", label: "QR Generator", icon: QrCode },
-    // { id: "team", label: "Team Management", icon: Users },
-    // { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
+  const handleTabSelect = (tab: ManufacturerTab) => {
+    setActiveTab(tab)
+    if (isMobile && onTabSelect) {
+      onTabSelect()
+    }
+  }
+
   return (
-    <div className="w-64 sm:w-64 bg-sidebar relative border-r border-sidebar-border shadow-lg">
-      <div className="p-4 sm:p-6">
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="relative group-hover:scale-110 transition-transform duration-300">
-            <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
-          </div>
-          <span className="font-bold text-lg sm:text-xl text-sidebar-foreground bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/80 bg-clip-text">MedChain</span>
-        </Link>
-      </div>
-
-      <div className="px-4 sm:px-6 pb-4">
-        <div className="bg-sidebar-accent rounded-lg p-3 sm:p-4">
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-sidebar-primary rounded-lg flex items-center justify-center">
-              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-sidebar-primary-foreground" />
+    <>
+      {/* Mobile Overlay */}
+      {isMobile && (
+        <div 
+          className="fixed inset-0 backdrop-blur-md z-40 lg:hidden transition-all duration-300"
+        />
+      )}
+      <div className={`${isMobile ? 'w-full h-full flex flex-col' : 'w-64 h-screen'} bg-sidebar relative border-r border-sidebar-border shadow-lg flex flex-col`}>
+        {/* Sidebar Header */}
+        <div className="p-4 sm:p-6 border-b border-border flex-shrink-0">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative group-hover:scale-110 transition-transform duration-300">
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-medium text-sidebar-foreground text-sm sm:text-base truncate">{orgName}</p>
-              <Badge variant="secondary" className="text-xs">
-                Manufacturer
-              </Badge>
-            </div>
-          </div>
+            <span className="font-bold text-lg sm:text-xl text-sidebar-foreground bg-gradient-to-r from-sidebar-foreground to-sidebar-foreground/80 bg-clip-text">
+              MediCheck
+            </span>
+          </Link>
+        </div>
+        {/* Organization Card */}
+        <div className="p-4 pt-6 flex flex-col items-center border-b border-border bg-gradient-to-b from-blue-100/40 to-transparent rounded-b-xl shadow-sm mb-2">
+          <Badge variant="secondary" className="mb-2 px-3 py-1 text-xs rounded-full shadow bg-gradient-to-r from-blue-500/80 to-green-400/80 text-white border-0">
+            Manufacturer
+          </Badge>
+          <span className="font-bold text-base text-sidebar-foreground text-center tracking-wide mb-1">
+            {orgName}
+          </span>
+          <span className="text-xs text-muted-foreground text-center italic">Manufacturing Organization</span>
+        </div>
+        {/* Navigation */}
+        <nav className="flex-1 px-2 py-4 space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <Button
+                key={item.id}
+                variant={activeTab === item.id ? "secondary" : "ghost"}
+                className={`w-full justify-start cursor-pointer hover:bg-sidebar-accent/50 transition-all duration-200 group ${isMobile ? 'text-base h-12' : 'text-xs sm:text-sm'}`}
+                onClick={() => handleTabSelect(item.id as ManufacturerTab)}
+              >
+                <Icon className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3'} group-hover:scale-110 transition-transform duration-200`} />
+                <span className={isMobile ? '' : 'hidden sm:inline'}>{item.label}</span>
+                {!isMobile && <span className="sm:hidden">{item.label.split(' ')[0]}</span>}
+              </Button>
+            )
+          })}
+        </nav>
+        {/* Sign Out Button */}
+        <div className="p-4 border-t flex-shrink-0 space-y-3">
+          <Button
+            variant="ghost"
+            className={`w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors ${isMobile ? 'text-base h-12' : 'text-xs sm:text-sm'}`}
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+          >
+            <LogOut className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3'} ${isSigningOut ? 'animate-spin' : ''}`} />
+            <span className={isMobile ? 'block' : 'hidden sm:inline'}>{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>
+            {!isMobile && <span className="sm:hidden">{isSigningOut ? '...' : 'Out'}</span>}
+          </Button>
         </div>
       </div>
-
-      <nav className="px-2 sm:px-4 space-y-1 overflow-y-auto h-[50vh]">
-        {menuItems.map((item) => {
-          const Icon = item.icon
-          return (
-            <Button
-              key={item.id}
-              variant={activeTab === item.id ? "secondary" : "ghost"}
-              className="w-full justify-start cursor-pointer hover:bg-sidebar-accent/50 transition-all duration-200 group text-xs sm:text-sm"
-              onClick={() => setActiveTab(item.id as ManufacturerTab)}
-            >
-              <Icon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3 group-hover:scale-110 transition-transform duration-200" />
-              <span className="hidden sm:inline">{item.label}</span>
-              <span className="sm:hidden">{item.label.split(' ')[0]}</span>
-            </Button>
-          )
-        })}
-      </nav>
-
-      <div className="absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4 space-y-2">
-        <div className="flex items-center justify-center">
-          <ThemeToggle />
-        </div>
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-muted-foreground cursor-pointer text-xs sm:text-sm"
-          onClick={handleSignOut}
-          disabled={isSigningOut}
-        >
-          <LogOut className={`h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3 ${isSigningOut ? 'animate-spin' : ''}`} />
-          <span className="hidden sm:inline">{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>
-          <span className="sm:hidden">{isSigningOut ? '...' : 'Out'}</span>
-        </Button>
-      </div>
-    </div>
+    </>
   )
 }

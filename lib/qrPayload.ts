@@ -1,5 +1,6 @@
 import crypto from "crypto";
 
+
 export interface QRPayload {
   s: string; // serialNumber
   b: string; // batchId
@@ -7,6 +8,7 @@ export interface QRPayload {
   url: string; // URL to verification page
   sig?: string;
 }
+
 
 export function generateQRPayload(
   serialNumber: string,
@@ -44,6 +46,7 @@ export function generateBatchQRPayload(
   baseUrl: string,
   registryTopicId: string,
 ) {
+
   const data = `BATCH|${batchId}|${registryTopicId}`;
 
   const signature = crypto

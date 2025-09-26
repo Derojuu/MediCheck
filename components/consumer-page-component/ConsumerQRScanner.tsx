@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
-import { QrCode, CheckCircle, AlertTriangle, XCircle, Camera } from "lucide-react"
+import { QrCode, CheckCircle, AlertTriangle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -26,8 +26,6 @@ interface ConsumerQRScannerProps {
 }
 
 export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScannerProps) {
-
-  const [isScanning, setIsScanning] = useState(false)
 
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   
@@ -93,20 +91,6 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
     console.error('QR Scanner error:', error)
   }
 
-  const stopScan = () => {
-    setIsScanning(false)
-    if (qrScannerRef.current) {
-      qrScannerRef.current.stopCamera()
-    }
-  }
-
-  const startScan = () => {
-    setIsScanning(true)
-    if (qrScannerRef.current) {
-      qrScannerRef.current.startCamera()
-    }
-  }
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "genuine":
@@ -144,7 +128,7 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
 
       <CardContent className="space-y-4 sm:space-y-6">
         {/* QR Scanner */}
-        <div className="flex justify-center">
+        <div className="flex justify-center px-4 sm:px-8 md:px-12">
           <QRScanner
             ref={qrScannerRef}
             onScan={handleQRScan}
@@ -153,27 +137,8 @@ export function ConsumerQRScanner({ onScanResult, onScanTime }: ConsumerQRScanne
             height={200}
             facingMode="environment"
             autoStart={false}
-            className="mx-auto sm:w-[400px] sm:h-[300px]"
+            className="mx-auto sm:w-[450px] sm:h-[350px] md:w-[500px] md:h-[400px] lg:w-[550px] lg:h-[450px]"
           />
-        </div>
-
-        {/* Scan Controls */}
-        <div className="flex justify-center">
-          {!isScanning ? (
-            <Button
-              onClick={startScan}
-              className="px-4 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
-            >
-              <Camera className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              <span className="hidden sm:inline">Scan Medication</span>
-              <span className="sm:hidden">Scan</span>
-            </Button>
-          ) : (
-            <Button onClick={stopScan} variant="outline" className="px-4 sm:px-8 py-2 sm:py-3 cursor-pointer bg-transparent border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-sm sm:text-base">
-              <span className="hidden sm:inline">Stop Scan</span>
-              <span className="sm:hidden">Stop</span>
-            </Button>
-          )}
         </div>
 
         {/* Scan Result */}

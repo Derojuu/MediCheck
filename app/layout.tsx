@@ -29,7 +29,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "MedChain - Blockchain Medication Verification",
+  title: "MediCheck - Blockchain Medication Verification",
   description: "Professional blockchain-powered medication verification and traceability system",
   generator: "v0.app",
 }

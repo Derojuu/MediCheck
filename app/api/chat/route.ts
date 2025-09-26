@@ -5,7 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(request: NextRequest) {
+  
   try {
+
     const { message, scanResult, userProfile, features } = await request.json();
 
     if (!message) {
@@ -16,10 +18,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the generative model
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Create a context-aware prompt for medication guidance with advanced features
-    let prompt = `You are a helpful AI assistant specializing in medication guidance and health information. 
+    let prompt =
+    `You are a helpful AI assistant specializing in medication guidance and health information.
     Please provide accurate, helpful information about medications while always recommending users consult healthcare professionals for medical advice.
     
     User message: "${message}"`;
@@ -69,15 +72,16 @@ export async function POST(request: NextRequest) {
 
     // Generate content using Gemini
     const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const response = result.response;
     const text = response.text();
 
     return NextResponse.json({
       message: text,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
   }
+  
   catch (error) {
     console.error('Error calling Gemini API:', error);
     
@@ -93,6 +97,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
       debug: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
     }, { status: 500 });
+
   }
   
 }

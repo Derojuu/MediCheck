@@ -457,15 +457,6 @@ export default function ConsumerProfile() {
                   Scan Medicine
                 </Button>
               </Link>
-              <ThemeToggle />
-              <Button 
-                variant="ghost"
-                className="cursor-pointer hover:bg-primary/5"
-                onClick={() => signOut({ redirectUrl: authRoutes.login })}
-              >
-                <LogOut className="h-4 w-4 mr-2 text-primary" />
-                Sign Out
-              </Button>
             </div>
           </div>
         </div>
@@ -478,16 +469,16 @@ export default function ConsumerProfile() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-            <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
-            <TabsTrigger value="history" className="text-xs sm:text-sm">History</TabsTrigger>
-            <TabsTrigger value="ai-chat" className="text-xs sm:text-sm">AI Chat</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 h-auto p-1 gap-1">
+            <TabsTrigger value="profile" className="text-xs cursor-pointer sm:text-sm px-1 py-2">Profile</TabsTrigger>
+            <TabsTrigger value="history" className="text-xs cursor-pointer sm:text-sm px-1 py-2">History</TabsTrigger>
+            <TabsTrigger value="ai-chat" className="text-xs cursor-pointer sm:text-sm px-1 py-2">AI Chat</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs cursor-pointer sm:text-sm px-1 py-2">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2 border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <Card className="md:col-span-2 lg:col-span-2 border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
                   <CardTitle className="flex items-center font-bold">
                     <User className="h-5 w-5 mr-2 text-primary" />
@@ -498,7 +489,7 @@ export default function ConsumerProfile() {
                 <CardContent className="space-y-4">
                   {isLoading ? (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <Label>Full Name</Label>
                           <div className="h-9 bg-muted animate-pulse rounded-md"></div>
@@ -515,7 +506,7 @@ export default function ConsumerProfile() {
                     </div>
                   ) : userProfile ? (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="name">Full Name</Label>
                           <Input id="name" value={userProfile.name || ''} readOnly />
@@ -525,7 +516,7 @@ export default function ConsumerProfile() {
                           <Input id="phone" value={userProfile.phoneNumber || 'Not provided'} readOnly />
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="address">Address</Label>
                           <Input id="address" value={userProfile.address || 'Not provided'} readOnly />
@@ -800,7 +791,7 @@ export default function ConsumerProfile() {
                 </div>
 
                 {/* Chat Input */}
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <div className="flex-1 relative">
                     <Input
                       type="text"
@@ -809,7 +800,7 @@ export default function ConsumerProfile() {
                       onKeyPress={(e) => e.key === "Enter" && !isAILoading && sendChatMessage()}
                       placeholder="Ask about medications, dosage, side effects..."
                       disabled={isAILoading || isListening}
-                      className={`w-full transition-colors duration-200 disabled:opacity-50 ${
+                      className={`w-full h-12 text-base px-4 transition-colors duration-200 disabled:opacity-50 ${
                         isListening 
                           ? "border-red-400 bg-red-50" 
                           : "border-primary/20 focus:border-primary/40 hover:border-primary/30"
@@ -825,67 +816,63 @@ export default function ConsumerProfile() {
                     )}
                   </div>
                   
-                  {isSpeechRecognitionSupported() && (
-                    <Button
-                      onClick={isListening ? stopListening : startListening}
-                      size="sm"
-                      variant="outline"
-                      disabled={isAILoading}
-                      className={`cursor-pointer transition-colors ${
-                        isListening 
-                          ? "bg-red-100 border-red-300 text-red-600 hover:bg-red-200" 
-                          : "border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                      }`}
-                    >
-                      {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                    </Button>
-                  )}
-                  
-                  <Button 
-                    onClick={sendChatMessage} 
-                    disabled={isAILoading || !chatInput.trim()}
-                    className="cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isAILoading ? (
-                      <div className="flex items-center space-x-1">
-                        <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-sm">AI...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Send
-                      </>
+                  <div className="flex gap-2">
+                    {isSpeechRecognitionSupported() && (
+                      <Button
+                        onClick={isListening ? stopListening : startListening}
+                        variant="outline"
+                        size="lg"
+                        disabled={isAILoading}
+                        className={`min-w-12 h-12 cursor-pointer transition-colors ${
+                          isListening 
+                            ? "bg-red-100 border-red-300 text-red-600 hover:bg-red-200" 
+                            : "border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                        }`}
+                      >
+                        {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                      </Button>
                     )}
-                  </Button>
+                    
+                    <Button 
+                      onClick={sendChatMessage} 
+                      disabled={isAILoading || !chatInput.trim()}
+                      size="lg"
+                      className="min-w-20 h-12 cursor-pointer bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isAILoading ? (
+                        <div className="flex items-center space-x-1">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span className="hidden sm:inline text-sm">AI...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <MessageCircle className="w-5 h-5 sm:mr-2" />
+                          <span className="hidden sm:inline">Send</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Quick Action Buttons */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setChatInput("What are the side effects of paracetamol?")}
-                    className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                    className="h-10 text-sm border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-colors"
                   >
-                    Common Side Effects
+                    🩹 Common Side Effects
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setChatInput("How should I store my medications?")}
-                    className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                    className="h-10 text-sm border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-colors"
                   >
-                    Storage Tips
+                    📦 Storage Tips
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setChatInput("Can I take multiple medications together?")}
-                    className="text-xs border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                  >
-                    Drug Interactions
-                  </Button>
+                  
                 </div>
               </CardContent>
             </Card>
@@ -912,6 +899,15 @@ export default function ConsumerProfile() {
                   </div>
                 ) : userProfile ? (
                   <div className="space-y-6">
+                    {/* Theme Toggle Setting */}
+                    <div className="space-y-2">
+                      <Label>Theme</Label>
+                      <div className="flex items-center justify-between p-3 border rounded-lg bg-background">
+                        <span className="text-sm text-muted-foreground">Switch between light and dark mode</span>
+                        <ThemeToggle />
+                      </div>
+                    </div>
+                    
                     <div className="space-y-2">
                       <Label htmlFor="consumer-name">Full Name</Label>
                       {isEditingProfile ? (
@@ -974,6 +970,14 @@ export default function ConsumerProfile() {
                     
                     {/* Action Buttons */}
                     <div className="flex gap-3">
+                      <Button 
+                        variant="destructive"
+                        className="cursor-pointer"
+                        onClick={() => signOut({ redirectUrl: authRoutes.login })}
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </Button>
                       {!isEditingProfile ? (
                         <Button 
                           onClick={enableEditMode}
@@ -986,7 +990,8 @@ export default function ConsumerProfile() {
                           <Button 
                             onClick={saveProfileChanges}
                             disabled={isProfileSaving}
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2"
+                            size="sm"
                           >
                             {isProfileSaving ? 'Saving...' : 'Save Changes'}
                           </Button>
@@ -994,6 +999,8 @@ export default function ConsumerProfile() {
                             onClick={cancelEditMode}
                             variant="outline"
                             disabled={isProfileSaving}
+                            className="text-sm px-3 py-2"
+                            size="sm"
                           >
                             Cancel
                           </Button>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Shield, ArrowLeft } from "lucide-react"
+import { Shield, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSignIn, useUser } from "@clerk/nextjs";
@@ -19,6 +19,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
 
   const [password, setPassword] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -90,7 +92,7 @@ export default function LoginPage() {
       {/* CAPTCHA element for Clerk Smart CAPTCHA */}
       <div id="clerk-captcha"></div>
       {/* Navigation - Updated to match landing page */}
-      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg glass-effect theme-transition">
+      <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 shadow-lg glass-effect theme-transition">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-4">
@@ -101,7 +103,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MedChain</span>
+                <span className="font-bold text-lg sm:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MediCheck</span>
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
               </div>
             </Link>
@@ -124,24 +126,24 @@ export default function LoginPage() {
       </nav>
 
       {/* Main Content with matching background effects */}
-      <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden pt-16 sm:pt-20 pb-8">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 gradient-transition"></div>
         <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[12000ms]"></div>
         <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[10000ms] delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl"></div>
 
-        <div className="relative max-w-md mx-auto animate-slide-in-up">
+        <div className="relative w-full max-w-md mx-auto animate-slide-in-up">
           <Card className="glass-effect border-2 border-primary/20 shadow-2xl backdrop-blur-xl theme-transition card hover:shadow-3xl transition-all duration-300">
-            <CardHeader className="text-center pb-8">
-              <CardTitle className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <CardHeader className="text-center pb-6 sm:pb-8">
+              <CardTitle className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Welcome Back
               </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2 text-lg">
-                Sign in to your MedChain account
+              <CardDescription className="text-muted-foreground mt-2 text-base sm:text-lg">
+                Sign in to your MediCheck account
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <CardContent className="px-4 sm:px-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
                   <Input
@@ -150,35 +152,48 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-4 py-3"
+                    className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3"
                     required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-4 py-3"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      className="bg-background/50 border-2 border-primary/20 focus:border-primary/50 transition-all duration-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 pr-10 sm:pr-12"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                      ) : (
+                        <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <Button 
                   disabled={isLoading} 
                   type="submit" 
                   variant="gradient"
                   size="lg"
-                  className="w-full cursor-pointer font-medium shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                  className="w-full cursor-pointer font-medium shadow-xl hover:shadow-2xl transform hover:-translate-y-1 py-2 sm:py-3"
                 >
-                  {isLoading ? "Loading..." : "Sign In"}
+                  {isLoading ? "Logging in..." : "Sign In"}
                 </Button>
               </form>
 
-              <div className="mt-8 text-center">
-                <p className="text-sm text-muted-foreground">
+              <div className="mt-6 sm:mt-8 text-center">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Don't have an account?{" "}
                   <Link href="/auth/register" className="text-primary hover:text-accent transition-colors duration-300 font-medium hover:underline">
                     Register here

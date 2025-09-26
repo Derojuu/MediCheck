@@ -11,6 +11,9 @@ import HospitalInventory from "@/components/hospital-page-component/HospitalInve
 import HospitalMain from "@/components/hospital-page-component/HospitalMain";
 import Transfers from "@/components/Transfers";
 import QRScanner from "@/components/qr-scanner";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Menu, Shield, X } from "lucide-react";
 // 
 import { toast } from "react-toastify";
 
@@ -22,6 +25,7 @@ export default function HospitalDashboard() {
   const router = useRouter();
   
   const [activeTab, setActiveTab] = useState<ManufacturerTab>("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [orgId, setOrgId] = useState("");
   
@@ -106,7 +110,28 @@ export default function HospitalDashboard() {
     );
   }
 
-
+  // Mobile Header Component
+  const MobileHeader = () => (
+    <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+      <div className="flex items-center justify-between p-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="p-2"
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
+        
+        <div className="flex items-center space-x-2">
+          <Shield className="h-6 w-6 text-primary" />
+          <span className="font-bold text-lg">MediCheck</span>
+        </div>
+        
+        <ThemeToggle />
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-screen bg-background relative overflow-hidden">
@@ -117,11 +142,49 @@ export default function HospitalDashboard() {
         <div className="absolute top-1/2 left-1/3 w-36 h-36 bg-primary/7 rounded-full blur-xl"></div>
       </div>
 
-      <HospitalSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
+      {/* Mobile Header */}
+      <MobileHeader />
 
-      <main className="flex-1 overflow-y-auto relative z-10">
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:block">
+        <HospitalSidebar activeTab={activeTab} setActiveTab={setActiveTab} orgId={orgId} />
+      </div>
 
-        <div className="p-4 sm:p-6 lg:p-8">
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}>
+          <div className="fixed left-0 top-0 bottom-0 w-80 bg-background shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-6 w-6 text-primary" />
+                  <span className="font-bold text-lg">MediCheck</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            
+            <HospitalSidebar 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              orgId={orgId}
+              isMobile={true}
+              onTabSelect={() => setIsMobileMenuOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      <main className="flex-1 overflow-y-auto relative z-10 lg:ml-0">
+
+        <div className="p-4 sm:p-6 lg:p-8 mt-16 lg:mt-0">
 
           {activeTab === "dashboard" && (
             <HospitalMain setActiveTab={setActiveTab} orgId={orgId} />
