@@ -133,7 +133,8 @@ export default function RegulatorAnalytics() {
                     </div>
                 </div>
             </div>
-            <ClassificationHeatmap data={data} />
+            {/* <ClassificationHeatmap data={data} /> */}
+            <PredictiveHeatmap />
         </div>
     );
 }
