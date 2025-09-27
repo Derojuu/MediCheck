@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import useSWR from "swr";
-import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import dynamic from "next/dynamic";
 import { ThemeToggle } from "@/components/theme-toggle";
-
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, TrendingUp, Activity, MapPin, Clock, Bell, RefreshCw } from "lucide-react";
 import { ClassificationPoint } from "../ClassificationHeatmap";
+
 
 // Dynamic import to prevent SSR issues with Leaflet
 const ClassificationHeatmap = dynamic(() => import("../ClassificationHeatmap"), {
@@ -17,6 +22,22 @@ const ClassificationHeatmap = dynamic(() => import("../ClassificationHeatmap"), 
                 <div className="flex flex-col items-center space-y-2">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     <p className="text-sm text-muted-foreground">Loading map...</p>
+                </div>
+            </CardContent>
+        </Card>
+    )
+});
+
+
+// Dynamic import for PredictiveHeatmap to prevent SSR issues
+const PredictiveHeatmap = dynamic(() => import("../PredictiveHeatmap"), {
+    ssr: false,
+    loading: () => (
+        <Card className="w-full h-96">
+            <CardContent className="flex items-center justify-center h-full">
+                <div className="flex flex-col items-center space-y-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">Loading predictive analysis...</p>
                 </div>
             </CardContent>
         </Card>
