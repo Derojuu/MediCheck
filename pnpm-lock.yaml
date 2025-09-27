@@ -177,7 +177,7 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       onnxruntime-node:
-        specifier: 1.22.0-rev
+        specifier: ^1.22.0-rev
         version: 1.22.0-rev
       onnxruntime-web:
         specifier: ^1.22.0

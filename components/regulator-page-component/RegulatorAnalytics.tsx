@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import useSWR from "swr";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, TrendingUp, Activity, MapPin, Clock, Bell, RefreshCw } from "lucide-react";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Badge } from "@/components/ui/badge";
+// import { Button } from "@/components/ui/button";
+// import { AlertTriangle, TrendingUp, Activity, MapPin, Clock, Bell, RefreshCw } from "lucide-react";
 import { ClassificationPoint } from "../ClassificationHeatmap";
 
 
@@ -30,7 +30,7 @@ const ClassificationHeatmap = dynamic(() => import("../ClassificationHeatmap"), 
 
 
 // Dynamic import for PredictiveHeatmap to prevent SSR issues
-const PredictiveHeatmap = dynamic(() => import("../PredictiveHeatmap"), {
+const git  = dynamic(() => import("../PredictiveHeatmap"), {
     ssr: false,
     loading: () => (
         <Card className="w-full h-96">
