@@ -11,6 +11,11 @@ export default clerkMiddleware(async (auth, req) => {
   const publicPaths = Object.values(publicRoutes);
   const authPaths = Object.values(authRoutes);
 
+  // ✅ Allow API routes for hotspot predictions (internal system use)
+  if (pathname.startsWith('/api/hotspots') || pathname.startsWith('/api/batches')) {
+    return NextResponse.next();
+  }
+
   // ✅ If route is EXACTLY public or auth route, allow
   if (publicPaths.includes(pathname) || authPaths.includes(pathname)) {
     return NextResponse.next();
