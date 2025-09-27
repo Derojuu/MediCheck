@@ -448,7 +448,7 @@ export default function ConsumerProfile() {
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MedChain</span>
+              <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCheck</span>
             </Link>
             <div className="flex items-center space-x-4">
               <Link href={consumerRoutes.scan}>
@@ -463,9 +463,17 @@ export default function ConsumerProfile() {
       </nav>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">My Profile</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">Manage your account and view your medication verification history</p>
+        {/* Responsive header: My Profile left, ThemeToggle right, always on same row */}
+        <div className="mb-6 sm:mb-8 flex items-center justify-between gap-3">
+          <div>
+            <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              My Profile
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Manage your account and view your medication verification history
+            </p>
+          </div>
+          <ThemeToggle />
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -486,10 +494,10 @@ export default function ConsumerProfile() {
                   </CardTitle>
                   <CardDescription>Update your personal information and preferences</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6"> {/* Increased vertical spacing */}
                   {isLoading ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                           <Label>Full Name</Label>
                           <div className="h-9 bg-muted animate-pulse rounded-md"></div>
@@ -505,28 +513,28 @@ export default function ConsumerProfile() {
                       </div>
                     </div>
                   ) : userProfile ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-2">
                           <Label htmlFor="name">Full Name</Label>
                           <Input id="name" value={userProfile.name || ''} readOnly />
                         </div>
-                        <div>
+                        <div className="flex flex-col gap-2">
                           <Label htmlFor="phone">Phone Number</Label>
                           <Input id="phone" value={userProfile.phoneNumber || 'Not provided'} readOnly />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-2">
                           <Label htmlFor="address">Address</Label>
                           <Input id="address" value={userProfile.address || 'Not provided'} readOnly />
                         </div>
-                        <div>
+                        <div className="flex flex-col gap-2">
                           <Label htmlFor="country">Country</Label>
                           <Input id="country" value={userProfile.country || 'Not provided'} readOnly />
                         </div>
                       </div>
-                      <div>
+                      <div className="flex flex-col gap-2 max-w-sm">
                         <Label htmlFor="language">Preferred Language</Label>
                         <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                           <SelectTrigger className="w-full">
@@ -642,16 +650,16 @@ export default function ConsumerProfile() {
                 {isScanHistoryLoading ? (
                   <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
-                        <div className="flex items-center space-x-4">
+                      <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg animate-pulse gap-2">
+                        <div className="flex items-center space-x-4 w-full sm:w-auto">
                           <div className="w-10 h-10 bg-muted rounded-lg"></div>
-                          <div className="space-y-2">
+                          <div className="space-y-2 w-full">
                             <div className="h-4 bg-muted rounded w-32"></div>
                             <div className="h-3 bg-muted rounded w-24"></div>
                             <div className="h-3 bg-muted rounded w-20"></div>
                           </div>
                         </div>
-                        <div className="text-right space-y-2">
+                        <div className="text-right space-y-2 w-full sm:w-auto">
                           <div className="h-6 bg-muted rounded w-20"></div>
                           <div className="h-3 bg-muted rounded w-16"></div>
                         </div>
@@ -661,40 +669,41 @@ export default function ConsumerProfile() {
                 ) : scanHistory.length > 0 ? (
                   <div className="space-y-4">
                     {scanHistory.map((scan) => (
-                      <div key={scan.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <div
+                        key={scan.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-2 sm:gap-4 overflow-x-auto"
+                      >
+                        <div className="flex items-start space-x-3 w-full sm:w-auto min-w-0">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Scan className="h-5 w-5 text-primary" />
                           </div>
-                          <div>
-                            <p className="font-medium">{scan.batchId}</p>
-                            <p className="text-sm text-muted-foreground">{scan.drugName}</p>
-                            <p className="text-xs text-muted-foreground">{scan.manufacturer}</p>
-                            <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
-                              <span className="flex items-center">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                {scan.scanDate}
+                          <div className="min-w-0">
+                            <p className="font-medium truncate max-w-[180px] sm:max-w-[220px]">{scan.batchId}</p>
+                            <p className="text-sm text-muted-foreground truncate max-w-[180px] sm:max-w-[220px]">{scan.drugName}</p>
+                            <p className="text-xs text-muted-foreground truncate max-w-[180px] sm:max-w-[220px]">{scan.manufacturer}</p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+                              <span className="flex items-center min-w-0">
+                                <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="truncate">{scan.scanDate}</span>
                               </span>
-                              <span className="flex items-center">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {scan.location}
+                              <span className="flex items-center min-w-0">
+                                <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="truncate">{scan.location}</span>
                               </span>
                               {scan.serialNumber && (
-                                <span className="text-xs">
-                                  Serial: {scan.serialNumber}
-                                </span>
+                                <span className="truncate">Serial: {scan.serialNumber}</span>
                               )}
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <Badge className={getResultColor(scan.scanStatus)}>
+                        <div className="text-right min-w-[120px] sm:min-w-[140px] mt-2 sm:mt-0">
+                          <Badge className={`${getResultColor(scan.scanStatus)} whitespace-nowrap w-full sm:w-auto justify-center`}>
                             {scan.scanStatus === "GENUINE" && <CheckCircle className="h-3 w-3 mr-1" />}
                             {(scan.scanStatus === "SUSPICIOUS" || scan.scanStatus === "EXPIRED") && <AlertTriangle className="h-3 w-3 mr-1" />}
                             {scan.scanStatus}
                           </Badge>
-                          <p className="text-xs text-muted-foreground mt-1">Expires: {scan.expiryDate}</p>
-                          {scan.warning && <p className="text-xs text-yellow-600 mt-1">{scan.warning}</p>}
+                          <p className="text-xs text-muted-foreground mt-1 truncate">Expires: {scan.expiryDate}</p>
+                          {scan.warning && <p className="text-xs text-yellow-600 mt-1 break-words">{scan.warning}</p>}
                         </div>
                       </div>
                     ))}
@@ -899,14 +908,7 @@ export default function ConsumerProfile() {
                   </div>
                 ) : userProfile ? (
                   <div className="space-y-6">
-                    {/* Theme Toggle Setting */}
-                    <div className="space-y-2">
-                      <Label>Theme</Label>
-                      <div className="flex items-center justify-between p-3 border rounded-lg bg-background">
-                        <span className="text-sm text-muted-foreground">Switch between light and dark mode</span>
-                        <ThemeToggle />
-                      </div>
-                    </div>
+                   
                     
                     <div className="space-y-2">
                       <Label htmlFor="consumer-name">Full Name</Label>
