@@ -119,16 +119,30 @@ export default function ScanPage() {
       </nav>
 
       <main className="flex-1 w-full max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="text-center mb-6 sm:mb-8">
+        {/* Mobile: Place title under header */}
+        <div className="block lg:hidden pt-[68px] pb-4 px-1">
+          <h1 className="font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1 text-center">
+            Verify Your Medicine
+          </h1>
+          <p className="text-muted-foreground text-sm text-center">
+            Scan the QR code or NFC tag on your medication packaging
+          </p>
+        </div>
+        {/* Desktop: Keep title as before */}
+        <div className="hidden lg:block text-center mb-6 sm:mb-8">
           <Link
             href={publicRoutes.home}
-            className="inline-flex items-center text-muted-foreground hover:text-primary mb-4 cursor-pointer transition-colors duration-200 text-sm sm:text-base"
+            className="inline-flex items-center text-muted-foreground hover:text-primary mb-4 cursor-pointer transition-colors duration-200 text-base"
           >
-            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
-          <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">Verify Your Medicine</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">Scan the QR code or NFC tag on your medication packaging</p>
+          <h1 className="font-bold text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+            Verify Your Medicine
+          </h1>
+          <p className="text-muted-foreground text-base">
+            Scan the QR code or NFC tag on your medication packaging
+          </p>
         </div>
         <Card className="max-w-2xl mx-auto border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 glass-effect">
           <CardHeader className="text-center">
