@@ -5,9 +5,24 @@ import { UserRole } from "./lib/generated/prisma";
 
 export default clerkMiddleware(async (auth, req) => {
 
-  const { userId, sessionClaims } = await auth();
-
   const pathname = req.nextUrl.pathname;
+
+  console.log("Incoming pathname in middleware", pathname);
+
+  // Skip auth/role checks for these API routes because they are either public,
+  // used by third-party services, or need to be accessible without a signed-in user.
+  // This prevents the middleware from redirecting or blocking legitimate requests.
+
+  if (
+    pathname.startsWith("/api/hotspots") ||
+    pathname.startsWith("/api/batches") ||
+    pathname.startsWith("/api/verify") ||
+    pathname.startsWith("/api/geminiTranslation")
+  ) {
+    return NextResponse.next();
+  }
+
+  const { userId, sessionClaims } = await auth();
 
   // ✅ Extract user role & organization type from metadata
   type PublicMetadata = {
@@ -50,25 +65,12 @@ export default clerkMiddleware(async (auth, req) => {
 
   const authPaths = Object.values(authRoutes);
 
-  // Skip auth/role checks for these API routes because they are either public,
-  // used by third-party services, or need to be accessible without a signed-in user.
-  // This prevents the middleware from redirecting or blocking legitimate requests.
-
-  if (
-    pathname.startsWith("/api/hotspots") ||
-    pathname.startsWith("/api/batches") ||
-    pathname.startsWith("/api/verify") ||
-    pathname.startsWith("/api/geminiTranslation")
-  ) {
-    return NextResponse.next();
-  }
-
   if (publicPaths.some((path) => pathname.startsWith("/verify/batchUnit/"))) {
     return NextResponse.next();
   }
 
   if (publicPaths.some((path) => pathname.startsWith("/verify/batch/"))) {
-    if (role !== UserRole.ORGANIZATION_MEMBER ) {
+    if (role !== UserRole.ORGANIZATION_MEMBER) {
       return NextResponse.redirect(new URL(publicRoutes.unauthorized, req.url));
     }
     return NextResponse.next();
