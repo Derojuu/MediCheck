@@ -706,17 +706,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                     </div>
                                 </div>
                             )}
-
-                            {/* QR Code Data */}
-                            {viewingBatch.qrCodeData && (
-                                <div className="space-y-2">
-                                    <h4 className="font-semibold text-sm">QR Code Data</h4>
-                                    <div className="text-sm p-3 bg-muted/10 rounded border font-mono break-all">
-                                        {viewingBatch.qrCodeData}
-                                    </div>
-                                </div>
-                            )}
-
+                            
                             {/* Metadata */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
                                 <div className="space-y-2">

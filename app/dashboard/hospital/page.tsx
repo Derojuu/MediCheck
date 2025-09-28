@@ -207,7 +207,9 @@ export default function HospitalDashboard() {
           )}
 
           {activeTab === "qr-scanner" && (
-            <QRScanner onScan={handleQRScan}  />
+            <div className="flex justify-center items-center min-h-[500px]">
+              <QRScanner onScan={handleQRScan} />
+            </div>
           )}
 
           {activeTab === "settings" && (

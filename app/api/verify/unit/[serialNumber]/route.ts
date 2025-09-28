@@ -17,6 +17,8 @@ export async function GET(
   context: { params: { serialNumber: string } }
 ) {
 
+  console.log("GET /api/verify/unit/[serialNumber] called");
+
   const { userId } = await auth();
 
   let loggedInUser = null;
@@ -141,7 +143,7 @@ export async function GET(
   const savedScan = await prisma.scanHistory.create({
     data: {
       unitId: unit.id,
-      consumerId: loggedInUser ? consumer?.id : "",
+      consumerId: loggedInUser ? consumer?.id : null,
       isAnonymous: loggedInUser ? false : true,
       region: organizationInformation?.state,
       scanResult: authenticityScanResult,
