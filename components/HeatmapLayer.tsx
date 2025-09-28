@@ -26,7 +26,11 @@
 
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
-import "leaflet.heat";
+
+if (typeof window !== "undefined") {
+    require("leaflet.heat");
+}
+
 
 type HeatPoint = [number, number, number];
 interface Props {
@@ -45,6 +49,9 @@ export default function HeatmapLayer({
     const map = useMap();
 
     useEffect(() => {
+
+        if (typeof window === "undefined") return;
+        
         const L = window.L;
 
         const gradient = {

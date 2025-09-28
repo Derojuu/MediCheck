@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
-import { Shield } from "lucide-react"; // Ensure you have this import
+import { Shield } from "lucide-react"; 
 // 
 import { RegulatorSidebar } from "@/components/regulator-page-component/regulator-sidebar";
 import RegulatorInvestigations from "@/components/regulator-page-component/RegulatorInvestigations";

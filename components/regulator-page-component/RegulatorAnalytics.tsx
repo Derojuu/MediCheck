@@ -4,13 +4,18 @@ import { useState } from "react";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
-
-import ClassificationHeatmap, { ClassificationPoint } from "../ClassificationHeatmap";
+import type { ClassificationPoint } from "../ClassificationHeatmap";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, TrendingUp, Activity, MapPin, Clock, Bell, RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+const ClassificationHeatmap = dynamic(
+    () => import("../ClassificationHeatmap"),
+    { ssr: false }
+);
 
 // Dynamic import for PredictiveHeatmap to prevent SSR issues
 const PredictiveHeatmap = dynamic(() => import("../PredictiveHeatmap"), {
@@ -34,7 +39,11 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
  * and traditional classification heatmap analysis
  */
 export default function RegulatorAnalytics() {
+
+
     const [alertsEnabled, setAlertsEnabled] = useState(true);
+
+    const router = useRouter();
 
     // Historical classification data
     const { data: historicalData, error: historicalError } = useSWR<ClassificationPoint[]>(
@@ -65,7 +74,7 @@ export default function RegulatorAnalytics() {
                             Error loading analytics data. Please try refreshing the page.
                         </p>
                         <Button
-                            onClick={() => window.location.reload()}
+                            onClick={() => router.refresh()}
                             className="mt-4"
                             variant="outline"
                         >

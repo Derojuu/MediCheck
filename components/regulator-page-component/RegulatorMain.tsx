@@ -197,7 +197,9 @@ const RegulatorMain = ({ setActiveTab }: {
                                                 } else if (alert.type === 'license_expiring') {
                                                     setActiveTab("entities")
                                                 } else {
-                                                    window.alert(`Investigating ${alert.id}: ${alert.message}`)
+                                                    if (typeof window !== "undefined") {
+                                                        window.alert(`Investigating ${alert.id}: ${alert.message}`)
+                                                    }
                                                 }
                                             }}
                                             className={
