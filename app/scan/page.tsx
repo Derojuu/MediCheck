@@ -1,10 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { QRScanner } from "@/components/qr-scanner";
 import { publicRoutes, authRoutes } from "@/utils";
@@ -12,66 +10,34 @@ import { useUser } from "@clerk/nextjs";
 import { getRedirectPath } from "@/utils";
 import {
   Shield,
-  Scan,
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
   ArrowLeft,
-  MapPin,
-  Calendar,
-  MessageCircle,
-  History,
   QrCode,
 } from "lucide-react"
 import Link from "next/link"
 
 export default function ScanPage() {
-  const [isScanning, setIsScanning] = useState(false);
+
   const { user, isSignedIn } = useUser();
+
   const role = user?.publicMetadata.role as string | undefined;
+
   const organizationType = user?.publicMetadata.organizationType as string | undefined;
 
-  // Handle QR code scan results
+  const [scannedQRcodeResult, setScannedQRcodeResult] = useState("");
+
   const handleQRScan = (qrData: string) => {
-    if (qrData) {
-      window.location.href = qrData;
-    }
+    setScannedQRcodeResult(qrData)
   }
+
+  useEffect(() => {
+    if (scannedQRcodeResult) {
+      window.location.href = scannedQRcodeResult;
+    }
+  }, [scannedQRcodeResult])
 
   // Handle QR scanner errors
   const handleQRError = (error: string) => {
     console.error('QR Scanner error:', error)
-    // You could show an error message to the user here
-  }
-
-  const handleScan = () => {
-    setIsScanning(true)
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "genuine":
-        return <CheckCircle className="h-8 w-8 text-green-600" />
-      case "fake":
-        return <XCircle className="h-8 w-8 text-red-600" />
-      case "suspicious":
-        return <AlertTriangle className="h-8 w-8 text-yellow-600" />
-      default:
-        return <Scan className="h-8 w-8 text-muted-foreground" />
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "genuine":
-        return "border-green-200 bg-green-50"
-      case "fake":
-        return "border-red-200 bg-red-50"
-      case "suspicious":
-        return "border-yellow-200 bg-yellow-50"
-      default:
-        return "border-border bg-card"
-    }
   }
 
   // Mobile header for extra polish
@@ -170,7 +136,6 @@ export default function ScanPage() {
               <QrCode className="h-6 w-6 mr-2 text-primary" />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Medicine Scanner</span>
             </CardTitle>
-            <CardDescription>Position your medication's QR code or NFC tag in the scanner area</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
@@ -182,7 +147,6 @@ export default function ScanPage() {
                 facingMode="environment"
                 className="mx-auto"
               />
-              <p className="text-muted-foreground mt-4">Position the QR code within the scanning area</p>
             </div>
           </CardContent>
         </Card>

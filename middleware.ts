@@ -4,32 +4,10 @@ import { authRoutes, publicRoutes, orgnaizationRoutes } from "./utils";
 import { UserRole } from "./lib/generated/prisma";
 
 export default clerkMiddleware(async (auth, req) => {
+
   const { userId, sessionClaims } = await auth();
+
   const pathname = req.nextUrl.pathname;
-
-  // ✅ Public pages that do NOT require authentication
-  const publicPaths = Object.values(publicRoutes);
-  const authPaths = Object.values(authRoutes);
-
-  // ✅ Allow API routes for hotspot predictions (internal system use)
-  if (pathname.startsWith('/api/hotspots') || pathname.startsWith('/api/batches')) {
-    return NextResponse.next();
-  }
-
-  // ✅ If route is EXACTLY public or auth route, allow
-  if (publicPaths.includes(pathname) || authPaths.includes(pathname)) {
-    return NextResponse.next();
-  }
-
-  // ✅ Allow home page ("/") ONLY if user is not logged in
-  if (pathname === publicRoutes.home && !userId) {
-    return NextResponse.next();
-  }
-
-  // ✅ If user is NOT signed in, redirect to login (for protected routes)
-  if (!userId) {
-    return NextResponse.redirect(new URL(authRoutes.login, req.url));
-  }
 
   // ✅ Extract user role & organization type from metadata
   type PublicMetadata = {
@@ -60,9 +38,55 @@ export default clerkMiddleware(async (auth, req) => {
         role = cRole;
         orgType = cOrg;
       } catch {
-        console.log("error occurred while getting value from cookie")
+        console.log("error occurred while getting value from cookie");
       }
     }
+  }
+
+  console.log("Middleware invoked for path:", pathname);
+
+  // ✅ Public pages that do NOT require authentication
+  const publicPaths = Object.values(publicRoutes);
+
+  const authPaths = Object.values(authRoutes);
+
+  // Skip auth/role checks for these API routes because they are either public,
+  // used by third-party services, or need to be accessible without a signed-in user.
+  // This prevents the middleware from redirecting or blocking legitimate requests.
+
+  if (
+    pathname.startsWith("/api/hotspots") ||
+    pathname.startsWith("/api/batches") ||
+    pathname.startsWith("/api/verify") ||
+    pathname.startsWith("/api/geminiTranslation")
+  ) {
+    return NextResponse.next();
+  }
+
+  if (publicPaths.some((path) => pathname.startsWith("/verify/batchUnit/"))) {
+    return NextResponse.next();
+  }
+
+  if (publicPaths.some((path) => pathname.startsWith("/verify/batch/"))) {
+    if (role !== UserRole.ORGANIZATION_MEMBER ) {
+      return NextResponse.redirect(new URL(publicRoutes.unauthorized, req.url));
+    }
+    return NextResponse.next();
+  }
+
+  // ✅ If route is EXACTLY public or auth route, allow
+  if (publicPaths.includes(pathname) || authPaths.includes(pathname)) {
+    return NextResponse.next();
+  }
+
+  // ✅ Allow home page ("/") ONLY if user is not logged in
+  if (pathname === publicRoutes.home && !userId) {
+    return NextResponse.next();
+  }
+
+  // ✅ If user is NOT signed in, redirect to login (for protected routes)
+  if (!userId) {
+    return NextResponse.redirect(new URL(authRoutes.login, req.url));
   }
 
   // ✅ Consumer routes → only for consumers

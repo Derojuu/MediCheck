@@ -10,7 +10,6 @@ import { ThemeToggle } from "@/components/theme-toggle"
 
 interface OrganizationData {
   id: string;
-  companyName: string;
   contactEmail: string;
   contactPhone: string | null;
   contactPersonName: string | null;
@@ -24,9 +23,9 @@ interface OrganizationData {
 }
 
 const RegulatorSettings = () => {
+  
   const [settings, setSettings] = useState<OrganizationData>({
     id: "",
-    companyName: "",
     contactEmail: "",
     contactPhone: "",
     contactPersonName: "",
@@ -57,7 +56,6 @@ const RegulatorSettings = () => {
 
           setSettings({
             id: data.id || "",
-            companyName: data.companyName || "",
             contactEmail: data.contactEmail || "",
             contactPhone: data.contactPhone || "",
             contactPersonName: data.contactPersonName || "",
@@ -111,7 +109,6 @@ const RegulatorSettings = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          companyName: settings.companyName,
           contactEmail: settings.contactEmail,
           contactPhone: settings.contactPhone,
           contactPersonName: settings.contactPersonName,
@@ -129,7 +126,6 @@ const RegulatorSettings = () => {
 
         setSettings({
           id: org.id || "",
-          companyName: org.companyName || "",
           contactEmail: org.contactEmail || "",
           contactPhone: org.contactPhone || "",
           contactPersonName: org.contactPersonName || "",
@@ -227,15 +223,6 @@ const RegulatorSettings = () => {
         <CardContent>
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="company-name">Organization Name *</Label>
-                <Input
-                  id="company-name"
-                  value={settings.companyName}
-                  onChange={(e) => handleInputChange('companyName', e.target.value)}
-                  placeholder="Enter organization name"
-                />
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="agency-name">Agency Name</Label>
