@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const orgId = searchParams.get("orgId");
 
@@ -17,20 +10,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Organization ID is required" }, { status: 400 });
     }
 
-    // Verify user has access to this organization
-    const organization = await prisma.organization.findFirst({
-      where: {
-        id: orgId,
-        organizationType: "HOSPITAL",
-        OR: [
-          { adminId: userId },
-          { teamMembers: { some: { userId: userId } } }
-        ]
-      }
+    // Check if the organization exists and is a hospital
+    const organization = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { id: true, organizationType: true }
     });
 
-    if (!organization) {
-      return NextResponse.json({ error: "Organization not found or access denied" }, { status: 403 });
+    if (!organization || organization.organizationType !== "HOSPITAL") {
+      return NextResponse.json({ error: "Organization not found or not a hospital" }, { status: 404 });
     }
 
     // Get all completed transfers TO this hospital

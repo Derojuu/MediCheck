@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const orgId = searchParams.get("orgId");
 
@@ -17,34 +10,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Organization ID is required" }, { status: 400 });
     }
 
-    // Verify user has access to this organization
-    const organization = await prisma.organization.findFirst({
-      where: {
-        id: orgId,
-        organizationType: "HOSPITAL",
-        OR: [
-          { adminId: userId },
-          { teamMembers: { some: { userId: userId } } }
-        ]
-      }
+    // Check if the organization exists and is a hospital
+    const organization = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { id: true, organizationType: true }
     });
 
-    if (!organization) {
-      return NextResponse.json({ error: "Organization not found or access denied" }, { status: 403 });
+    if (!organization || organization.organizationType !== "HOSPITAL") {
+      return NextResponse.json({ error: "Organization not found or not a hospital" }, { status: 404 });
     }
 
     // Get verification statistics for the last 6 months
     const now = new Date();
-    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-
     const monthlyStats = [];
-    
+
     for (let i = 5; i >= 0; i--) {
       const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-      
+
       const monthName = monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      
+
+      // Count GENUINE scans by team members of this org
       const verifications = await prisma.scanHistory.count({
         where: {
           teamMember: {
@@ -58,6 +44,7 @@ export async function GET(request: NextRequest) {
         }
       });
 
+      // Count SUSPICIOUS scans by team members of this org
       const suspiciousScans = await prisma.scanHistory.count({
         where: {
           teamMember: {
@@ -67,9 +54,7 @@ export async function GET(request: NextRequest) {
             gte: monthStart,
             lt: monthEnd
           },
-          scanResult: {
-            in: ["SUSPICIOUS"]
-          }
+          scanResult: "SUSPICIOUS"
         }
       });
 
@@ -83,7 +68,7 @@ export async function GET(request: NextRequest) {
     // Calculate growth percentage
     const currentMonth = monthlyStats[monthlyStats.length - 1];
     const previousMonth = monthlyStats[monthlyStats.length - 2];
-    
+
     let growthPercentage = 0;
     if (previousMonth && previousMonth.verifications > 0) {
       growthPercentage = Math.round(
@@ -93,7 +78,7 @@ export async function GET(request: NextRequest) {
       growthPercentage = 100;
     }
 
-    // Get recent counterfeit reports for this hospital
+    // Get recent counterfeit reports for this hospital (reports on batches belonging to this org)
     const recentReports = await prisma.counterfeitReport.findMany({
       where: {
         batch: {
@@ -108,6 +93,11 @@ export async function GET(request: NextRequest) {
           select: {
             batchId: true,
             drugName: true
+          }
+        },
+        consumers: {
+          select: {
+            fullName: true
           }
         }
       },
@@ -124,6 +114,7 @@ export async function GET(request: NextRequest) {
         id: report.id,
         batchId: report.batch?.batchId || "Unknown",
         drugName: report.batch?.drugName || "Unknown",
+        reporter: report.consumers?.fullName || "Unknown",
         reportType: report.reportType,
         severity: report.severity,
         status: report.status,
@@ -145,53 +136,40 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { orgId, batchId, reportType, severity, description, location, evidence } = body;
+    const { orgId, batchId, reporterId, reportType, severity, description, location, evidence } = body;
 
     if (!orgId || !reportType || !severity || !description) {
-      return NextResponse.json({ 
-        error: "Missing required fields: orgId, reportType, severity, description" 
+      return NextResponse.json({
+        error: "Missing required fields: orgId, reportType, severity, description"
       }, { status: 400 });
     }
 
-    // Verify user has access to this organization
-    const organization = await prisma.organization.findFirst({
-      where: {
-        id: orgId,
-        organizationType: "HOSPITAL",
-        OR: [
-          { adminId: userId },
-          { teamMembers: { some: { userId: userId } } }
-        ]
-      }
+    // Check if the organization exists and is a hospital
+    const organization = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { id: true, organizationType: true }
     });
 
-    if (!organization) {
-      return NextResponse.json({ error: "Organization not found or access denied" }, { status: 403 });
+    if (!organization || organization.organizationType !== "HOSPITAL") {
+      return NextResponse.json({ error: "Organization not found or not a hospital" }, { status: 404 });
     }
 
-    // Get the user's consumer profile to use as reporter
-    const consumer = await prisma.consumer.findFirst({
-      where: {
-        userId: userId
+    // If reporterId is provided, check if it exists
+    if (reporterId) {
+      const consumer = await prisma.consumer.findUnique({
+        where: { id: reporterId }
+      });
+      if (!consumer) {
+        return NextResponse.json({ error: "Reporter (consumer) not found" }, { status: 404 });
       }
-    });
-
-    if (!consumer) {
-      return NextResponse.json({ error: "Consumer profile not found" }, { status: 404 });
     }
 
     // Create the counterfeit report
     const report = await prisma.counterfeitReport.create({
       data: {
         batchId: batchId || null,
-        reporterId: consumer.id,
+        reporterId: reporterId || null,
         reportType,
         severity,
         description,
