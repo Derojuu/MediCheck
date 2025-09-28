@@ -6,9 +6,13 @@ import { generateQRPayload , generateBatchQRPayload} from "@/lib/qrPayload";
 
 export const runtime = "nodejs";
 
-const QR_SECRET = process.env.QR_SECRET || "dev-secret"; 
+const QR_SECRET = process.env.QR_SECRET;
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL;
+
+console.log(QR_SECRET)
+
+console.log(BASE_URL)
 
 export async function POST(req: Request) {
 
@@ -62,8 +66,8 @@ export async function POST(req: Request) {
 
     const qrBatchPayload = generateBatchQRPayload(
       batchId,
-      QR_SECRET,
-      BASE_URL,
+      QR_SECRET as string,
+      BASE_URL as string,
       registry.topicId
     );
 
@@ -133,8 +137,8 @@ export async function POST(req: Request) {
         serialNumber,
         batchId,
         seq,
-        QR_SECRET,
-        BASE_URL
+        QR_SECRET as string,
+        BASE_URL as string
       );
 
       console.log("unit", qrUnitPayload);
