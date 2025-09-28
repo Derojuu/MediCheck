@@ -200,9 +200,7 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl sm:text-3xl font-bold text-foreground">{stats.recentTransfers}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            <span className="text-primary">+8</span> this week
-                        </p>
+
                     </CardContent>
                 </Card>
             </div>
@@ -227,14 +225,6 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
                         >
                             <Package className="h-4 w-4 mr-3" />
                             Create New Batch
-                        </Button>
-                        <Button 
-                            variant="outline" 
-                            className="w-full justify-start hover:bg-primary/10 transition-all duration-300 border-2 border-primary/30 hover:border-primary/60 h-11 text-sm" 
-                            onClick={() => setActiveTab("quality")}
-                        >
-                            <FlaskConical className="h-4 w-4 mr-3" />
-                            Quality Control
                         </Button>
                         <Button 
                             variant="outline" 
