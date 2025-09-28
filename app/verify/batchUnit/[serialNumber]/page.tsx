@@ -59,8 +59,12 @@ export default function VerifyUnitPage() {
                 return;
             }
             try {
+                console.log("Verifying unit:", serialNumber, "with sig:", sig, "at location:", latitude, longitude);
+
                 const res = await fetch(`/api/verify/unit/${serialNumber}?sig=${sig}&lat=${latitude}&long=${longitude}`);
+
                 const data = await res.json();
+                
                 if (!res.ok) {
                     setError(data.error || "Verification failed");
                 } else {
@@ -70,7 +74,8 @@ export default function VerifyUnitPage() {
                     setAuthenticityResultCheck(data.authenticityResultCheck);
                 }
             } catch (err) {
-                setError("Something went wrong");
+                setError("Something went wrong during verification");
+                alert(err)
             } finally {
                 setLoading(false);
             }
@@ -120,8 +125,8 @@ export default function VerifyUnitPage() {
                 <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
                     <Card className="w-full max-w-xs sm:max-w-sm mx-auto bg-white/90 dark:bg-zinc-900/90 rounded-xl shadow-lg border border-border/60 z-10">
                         <CardHeader>
-                            <CardTitle className="text-lg sm:text-xl font-bold text-foreground">Verifying Unit</CardTitle>
-                            <CardDescription className="text-muted-foreground text-xs sm:text-sm">
+                            <CardTitle className="text-lg sm:text-xl font-bold text-foreground text-center">Verifying Unit</CardTitle>
+                            <CardDescription className="text-muted-foreground text-center text-xs sm:text-sm">
                                 Please wait while we verify this unit. This may take a few seconds.
                             </CardDescription>
                         </CardHeader>

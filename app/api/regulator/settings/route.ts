@@ -11,10 +11,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.log(userId, "user id from clerk");
+
     // Ensure the user exists in the users table
     const loggedUser = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { clerkUserId: userId },
     });
+
+    console.log("Logged user:", loggedUser);
 
     // Find the regulator organization for this user
     const organization = await prisma.organization.findFirst({
@@ -22,6 +26,8 @@ export async function GET(request: NextRequest) {
         adminId: loggedUser?.id,
       },
     });
+
+    console.log("Fetched organization:", organization);
 
     if (!organization) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
@@ -42,9 +48,8 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-
     const body = await request.json();
-    
+
     const { userId } = await auth();
 
     if (!userId) {
@@ -53,14 +58,14 @@ export async function PUT(request: NextRequest) {
 
     // Ensure the user exists in the users table
     const loggedUser = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { clerkUserId: userId },
     });
 
     // Find the organization to update
     const organization = await prisma.organization.findFirst({
       where: {
-        adminId: loggedUser?.id 
-      }
+        adminId: loggedUser?.id,
+      },
     });
 
     if (!organization) {
@@ -82,7 +87,6 @@ export async function PUT(request: NextRequest) {
       message: "Settings updated successfully",
       organization: updatedOrganization,
     });
-
   }
   catch (error) {
     console.error("Error updating regulator settings:", error);

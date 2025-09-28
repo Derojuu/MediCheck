@@ -2,7 +2,9 @@ export const publicRoutes: Record<string, string> = {
   home: "/",
   scan: "/scan",
   unauthorized: "/unauthorized",
-};
+  unitVerification: "/verify/batchUnit",
+
+}
 
 export const authRoutes: Record<string, string> = {
   login: "/auth/login",

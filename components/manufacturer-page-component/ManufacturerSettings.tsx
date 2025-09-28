@@ -71,20 +71,21 @@ const ManufacturerSettings = () => {
                 <div className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="facility-name">Facility Name</Label>
-                    <Input id="facility-name" value={orgData?.companyName || ''} readOnly />
-                </div>
-                <div className="space-y-2">
+                    <Input id="facility-name" type="text" value={orgData?.companyName || ''} readOnly />
+                        </div>
+                        {/* currently not part of manufacturer registration */}
+                {/* <div className="space-y-2">
                     <Label htmlFor="license">Manufacturing License</Label>
-                    <Input id="license" value={orgData?.licenseNumber ?? 'Not provided'} readOnly />
-                </div>
+                            <Input id="license" value={orgData?.licenseNumber ?? 'Not provided'} readOnly />
+                </div> */}
                 <div className="space-y-2">
                     <Label htmlFor="nafdac">NAFDAC Number</Label>
                     <Input id="nafdac" value={orgData?.nafdacNumber ?? 'Not provided'} readOnly />
                 </div>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                     <Label htmlFor="business-reg">Business Registration Number</Label>
                     <Input id="business-reg" value={orgData?.businessRegNumber ?? 'Not provided'} readOnly />
-                </div>
+                </div> */}
                 <div className="space-y-2">
                     <Label htmlFor="rc-number">RC Number</Label>
                     <Input id="rc-number" value={orgData?.rcNumber ?? 'Not provided'} readOnly />
@@ -110,8 +111,8 @@ const ManufacturerSettings = () => {
                         readOnly 
                     />
                 </div>
-                <Button onClick={() => alert("Contact administrator to update organization settings")}>
-                    Request Settings Update
+                <Button className=" cursor-pointer" onClick={() => alert("pending feature")}>
+                    Save Changes
                 </Button>
                 </div>
             </CardContent>
