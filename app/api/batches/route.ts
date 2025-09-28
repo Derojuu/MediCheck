@@ -6,6 +6,8 @@ import { generateQRPayload , generateBatchQRPayload} from "@/lib/qrPayload";
 
 export const runtime = "nodejs";
 
+export const dynamic = "force-dynamic";
+
 const QR_SECRET = process.env.QR_SECRET;
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL;
@@ -17,6 +19,7 @@ console.log(BASE_URL)
 export async function POST(req: Request) {
 
   try {
+    
     const body = await req.json();
     const {
       organizationId,
@@ -162,6 +165,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   }
+
   catch (error) {
     console.error("Error creating batch:", error);
     return NextResponse.json(
@@ -169,4 +173,5 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
 }
