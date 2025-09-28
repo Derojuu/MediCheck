@@ -14,6 +14,7 @@ import QRScanner from "@/components/qr-scanner";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Menu, Shield, X } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 // 
 import { toast } from "react-toastify";
 
@@ -154,23 +155,6 @@ export default function HospitalDashboard() {
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}>
           <div className="fixed left-0 top-0 bottom-0 w-80 bg-background shadow-xl" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-6 w-6 text-primary" />
-                  <span className="font-bold text-lg">MediCheck</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-            
             <HospitalSidebar 
               activeTab={activeTab} 
               setActiveTab={setActiveTab} 
@@ -208,7 +192,21 @@ export default function HospitalDashboard() {
 
           {activeTab === "qr-scanner" && (
             <div className="flex justify-center items-center min-h-[500px]">
-              <QRScanner onScan={handleQRScan} />
+              {/* Desktop: Card wrap */}
+              <div className="hidden lg:block w-full max-w-[600px]">
+                <Card className="border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  {/* Removed CardHeader with QR Scanner title */}
+                  <CardContent>
+                    <div className="flex justify-center items-center">
+                      <QRScanner onScan={handleQRScan} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              {/* Mobile: No Card wrap, fill space */}
+              <div className="block lg:hidden w-full">
+                <QRScanner onScan={handleQRScan} />
+              </div>
             </div>
           )}
 

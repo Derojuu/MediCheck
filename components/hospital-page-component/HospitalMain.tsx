@@ -51,7 +51,7 @@ const HospitalMain = ({ setActiveTab, orgId }: {
     }, [orgId]);
 
     const handleVerifyMedication = () => {
-        alert("Opening medication verification scanner...")
+        setActiveTab("qr-scanner");
     }
 
     const handleViewAnalytics = () => {
