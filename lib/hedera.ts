@@ -1,5 +1,5 @@
 // /lib/hedera.ts
-"use server"; 
+
 import { hederaClient } from "./hederaClient";
 import { HCS2RegistryType } from "@hashgraphonline/standards-sdk";
 import { HederaLogPayload } from "@/utils";
