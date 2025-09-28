@@ -99,7 +99,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
 
     const [selectedBatch, setSelectedBatch] = useState<any>(null);
 
-    const [organizations, setOrganizations] = useState<any[]>(mockOrganizations);
+    const [organizations, setOrganizations] = useState<any[]>([]);
 
     useEffect(() => {
         setBatches(allBatches);

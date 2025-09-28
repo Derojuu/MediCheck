@@ -7,14 +7,17 @@ export default clerkMiddleware(async (auth, req) => {
 
   const pathname = req.nextUrl.pathname;
 
-  console.log("Incoming pathname in middleware", pathname);
+  console.log('Incoming pathname in middleware', pathname)
 
   // Skip auth/role checks for these API routes because they are either public,
   // used by third-party services, or need to be accessible without a signed-in user.
   // This prevents the middleware from redirecting or blocking legitimate requests.
 
   if (
-    pathname.startsWith("/api/")
+    pathname.startsWith("/api/hotspots") ||
+    pathname.startsWith("/api/batches") ||
+    pathname.startsWith("/api/verify") ||
+    pathname.startsWith("/api/geminiTranslation")
   ) {
     return NextResponse.next();
   }

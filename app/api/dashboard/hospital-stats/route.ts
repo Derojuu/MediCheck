@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const orgId = searchParams.get('orgId');
 
@@ -16,20 +10,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization ID is required' }, { status: 400 });
     }
 
-    // Verify user has access to this organization
-    const organization = await prisma.organization.findFirst({
-      where: {
-        id: orgId,
-        organizationType: "HOSPITAL",
-        OR: [
-          { adminId: userId },
-          { teamMembers: { some: { userId: userId } } }
-        ]
-      }
+    // Check if the organization exists and is a hospital
+    const organization = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { id: true, organizationType: true }
     });
 
-    if (!organization) {
-      return NextResponse.json({ error: "Organization not found or access denied" }, { status: 403 });
+    if (!organization || organization.organizationType !== "HOSPITAL") {
+      return NextResponse.json({ error: "Organization not found or not a hospital" }, { status: 404 });
     }
 
     // Get current date and start of today for calculations
@@ -53,7 +41,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-
+  
     // Count total units from completed transfers (excluding expired batches)
     const totalMedications = completedTransfers.reduce((total, transfer) => {
       if (transfer.batch && transfer.batch.expiryDate > now && transfer.batch.status !== "EXPIRED") {
@@ -65,7 +53,7 @@ export async function GET(request: NextRequest) {
     // Calculate medication growth (transfers completed this month vs last month)
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    
+
     const thisMonthTransfers = await prisma.ownershipTransfer.count({
       where: {
         toOrgId: orgId,
@@ -78,14 +66,14 @@ export async function GET(request: NextRequest) {
       where: {
         toOrgId: orgId,
         status: "COMPLETED",
-        transferDate: { 
+        transferDate: {
           gte: lastMonthStart,
           lt: thisMonthStart
         }
       }
     });
 
-    const medicationGrowth = lastMonthTransfers > 0 
+    const medicationGrowth = lastMonthTransfers > 0
       ? Math.round(((thisMonthTransfers - lastMonthTransfers) / lastMonthTransfers) * 100)
       : thisMonthTransfers > 0 ? 100 : 0;
 
@@ -103,7 +91,7 @@ export async function GET(request: NextRequest) {
     // Verifications yesterday for comparison
     const verifiedYesterday = await prisma.scanHistory.count({
       where: {
-        scanDate: { 
+        scanDate: {
           gte: startOfYesterday,
           lt: startOfToday
         },
@@ -131,7 +119,7 @@ export async function GET(request: NextRequest) {
 
     // Count medications expiring within 30 days
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-    const expiringMedications = hospitalBatches.filter(batch => 
+    const expiringMedications = hospitalBatches.filter(batch =>
       batch && batch.expiryDate <= thirtyDaysFromNow
     ).length;
 
