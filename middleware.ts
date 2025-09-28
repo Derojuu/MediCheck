@@ -14,10 +14,7 @@ export default clerkMiddleware(async (auth, req) => {
   // This prevents the middleware from redirecting or blocking legitimate requests.
 
   if (
-    pathname.startsWith("/api/hotspots") ||
-    pathname.startsWith("/api/batches") ||
-    pathname.startsWith("/api/verify") ||
-    pathname.startsWith("/api/geminiTranslation")
+    pathname.startsWith("/api/")
   ) {
     return NextResponse.next();
   }
