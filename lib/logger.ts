@@ -1,9 +1,9 @@
-// lib/logger.ts
 import pino from "pino";
 
 const isDev = process.env.NODE_ENV !== "production";
 
-// only add transport in dev
+console.log(isDev);
+
 const logger = isDev
   ? pino({
       transport: {
@@ -13,8 +13,10 @@ const logger = isDev
       level: "debug",
     })
   : pino({
-      // production logger – no transport
       level: process.env.LOG_LEVEL || "info",
+      // No transport in production!
     });
 
-export { logger };
+    console.log(logger)
+
+export default logger;
