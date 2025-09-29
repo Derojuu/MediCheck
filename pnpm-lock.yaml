@@ -188,6 +188,9 @@ importers:
       pino:
         specifier: ^9.12.0
         version: 9.12.0
+      pino-pretty:
+        specifier: ^13.1.1
+        version: 13.1.1
       qr-scanner:
         specifier: ^1.4.2
         version: 1.4.2
@@ -264,9 +267,6 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.0.0
-      pino-pretty:
-        specifier: ^13.1.1
-        version: 13.1.1
       postcss:
         specifier: ^8.5
         version: 8.5.0
