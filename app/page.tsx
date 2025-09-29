@@ -411,20 +411,24 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-gradient-to-b from-card/80 to-muted/40 border-t py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 glass-effect">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-start items-start mb-10 sm:mb-12 md:mb-16">
-            <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8 md:mb-0 md:mr-8 lg:mr-12">
-              <div className="relative group cursor-pointer">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-lg sm:rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                <div className="relative bg-gradient-to-r from-primary to-accent p-2 rounded-lg sm:rounded-xl">
-                  <Shield className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 sm:mb-12 md:mb-16 gap-8">
+            {/* Left: Logo and description */}
+            <div className="flex flex-col items-center md:items-start md:ml-16">
+              <div className="flex items-center space-x-3 sm:space-x-4 mb-2">
+                <div className="relative group cursor-pointer">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-lg sm:rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                  <div className="relative bg-gradient-to-r from-primary to-accent p-2 rounded-lg sm:rounded-xl">
+                    <Shield className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col">
                 <span className="font-bold text-xl sm:text-2xl md:text-3xl text-foreground">MediCheck</span>
-                <span className="text-xs sm:text-sm text-muted-foreground font-mono">Enterprise Blockchain Security</span>
               </div>
+              <span className="text-xs sm:text-sm text-muted-foreground font-mono mb-2 md:mb-0">
+                Enterprise Blockchain Security
+              </span>
             </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6 md:space-x-8 lg:space-x-10 text-sm sm:text-base">
+            {/* Right: Links */}
+            <div className="flex flex-col sm:flex-row items-center md:items-center gap-3 sm:gap-6 md:gap-8 lg:gap-10 text-sm sm:text-base md:mr-16">
               <Link
                 href="#"
                 className="text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer font-medium relative group"
@@ -448,7 +452,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <div className="pt-8 sm:pt-10 md:pt-12 border-t text-left">
+          <div className="pt-8 sm:pt-10 md:pt-12 border-t text-center">
             <p className="text-muted-foreground leading-relaxed text-sm sm:text-base md:text-lg mb-2 sm:mb-3">
               &copy; 2024 MediCheck. All rights reserved. Securing medication authenticity with enterprise blockchain
               technology.

@@ -112,54 +112,54 @@ export default function RegulatorAnalytics() {
     ).length;
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-2 sm:p-4 md:p-6 space-y-6">
             {/* Quick Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total Scans</p>
-                                <p className="text-2xl font-bold">{totalScans}</p>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Scans</p>
+                                <p className="text-xl sm:text-2xl font-bold">{totalScans}</p>
                             </div>
-                            <Activity className="h-8 w-8 text-blue-500" />
+                            <Activity className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Counterfeit Rate</p>
-                                <p className="text-2xl font-bold text-red-600">
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Counterfeit Rate</p>
+                                <p className="text-xl sm:text-2xl font-bold text-red-600">
                                     {counterfeitRate.toFixed(1)}%
                                 </p>
                             </div>
-                            <AlertTriangle className="h-8 w-8 text-red-500" />
+                            <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Recent Alerts</p>
-                                <p className="text-2xl font-bold text-orange-600">{recentCounterfeits}</p>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Recent Alerts</p>
+                                <p className="text-xl sm:text-2xl font-bold text-orange-600">{recentCounterfeits}</p>
                                 <p className="text-xs text-muted-foreground">Last 7 days</p>
                             </div>
-                            <Clock className="h-8 w-8 text-orange-500" />
+                            <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Prediction Status</p>
-                                <div className="flex items-center gap-2 mt-1">
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Prediction Status</p>
+                                <div className="flex flex-wrap items-center gap-2 mt-1">
                                     <Badge variant="default" className="text-xs">
                                         Active
                                     </Badge>
@@ -168,7 +168,7 @@ export default function RegulatorAnalytics() {
                                     </Badge>
                                 </div>
                             </div>
-                            <TrendingUp className="h-8 w-8 text-green-500" />
+                            <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
                         </div>
                     </CardContent>
                 </Card>
@@ -177,48 +177,53 @@ export default function RegulatorAnalytics() {
             {/* Main Analytics Tabs */}
             <Tabs defaultValue="predictive" className="space-y-4">
                 <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="predictive" className="flex items-center gap-2">
+                    <TabsTrigger value="predictive" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-2 py-1">
                         <MapPin className="h-4 w-4" />
-                        Predictive Mapping
+                        <span className="hidden xs:inline">Predictive Mapping</span>
+                        <span className="inline xs:hidden">Predict</span>
                     </TabsTrigger>
-                    <TabsTrigger value="historical" className="flex items-center gap-2">
+                    <TabsTrigger value="historical" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-2 py-1">
                         <Activity className="h-4 w-4" />
-                        Historical Analysis
+                        <span className="hidden xs:inline">Historical Analysis</span>
+                        <span className="inline xs:hidden">History</span>
                     </TabsTrigger>
-                    <TabsTrigger value="alerts" className="flex items-center gap-2">
+                    <TabsTrigger value="alerts" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-2 py-1">
                         <AlertTriangle className="h-4 w-4" />
-                        Risk Alerts
+                        <span className="hidden xs:inline">Risk Alerts</span>
+                        <span className="inline xs:hidden">Alerts</span>
                     </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="predictive" className="space-y-4">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                                 <TrendingUp className="h-5 w-5" />
                                 AI-Powered Counterfeit Predictions
                             </CardTitle>
-                            <CardDescription>
+                            <CardDescription className="text-xs sm:text-sm">
                                 Advanced machine learning analysis to predict where and when counterfeit drugs are likely to emerge
                             </CardDescription>
                         </CardHeader>
                     </Card>
 
-                    <PredictiveHeatmap
-                        height="700px"
-                        showControls={true}
-                        autoRefresh={alertsEnabled}
-                    />
+                    <div className="w-full" style={{ minHeight: '350px', height: '60vw', maxHeight: 700 }}>
+                        <PredictiveHeatmap
+                            height="100%"
+                            showControls={true}
+                            autoRefresh={alertsEnabled}
+                        />
+                    </div>
                 </TabsContent>
 
                 <TabsContent value="historical" className="space-y-4">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                                 <Activity className="h-5 w-5" />
                                 Historical Classification Data
                             </CardTitle>
-                            <CardDescription>
+                            <CardDescription className="text-xs sm:text-sm">
                                 Past 30 days of counterfeit detection results across Nigeria
                             </CardDescription>
                         </CardHeader>
@@ -226,7 +231,7 @@ export default function RegulatorAnalytics() {
 
                     <Card>
                         <CardContent className="p-0">
-                            <div style={{ height: '600px' }}>
+                            <div className="w-full" style={{ minHeight: '300px', height: '55vw', maxHeight: 600 }}>
                                 <ClassificationHeatmap data={historicalData} />
                             </div>
                         </CardContent>
@@ -236,22 +241,22 @@ export default function RegulatorAnalytics() {
                 <TabsContent value="alerts" className="space-y-4">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                                 <Bell className="h-5 w-5" />
                                 Risk Alert System
                             </CardTitle>
-                            <CardDescription>
+                            <CardDescription className="text-xs sm:text-sm">
                                 Real-time alerts based on AI predictions and historical patterns
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 {recentCounterfeits > 5 && (
-                                    <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                    <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
                                         <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
                                         <div>
-                                            <h4 className="font-medium text-red-900">High Alert</h4>
-                                            <p className="text-sm text-red-700">
+                                            <h4 className="font-medium text-red-900 text-sm sm:text-base">High Alert</h4>
+                                            <p className="text-xs sm:text-sm text-red-700">
                                                 {recentCounterfeits} counterfeit incidents detected in the last 7 days.
                                                 Immediate investigation recommended.
                                             </p>
@@ -260,11 +265,11 @@ export default function RegulatorAnalytics() {
                                 )}
 
                                 {counterfeitRate > 10 && (
-                                    <div className="flex items-start gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                                    <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-orange-50 border border-orange-200 rounded-lg">
                                         <Clock className="h-5 w-5 text-orange-500 mt-0.5" />
                                         <div>
-                                            <h4 className="font-medium text-orange-900">Trend Alert</h4>
-                                            <p className="text-sm text-orange-700">
+                                            <h4 className="font-medium text-orange-900 text-sm sm:text-base">Trend Alert</h4>
+                                            <p className="text-xs sm:text-sm text-orange-700">
                                                 Counterfeit rate at {counterfeitRate.toFixed(1)}% - above normal threshold.
                                                 Enhanced monitoring suggested.
                                             </p>
@@ -272,11 +277,11 @@ export default function RegulatorAnalytics() {
                                     </div>
                                 )}
 
-                                <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                     <TrendingUp className="h-5 w-5 text-blue-500 mt-0.5" />
                                     <div>
-                                        <h4 className="font-medium text-blue-900">AI Analysis Active</h4>
-                                        <p className="text-sm text-blue-700">
+                                        <h4 className="font-medium text-blue-900 text-sm sm:text-base">AI Analysis Active</h4>
+                                        <p className="text-xs sm:text-sm text-blue-700">
                                             Predictive modeling is continuously analyzing patterns to forecast hotspots
                                             with 87% accuracy.
                                         </p>
@@ -290,3 +295,4 @@ export default function RegulatorAnalytics() {
         </div>
     );
 }
+
