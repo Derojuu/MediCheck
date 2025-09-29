@@ -51,3 +51,4 @@ export const hederaClient = new HCS2Client({
   logLevel: logLevel,
   // Add logger configuration if the SDK supports it
 });
+
