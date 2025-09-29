@@ -235,18 +235,20 @@ const RegulatorMain = ({ setActiveTab }: {
                                 activities.map((activity: any) => (
                                     <div
                                         key={activity.id}
-                                        className="flex flex-col xl:flex-row xl:items-center gap-2 xl:gap-4 p-2 rounded-lg border border-muted/30"
+                                        className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-2 rounded-lg border border-muted/30"
                                     >
-                                        <div className="flex items-center gap-2 flex-1">
-                                            <div className="w-2 h-2 bg-primary rounded-full"></div>
-                                            <div>
-                                                <p className="text-sm font-medium">{activity.type} - {activity.target}</p>
-                                                <p className="text-xs text-muted-foreground">
+                                        {/* Left: Activity Info */}
+                                        <div className="flex items-start gap-2 flex-1 min-w-0">
+                                            <div className="w-2 h-2 mt-2 sm:mt-0 bg-primary rounded-full flex-shrink-0" />
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-medium truncate">{activity.type} - {activity.target}</p>
+                                                <p className="text-xs text-muted-foreground truncate">
                                                     {activity.inspector} - {activity.findings}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex flex-row xl:flex-col items-center xl:items-end gap-2 xl:gap-1 text-right min-w-[120px]">
+                                        {/* Right: Status/Badges/Time */}
+                                        <div className="flex flex-row flex-wrap sm:flex-col items-center sm:items-end gap-2 sm:gap-1 min-w-[120px] sm:min-w-[120px] text-right">
                                             <Badge
                                                 variant={
                                                     activity.priority === "high"
@@ -255,6 +257,7 @@ const RegulatorMain = ({ setActiveTab }: {
                                                             ? "secondary"
                                                             : "outline"
                                                 }
+                                                className="mb-0 sm:mb-1"
                                             >
                                                 {activity.priority}
                                             </Badge>
@@ -266,10 +269,11 @@ const RegulatorMain = ({ setActiveTab }: {
                                                             ? "secondary"
                                                             : "outline"
                                                 }
+                                                className="mb-0 sm:mb-1"
                                             >
                                                 {activity.status}
                                             </Badge>
-                                            <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                            <p className="text-xs text-muted-foreground w-full sm:w-auto">{activity.time}</p>
                                         </div>
                                     </div>
                                 ))
@@ -304,6 +308,7 @@ const RegulatorMain = ({ setActiveTab }: {
                         <CardDescription>Common regulatory tasks and shortcuts</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        {/* 
                         <div>
                             <Label htmlFor="investigation-notes">Investigation Notes</Label>
                             <Textarea
@@ -319,6 +324,7 @@ const RegulatorMain = ({ setActiveTab }: {
                             <Eye className="h-4 w-4 mr-2" />
                             Start Investigation
                         </Button>
+                        */}
                         <Button
                             variant="outline"
                             className="w-full justify-start bg-transparent"

@@ -42,6 +42,8 @@ const RegulatorSettings = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [originalSettings, setOriginalSettings] = useState<OrganizationData | null>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -91,10 +93,21 @@ const RegulatorSettings = () => {
       ...prev,
       [field]: value
     }));
-    // Clear any success message when user starts editing
-    if (successMessage) {
-      setSuccessMessage(null);
-    }
+    if (successMessage) setSuccessMessage(null);
+  };
+
+  const handleEditClick = () => {
+    setOriginalSettings(settings); // Save current state for cancel
+    setEditing(true);
+    setSuccessMessage(null);
+    setError(null);
+  };
+
+  const handleCancelEdit = () => {
+    if (originalSettings) setSettings(originalSettings);
+    setEditing(false);
+    setSuccessMessage(null);
+    setError(null);
   };
 
   const handleSaveSettings = async () => {
@@ -122,8 +135,7 @@ const RegulatorSettings = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const org = data.organization || data; // fallback if API returns flat object
-
+        const org = data.organization || data;
         setSettings({
           id: org.id || "",
           contactEmail: org.contactEmail || "",
@@ -138,6 +150,7 @@ const RegulatorSettings = () => {
           isActive: org.isActive !== undefined ? org.isActive : true
         });
         setSuccessMessage('Settings saved successfully!');
+        setEditing(false);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to save settings');
@@ -154,11 +167,7 @@ const RegulatorSettings = () => {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
-          <div className="sm:block">
-            <ThemeToggle />
-            </div>
-          
+          <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1> 
         </div>
         <Card>
           <CardHeader>
@@ -231,6 +240,7 @@ const RegulatorSettings = () => {
                   value={settings.agencyName || ''}
                   onChange={(e) => handleInputChange('agencyName', e.target.value)}
                   placeholder="e.g., NAFDAC, FDA"
+                  disabled={!editing}
                 />
               </div>
             </div>
@@ -244,6 +254,7 @@ const RegulatorSettings = () => {
                   value={settings.contactEmail}
                   onChange={(e) => handleInputChange('contactEmail', e.target.value)}
                   placeholder="Enter contact email"
+                  disabled={!editing}
                 />
               </div>
 
@@ -254,6 +265,7 @@ const RegulatorSettings = () => {
                   value={settings.contactPhone || ''}
                   onChange={(e) => handleInputChange('contactPhone', e.target.value)}
                   placeholder="Enter contact phone"
+                  disabled={!editing}
                 />
               </div>
             </div>
@@ -266,6 +278,7 @@ const RegulatorSettings = () => {
                   value={settings.contactPersonName || ''}
                   onChange={(e) => handleInputChange('contactPersonName', e.target.value)}
                   placeholder="Enter contact person name"
+                  disabled={!editing}
                 />
               </div>
 
@@ -276,6 +289,7 @@ const RegulatorSettings = () => {
                   value={settings.officialId || ''}
                   onChange={(e) => handleInputChange('officialId', e.target.value)}
                   placeholder="Enter official identification"
+                  disabled={!editing}
                 />
               </div>
             </div>
@@ -288,6 +302,7 @@ const RegulatorSettings = () => {
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 placeholder="Enter complete address"
                 rows={3}
+                disabled={!editing}
               />
             </div>
 
@@ -299,6 +314,7 @@ const RegulatorSettings = () => {
                   value={settings.country}
                   onChange={(e) => handleInputChange('country', e.target.value)}
                   placeholder="Enter country"
+                  disabled={!editing}
                 />
               </div>
 
@@ -309,13 +325,14 @@ const RegulatorSettings = () => {
                   value={settings.state || ''}
                   onChange={(e) => handleInputChange('state', e.target.value)}
                   placeholder="Enter state or region"
+                  disabled={!editing}
                 />
               </div>
             </div>
 
             <div className="pt-4 border-t">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
                   <div className="text-sm text-muted-foreground">
                     <p>Status: <Badge variant={settings.isActive ? 'default' : 'destructive'}>
                       {settings.isActive ? 'Active' : 'Inactive'}
@@ -328,23 +345,42 @@ const RegulatorSettings = () => {
                   </div>
                 </div>
 
-                <Button
-                  onClick={handleSaveSettings}
-                  disabled={saving}
-                  className="min-w-[120px]"
-                >
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Settings
-                    </>
-                  )}
-                </Button>
+                {!editing ? (
+                  <Button
+                    onClick={handleEditClick}
+                    className="min-w-[120px] w-full sm:w-auto cursor-pointer"
+                  >
+                    Edit Settings
+                  </Button>
+                ) : (
+                  <div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto">
+                    <Button
+                      onClick={handleSaveSettings}
+                      disabled={saving}
+                      className="min-w-[120px] w-full sm:w-auto cursor-pointer"
+                    >
+                      {saving ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Save Settings
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleCancelEdit}
+                      variant="outline"
+                      className="min-w-[120px] w-full sm:w-auto cursor-pointer"
+                      disabled={saving}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

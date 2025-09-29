@@ -156,6 +156,7 @@ const RegulatorEntities = () => {
                     <p className="text-muted-foreground text-sm sm:text-base">All registered pharmaceutical entities</p>
                 </div>
                 <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto">
+                    {/*
                     <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
                         <DialogTrigger asChild>
                             <Button className="w-full sm:w-auto">
@@ -172,7 +173,7 @@ const RegulatorEntities = () => {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                {/* Basic Information */}
+                                
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Basic Information</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -234,7 +235,7 @@ const RegulatorEntities = () => {
                                     </div>
                                 </div>
 
-                                {/* Location Information */}
+                              
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Location Information</h3>
                                     
@@ -271,7 +272,7 @@ const RegulatorEntities = () => {
                                     </div>
                                 </div>
 
-                                {/* Regulatory Information */}
+                             
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Regulatory Information</h3>
                                     
@@ -370,9 +371,9 @@ const RegulatorEntities = () => {
                             </div>
                         </DialogContent>
                     </Dialog>
+                    */}
                 </div>
             </div>
-
             <Card className="overflow-x-auto">
                 <CardHeader>
                     <CardTitle>All Registered Entities</CardTitle>

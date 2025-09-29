@@ -248,16 +248,19 @@ const RegulatorAlerts = () => {
             {/* Refresh Controls */}
             <Card>
                 <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center sm:justify-start">
                             <CheckCircle className="h-4 w-4" />
-                            <span>Last updated: {lastRefresh.toLocaleTimeString()}</span>
+                            <span>
+                                Last updated: {lastRefresh.toLocaleTimeString()}
+                            </span>
                         </div>
                         <Button 
                             variant="outline" 
                             size="sm" 
                             onClick={fetchAlerts}
                             disabled={loading}
+                            className="w-full sm:w-auto"
                         >
                             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                             Refresh

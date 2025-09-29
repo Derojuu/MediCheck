@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import PDFDocument from "pdfkit";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -94,10 +95,48 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ 
-      reportType,
-      generatedAt: new Date().toISOString(),
-      data: reportData 
+    // --- PDF GENERATION ---
+    const doc = new PDFDocument({ margin: 40, size: "A4" });
+
+    // Register and use your custom font
+    const fontPath = process.cwd() + "/public/fonts/OpenSans-VariableFont_wdth,wght.ttf";
+    console.log("FONT PATH:", fontPath);
+    doc.registerFont("custom", fontPath);
+    doc.font("custom");
+
+    const chunks: Uint8Array[] = [];
+    doc.on("data", (chunk) => chunks.push(chunk));
+
+    // Header
+    doc.font("custom").fontSize(22).text("Regulatory Report", { align: "center" }).moveDown(0.5);
+    doc.font("custom").fontSize(14).text(`Type: ${capitalize(reportType)}`, { align: "center" }).moveDown(0.5);
+    doc.font("custom").fontSize(10).text(`Generated at: ${new Date().toLocaleString()}`, { align: "center" }).moveDown(1.5);
+
+    // Organization Info
+    doc.font("custom").fontSize(11).text("Regulator:", { continued: true });
+    doc.font("custom").fontSize(11).text(` ${organization.companyName} (${organization.agencyName})`).moveDown(0.5);
+    doc.font("custom").fontSize(11).text("Contact:", { continued: true });
+    doc.font("custom").fontSize(11).text(` ${organization.contactEmail}`).moveDown(1);
+
+    // Section: Report Data
+    doc.font("custom").fontSize(14).text("Report Details", { underline: true }).moveDown(0.5);
+
+    // Render report data in a readable format
+    renderReportSection(doc, reportType, reportData);
+
+    doc.end();
+
+    // Wait for PDF to finish
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
+    });
+
+    return new NextResponse(new Uint8Array(pdfBuffer), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${reportType}-report.pdf"`,
+      },
     });
 
   } catch (error) {
@@ -109,6 +148,201 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Helper to capitalize first letter
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Render report data in a readable format
+function renderReportSection(doc: PDFKit.PDFDocument, reportType: string, data: any) {
+  switch (reportType) {
+    case "compliance":
+      renderComplianceReport(doc, data);
+      break;
+    case "investigations":
+      renderInvestigationsReport(doc, data);
+      break;
+    case "entities":
+      renderEntitiesReport(doc, data);
+      break;
+    case "violations":
+      renderViolationsReport(doc, data);
+      break;
+    case "summary":
+    default:
+      renderSummaryReport(doc, data);
+      break;
+  }
+}
+
+// --- Individual Renderers ---
+
+function renderComplianceReport(doc: PDFKit.PDFDocument, data: any) {
+  doc.font('custom').fontSize(12).text("Compliance Summary:");
+  doc.font('custom').fontSize(11).list([
+    `Total Transfers: ${data.summary.total}`,
+    `Pending: ${data.summary.pending}`,
+    `Completed: ${data.summary.completed}`,
+    `Failed: ${data.summary.failed}`,
+    `Compliance Rate: ${data.summary.complianceRate}%`
+  ]);
+  doc.moveDown();
+
+  doc.font('custom').fontSize(12).text("Recent Transfers:");
+  doc.moveDown(0.2);
+
+  if (data.transfers.length === 0) {
+    doc.font('custom').fontSize(10).text("No transfers found.");
+    return;
+  }
+
+  data.transfers.slice(0, 10).forEach((t: any, idx: number) => {
+    doc.font('custom').fontSize(10).text(`${idx + 1}. ${t.batch.drugName} (Batch: ${t.batch.batchId})`);
+    doc.font('custom').fontSize(10).text(
+      `From: ${t.fromOrg.companyName} (${t.fromOrg.organizationType})  →  To: ${t.toOrg.companyName} (${t.toOrg.organizationType})`
+    );
+    doc.font('custom').fontSize(10).text(
+      `Date: ${formatDate(t.transferDate)} | Status: ${t.status}`
+    );
+    doc.moveDown(0.5);
+  });
+}
+
+function renderInvestigationsReport(doc: PDFKit.PDFDocument, data: any) {
+  doc.font('custom').fontSize(12).text("Investigation Summary:");
+  doc.font('custom').fontSize(11).list([
+    `Total: ${data.summary.total}`,
+    `Pending: ${data.summary.pending}`,
+    `Investigating: ${data.summary.investigating}`,
+    `Resolved: ${data.summary.resolved}`,
+    `Dismissed: ${data.summary.dismissed}`,
+    `Severity: Critical(${data.summary.bySeverity.critical}), High(${data.summary.bySeverity.high}), Medium(${data.summary.bySeverity.medium}), Low(${data.summary.bySeverity.low})`
+  ]);
+  doc.moveDown();
+
+  doc.font('custom').fontSize(12).text("Recent Investigations:");
+  doc.moveDown(0.2);
+
+  if (data.investigations.length === 0) {
+    doc.font('custom').fontSize(10).text("No investigations found.");
+    return;
+  }
+
+  data.investigations.slice(0, 10).forEach((inv: any, idx: number) => {
+    doc.font('custom').fontSize(10).text(`${idx + 1}. ${inv.batch.drugName} (Batch: ${inv.batch.batchId})`);
+    doc.font('custom').fontSize(10).text(
+      `Reported by: ${inv.consumers.map((c: any) => c.fullName).join(", ") || "N/A"}`
+    );
+    doc.font('custom').fontSize(10).text(
+      `Status: ${inv.status} | Severity: ${inv.severity} | Date: ${formatDate(inv.createdAt)}`
+    );
+    doc.moveDown(0.5);
+  });
+}
+
+function renderEntitiesReport(doc: PDFKit.PDFDocument, data: any) {
+  doc.font('custom').fontSize(12).text("Entity Summary:");
+  doc.font('custom').fontSize(11).list([
+    `Total: ${data.summary.total}`,
+    `Verified: ${data.summary.verified}`,
+    `Active: ${data.summary.active}`,
+    `Manufacturers: ${data.summary.byType.manufacturers}`,
+    `Distributors: ${data.summary.byType.distributors}`,
+    `Hospitals: ${data.summary.byType.hospitals}`,
+    `Pharmacies: ${data.summary.byType.pharmacies}`
+  ]);
+  doc.moveDown();
+
+  doc.font('custom').fontSize(12).text("Recent Organizations:");
+  doc.moveDown(0.2);
+
+  if (data.organizations.length === 0) {
+    doc.font('custom').fontSize(10).text("No organizations found.");
+    return;
+  }
+
+  data.organizations.slice(0, 10).forEach((org: any, idx: number) => {
+    doc.font('custom').fontSize(10).text(`${idx + 1}. ${org.companyName} (${org.organizationType})`);
+    doc.font('custom').fontSize(10).text(
+      `Verified: ${org.isVerified ? "Yes" : "No"} | Active: ${org.isActive ? "Yes" : "No"}`
+    );
+    doc.moveDown(0.5);
+  });
+}
+
+function renderViolationsReport(doc: PDFKit.PDFDocument, data: any) {
+  doc.font('custom').fontSize(12).text("Violation Summary:");
+  doc.font('custom').fontSize(11).list([
+    `Total: ${data.summary.total}`,
+    `Critical: ${data.summary.critical}`,
+    `High: ${data.summary.high}`,
+    `Resolved: ${data.summary.resolved}`,
+    `By Type: ${Object.entries(data.summary.byType).map(([type, count]) => `${type}: ${count}`).join(", ")}`
+  ]);
+  doc.moveDown();
+
+  doc.font('custom').fontSize(12).text("Recent Violations:");
+  doc.moveDown(0.2);
+
+  if (data.violations.length === 0) {
+    doc.font('custom').fontSize(10).text("No violations found.");
+    return;
+  }
+
+  data.violations.slice(0, 10).forEach((v: any, idx: number) => {
+    doc.font('custom').fontSize(10).text(`${idx + 1}. ${v.batch.drugName} (Batch: ${v.batch.batchId})`);
+    doc.font('custom').fontSize(10).text(
+      `Severity: ${v.severity} | Status: ${v.status} | Date: ${formatDate(v.createdAt)}`
+    );
+    doc.font('custom').fontSize(10).text(
+      `Reported by: ${v.consumers.map((c: any) => c.fullName).join(", ") || "N/A"}`
+    );
+    doc.moveDown(0.5);
+  });
+}
+
+function renderSummaryReport(doc: PDFKit.PDFDocument, data: any) {
+  doc.font('custom').fontSize(12).text("Overview:");
+  doc.font('custom').fontSize(11).list([
+    `Total Organizations: ${data.overview.totalOrganizations}`,
+    `Verified Organizations: ${data.overview.verifiedOrganizations}`,
+    `Verification Rate: ${data.overview.verificationRate}%`,
+    `Total Batches: ${data.overview.totalBatches}`,
+    `Active Batches: ${data.overview.activeBatches}`,
+    `Monthly Scans: ${data.overview.monthlyScans}`,
+    `Yearly Scans: ${data.overview.yearlyScans}`
+  ]);
+  doc.moveDown();
+
+  doc.font('custom').fontSize(12).text("Compliance:");
+  doc.font('custom').fontSize(11).list([
+    `Pending Transfers: ${data.compliance.pendingTransfers}`,
+    `Completed Transfers: ${data.compliance.completedTransfers}`,
+    `Compliance Rate: ${data.compliance.complianceRate}%`
+  ]);
+  doc.moveDown();
+
+  doc.font('custom').fontSize(12).text("Investigations:");
+  doc.font('custom').fontSize(11).list([
+    `Active Investigations: ${data.investigations.activeInvestigations}`,
+    `Resolved Investigations: ${data.investigations.resolvedInvestigations}`,
+    `Resolution Rate: ${data.investigations.resolutionRate}%`
+  ]);
+  doc.moveDown();
+}
+
+// Helper to format date
+function formatDate(date: string | Date) {
+  return new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+// --- Existing report data generators below (unchanged) ---
 async function generateInvestigationsReport(startDate: Date) {
   const investigations = await prisma.counterfeitReport.findMany({
     where: {
