@@ -461,14 +461,6 @@ export default function ConsumerProfile() {
                   <span>Scan Medicine</span>
                 </Button>
               </Link>
-              <Button
-                variant="destructive"
-                className="flex items-center px-2 sm:px-4 py-2 text-xs sm:text-sm cursor-pointer"
-                onClick={() => signOut({ redirectUrl: authRoutes.login })}
-              >
-                <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
-                <span>Sign Out</span>
-              </Button>
             </div>
           </div>
         </div>
@@ -708,7 +700,15 @@ export default function ConsumerProfile() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Country:</span>
                           <span className="font-medium">{userProfile.country || 'Not provided'}</span>
-                        </div>
+                          </div>
+                          <Button
+                            variant="destructive"
+                            className="mt-8 flex items-center px-2 sm:px-4 py-2 text-xs sm:text-sm cursor-pointer"
+                            onClick={() => signOut({ redirectUrl: authRoutes.login })}
+                          >
+                            <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
+                            <span>Sign Out</span>
+                          </Button>
                       </div>
                     </div>
                   ) : (
