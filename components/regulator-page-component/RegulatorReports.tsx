@@ -79,34 +79,25 @@ const RegulatorReports = () => {
 
     const generateReport = async (reportType: string) => {
         try {
-            setGeneratingReport(reportType)
-            const response = await fetch(`/api/regulator/reports?type=${reportType}`)
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`)
-            }
-            
-            const reportData: ReportData = await response.json()
-            
-            // Create and download the report as JSON for now
-            // In a real implementation, you'd generate PDF/Excel files
-            const blob = new Blob([JSON.stringify(reportData, null, 2)], { 
-                type: 'application/json' 
-            })
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `${reportType}-report-${new Date().toISOString().split('T')[0]}.json`
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            URL.revokeObjectURL(url)
-            
+            setGeneratingReport(reportType);
+            const response = await fetch(`/api/regulator/reports?type=${reportType}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            // Get PDF blob
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${reportType}-report-${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         } catch (error) {
-            console.error('Error generating report:', error)
-            setError(`Failed to generate ${reportType} report. Please try again.`)
+            console.error('Error generating report:', error);
+            setError(`Failed to generate ${reportType} report. Please try again.`);
         } finally {
-            setGeneratingReport(null)
+            setGeneratingReport(null);
         }
     }
 
@@ -137,7 +128,7 @@ const RegulatorReports = () => {
                 </div>
                 <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <span className="ml-2 text-muted-foreground">Loading analytics data...</span>
+                    <span className="ml-2 text-muted-foreground">Loading reports data...</span>
                 </div>
             </div>
         )

@@ -303,24 +303,30 @@ const RegulatorCompliance = () => {
                     <CardContent>
                         <div className="space-y-4">
                             {pendingTransfers.slice(0, 5).map((transfer) => (
-                                <div key={transfer.id} className="flex items-center justify-between p-4 border rounded-lg">
-                                    <div className="flex-1">
-                                        <div className="font-medium">{transfer.batch.drugName}</div>
-                                        <div className="text-sm text-muted-foreground">
+                                <div
+                                    key={transfer.id}
+                                    className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 p-4 border rounded-lg bg-white dark:bg-slate-900"
+                                >
+                                    {/* Info Section */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-base truncate">{transfer.batch.drugName}</div>
+                                        <div className="text-sm text-muted-foreground truncate">
                                             {transfer.fromOrg.companyName} → {transfer.toOrg.companyName}
                                         </div>
-                                        <div className="text-xs text-muted-foreground mt-1">
-                                            Batch: {transfer.batch.batchId} | Transfer Date: {formatDate(transfer.transferDate)}
+                                        <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-x-2">
+                                            <span>Batch: {transfer.batch.batchId}</span>
+                                            <span>Transfer: {formatDate(transfer.transferDate)}</span>
                                             {isExpiringSoon(transfer.batch.expiryDate) && (
                                                 <span className="text-orange-600 ml-2">⚠️ Expires Soon</span>
                                             )}
                                         </div>
                                     </div>
-                                    <div className="flex items-center space-x-2">
+                                    {/* Actions Section */}
+                                    <div className="flex flex-col w-full sm:w-auto gap-2 mt-3 sm:mt-0">
                                         <Button
                                             size="sm"
                                             onClick={() => handleApproveTransfer(transfer.id, 'COMPLETED')}
-                                            className="bg-green-600 hover:bg-green-700"
+                                            className="bg-green-600 hover:bg-green-700 w-full"
                                         >
                                             <CheckCircle className="h-4 w-4 mr-1" />
                                             Approve
@@ -329,7 +335,7 @@ const RegulatorCompliance = () => {
                                             size="sm"
                                             variant="outline"
                                             onClick={() => handleApproveTransfer(transfer.id, 'FAILED', 'Rejected by regulator')}
-                                            className="text-red-600 hover:bg-red-50"
+                                            className="text-red-600 hover:bg-red-50 w-full"
                                         >
                                             <XCircle className="h-4 w-4 mr-1" />
                                             Reject
@@ -342,10 +348,10 @@ const RegulatorCompliance = () => {
                 </Card>
             )}
 
-            {/* All Transfers Table */}
+            {/* All Transfers Table - Responsive */}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                         <div>
                             <CardTitle>All Ownership Transfers</CardTitle>
                             <CardDescription>Complete history of ownership transfers across the supply chain</CardDescription>
@@ -364,98 +370,177 @@ const RegulatorCompliance = () => {
                             <p className="text-sm text-muted-foreground">There are currently no ownership transfers to review.</p>
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Medication Details</TableHead>
-                                    <TableHead>From Organization</TableHead>
-                                    <TableHead>To Organization</TableHead>
-                                    <TableHead>Transfer Date</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                        <>
+                            {/* Desktop Table */}
+                            <div className="hidden md:block">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Medication Details</TableHead>
+                                            <TableHead>From Organization</TableHead>
+                                            <TableHead>To Organization</TableHead>
+                                            <TableHead>Transfer Date</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {transfers.map((transfer) => (
+                                            <TableRow key={transfer.id}>
+                                                <TableCell>
+                                                    <div>
+                                                        <div className="font-medium">{transfer.batch.drugName}</div>
+                                                        <div className="text-sm text-muted-foreground">
+                                                            Batch: {transfer.batch.batchId}
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground">
+                                                            Mfg: {formatDate(transfer.batch.manufacturingDate)} | 
+                                                            Exp: {formatDate(transfer.batch.expiryDate)}
+                                                            {isExpiringSoon(transfer.batch.expiryDate) && (
+                                                                <span className="text-orange-600 ml-1">⚠️</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div>
+                                                        <div className="font-medium">{transfer.fromOrg.companyName}</div>
+                                                        <Badge 
+                                                            variant="outline" 
+                                                            className={`text-xs mt-1 ${getOrganizationTypeColor(transfer.fromOrg.organizationType)}`}
+                                                        >
+                                                            {transfer.fromOrg.organizationType.replace('_', ' ')}
+                                                        </Badge>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div>
+                                                        <div className="font-medium">{transfer.toOrg.companyName}</div>
+                                                        <Badge 
+                                                            variant="outline" 
+                                                            className={`text-xs mt-1 ${getOrganizationTypeColor(transfer.toOrg.organizationType)}`}
+                                                        >
+                                                            {transfer.toOrg.organizationType.replace('_', ' ')}
+                                                        </Badge>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="text-sm">
+                                                        {formatDate(transfer.transferDate)}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {getStatusBadge(transfer.status)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center space-x-2">
+                                                        {transfer.status === 'PENDING' ? (
+                                                            <>
+                                                                <Button
+                                                                    size="sm"
+                                                                    onClick={() => handleApproveTransfer(transfer.id, 'COMPLETED')}
+                                                                    className="bg-green-600 hover:bg-green-700"
+                                                                >
+                                                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                                                    Approve
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => handleApproveTransfer(transfer.id, 'FAILED', 'Rejected by regulator')}
+                                                                    className="text-red-600 hover:bg-red-50"
+                                                                >
+                                                                    <XCircle className="h-4 w-4 mr-1" />
+                                                                    Reject
+                                                                </Button>
+                                                            </>
+                                                        ) : (
+                                                            <Badge variant="outline" className="text-xs">
+                                                                {transfer.status === 'COMPLETED' ? 'Processed' : 'Reviewed'}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                            {/* Mobile Card List */}
+                            <div className="md:hidden space-y-4">
                                 {transfers.map((transfer) => (
-                                    <TableRow key={transfer.id}>
-                                        <TableCell>
+                                    <div
+                                        key={transfer.id}
+                                        className="border rounded-lg p-4 bg-white dark:bg-slate-900 flex flex-col gap-2"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="font-semibold text-base truncate">{transfer.batch.drugName}</div>
+                                            {getStatusBadge(transfer.status)}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            Batch: {transfer.batch.batchId}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 mt-1">
                                             <div>
-                                                <div className="font-medium">{transfer.batch.drugName}</div>
-                                                <div className="text-sm text-muted-foreground">
-                                                    Batch: {transfer.batch.batchId}
-                                                </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    Mfg: {formatDate(transfer.batch.manufacturingDate)} | 
-                                                    Exp: {formatDate(transfer.batch.expiryDate)}
-                                                    {isExpiringSoon(transfer.batch.expiryDate) && (
-                                                        <span className="text-orange-600 ml-1">⚠️</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div>
-                                                <div className="font-medium">{transfer.fromOrg.companyName}</div>
+                                                <span className="font-medium">{transfer.fromOrg.companyName}</span>
                                                 <Badge 
                                                     variant="outline" 
-                                                    className={`text-xs mt-1 ${getOrganizationTypeColor(transfer.fromOrg.organizationType)}`}
+                                                    className={`text-xs ml-1 ${getOrganizationTypeColor(transfer.fromOrg.organizationType)}`}
                                                 >
                                                     {transfer.fromOrg.organizationType.replace('_', ' ')}
                                                 </Badge>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
+                                            <span className="mx-1">→</span>
                                             <div>
-                                                <div className="font-medium">{transfer.toOrg.companyName}</div>
+                                                <span className="font-medium">{transfer.toOrg.companyName}</span>
                                                 <Badge 
                                                     variant="outline" 
-                                                    className={`text-xs mt-1 ${getOrganizationTypeColor(transfer.toOrg.organizationType)}`}
+                                                    className={`text-xs ml-1 ${getOrganizationTypeColor(transfer.toOrg.organizationType)}`}
                                                 >
                                                     {transfer.toOrg.organizationType.replace('_', ' ')}
                                                 </Badge>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="text-sm">
-                                                {formatDate(transfer.transferDate)}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            {getStatusBadge(transfer.status)}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center space-x-2">
-                                                {transfer.status === 'PENDING' ? (
-                                                    <>
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() => handleApproveTransfer(transfer.id, 'COMPLETED')}
-                                                            className="bg-green-600 hover:bg-green-700"
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 mr-1" />
-                                                            Approve
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => handleApproveTransfer(transfer.id, 'FAILED', 'Rejected by regulator')}
-                                                            className="text-red-600 hover:bg-red-50"
-                                                        >
-                                                            <XCircle className="h-4 w-4 mr-1" />
-                                                            Reject
-                                                        </Button>
-                                                    </>
-                                                ) : (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {transfer.status === 'COMPLETED' ? 'Processed' : 'Reviewed'}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            Mfg: {formatDate(transfer.batch.manufacturingDate)} | Exp: {formatDate(transfer.batch.expiryDate)}
+                                            {isExpiringSoon(transfer.batch.expiryDate) && (
+                                                <span className="text-orange-600 ml-1">⚠️</span>
+                                            )}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            Transfer: {formatDate(transfer.transferDate)}
+                                        </div>
+                                        <div className="flex flex-row gap-2 mt-2">
+                                            {transfer.status === 'PENDING' ? (
+                                                <>
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => handleApproveTransfer(transfer.id, 'COMPLETED')}
+                                                        className="bg-green-600 hover:bg-green-700 flex-1"
+                                                    >
+                                                        <CheckCircle className="h-4 w-4 mr-1" />
+                                                        Approve
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => handleApproveTransfer(transfer.id, 'FAILED', 'Rejected by regulator')}
+                                                        className="text-red-600 hover:bg-red-50 flex-1"
+                                                    >
+                                                        <XCircle className="h-4 w-4 mr-1" />
+                                                        Reject
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <Badge variant="outline" className="text-xs">
+                                                    {transfer.status === 'COMPLETED' ? 'Processed' : 'Reviewed'}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
                                 ))}
-                            </TableBody>
-                        </Table>
+                            </div>
+                        </>
                     )}
                 </CardContent>
             </Card>

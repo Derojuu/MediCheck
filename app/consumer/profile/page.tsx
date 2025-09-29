@@ -450,13 +450,25 @@ export default function ConsumerProfile() {
               <Shield className="h-8 w-8 text-primary" />
               <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">MediCheck</span>
             </Link>
-            <div className="flex items-center space-x-4">
+            {/* Responsive button group */}
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
               <Link href={consumerRoutes.scan}>
-                <Button variant="outline" className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 cursor-pointer">
-                  <Scan className="h-4 w-4 mr-2 text-primary" />
-                  Scan Medicine
+                <Button
+                  variant="outline"
+                  className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 cursor-pointer px-2 sm:px-4 py-2 text-xs sm:text-sm"
+                >
+                  <Scan className="h-4 w-4 mr-1 sm:mr-2 text-primary" />
+                  <span>Scan Medicine</span>
                 </Button>
               </Link>
+              <Button
+                variant="destructive"
+                className="flex items-center px-2 sm:px-4 py-2 text-xs sm:text-sm cursor-pointer"
+                onClick={() => signOut({ redirectUrl: authRoutes.login })}
+              >
+                <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
+                <span>Sign Out</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -494,7 +506,7 @@ export default function ConsumerProfile() {
                   </CardTitle>
                   <CardDescription>Update your personal information and preferences</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6"> {/* Increased vertical spacing */}
+                <CardContent className="space-y-6">
                   {isLoading ? (
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -517,26 +529,81 @@ export default function ConsumerProfile() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="name">Full Name</Label>
-                          <Input id="name" value={userProfile.name || ''} readOnly />
+                          {isEditingProfile ? (
+                            <Input
+                              id="name"
+                              value={editableProfile.fullName}
+                              onChange={(e) =>
+                                setEditableProfile((prev) => ({
+                                  ...prev,
+                                  fullName: e.target.value,
+                                }))
+                              }
+                            />
+                          ) : (
+                            <Input id="name" value={userProfile.name || ""} readOnly />
+                          )}
                         </div>
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="phone">Phone Number</Label>
-                          <Input id="phone" value={userProfile.phoneNumber || 'Not provided'} readOnly />
+                          {isEditingProfile ? (
+                            <Input
+                              id="phone"
+                              value={editableProfile.phoneNumber}
+                              onChange={(e) =>
+                                setEditableProfile((prev) => ({
+                                  ...prev,
+                                  phoneNumber: e.target.value,
+                                }))
+                              }
+                            />
+                          ) : (
+                            <Input
+                              id="phone"
+                              value={userProfile.phoneNumber || "Not provided"}
+                              readOnly
+                            />
+                          )}
                         </div>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="address">Address</Label>
-                          <Input id="address" value={userProfile.address || 'Not provided'} readOnly />
+                          {isEditingProfile ? (
+                            <Input
+                              id="address"
+                              value={editableProfile.address}
+                              onChange={(e) =>
+                                setEditableProfile((prev) => ({
+                                  ...prev,
+                                  address: e.target.value,
+                                }))
+                              }
+                            />
+                          ) : (
+                            <Input
+                              id="address"
+                              value={userProfile.address || "Not provided"}
+                              readOnly
+                            />
+                          )}
                         </div>
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="country">Country</Label>
-                          <Input id="country" value={userProfile.country || 'Not provided'} readOnly />
+                          <Input
+                            id="country"
+                            value={userProfile.country || "Not provided"}
+                            readOnly
+                          />
                         </div>
                       </div>
                       <div className="flex flex-col gap-2 max-w-sm">
                         <Label htmlFor="language">Preferred Language</Label>
-                        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                        <Select
+                          value={selectedLanguage}
+                          onValueChange={setSelectedLanguage}
+                          disabled={!isEditingProfile}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select your preferred language" />
                           </SelectTrigger>
@@ -549,12 +616,42 @@ export default function ConsumerProfile() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button 
-                        onClick={updateProfile}
-                        className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                      >
-                        Update Profile
-                      </Button>
+                      {/* Move the Edit/Save Changes button here, under Preferred Language */}
+                      <div className="flex gap-3 mt-2">
+                        <Button
+                          onClick={async () => {
+                            if (!isEditingProfile) {
+                              enableEditMode();
+                            } else {
+                              await saveProfileChanges();
+                            }
+                          }}
+                          disabled={isProfileSaving}
+                          className={`text-white text-sm px-3 py-2 ${
+                            isEditingProfile
+                              ? "bg-green-600 hover:bg-green-700"
+                              : "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                          }`}
+                          size="sm"
+                        >
+                          {isEditingProfile
+                            ? isProfileSaving
+                              ? "Saving..."
+                              : "Save Changes"
+                            : "Edit Changes"}
+                        </Button>
+                        {isEditingProfile && (
+                          <Button
+                            onClick={cancelEditMode}
+                            variant="outline"
+                            disabled={isProfileSaving}
+                            className="text-sm px-3 py-2"
+                            size="sm"
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-4">
