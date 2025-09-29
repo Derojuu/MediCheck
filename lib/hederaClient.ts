@@ -8,5 +8,5 @@ export const hederaClient = new HCS2Client({
   network: "testnet",
   operatorId: process.env.HEDERA_OPERATOR_ID!,
   operatorKey: process.env.HEDERA_OPERATOR_KEY!,
-  logLevel: "info",
+   logLevel: "silent"
 });
