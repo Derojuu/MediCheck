@@ -13,6 +13,11 @@ const nextConfig = {
   serverExternalPackages: [
     "@hashgraphonline/standards-sdk",
     "onnxruntime-node",
+    'thread-stream',
+    'pino',
+    'pino-worker',
+    'pino-file',
+    'pino-pretty'
   ],
 
 
