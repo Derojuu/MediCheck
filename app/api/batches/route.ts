@@ -6,13 +6,26 @@ import { generateQRPayload , generateBatchQRPayload} from "@/lib/qrPayload";
 
 export const runtime = "nodejs";
 
+export const dynamic = "force-dynamic";
+
 const QR_SECRET = process.env.QR_SECRET || "dev-secret"; 
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
+console.log(QR_SECRET)
+
+console.log(BASE_URL)
+
+console.log("Creating batch...");
+
 export async function POST(req: Request) {
 
+  console.log("Endpoint entered")
+
   try {
+
+    console.log("Parsing body... endpoint works")
+    
     const body = await req.json();
     const {
       organizationId,
@@ -53,7 +66,9 @@ export async function POST(req: Request) {
 
     // Step 1: create registry for batch on Hedera
     const registry = await createBatchRegistry(batchId);
+
     if (!registry.success || !registry.topicId) {
+      console.log("Registry creation failed", registry);
       return NextResponse.json(
         { error: "Failed to create registry on Hedera" },
         { status: 500 }
@@ -62,8 +77,8 @@ export async function POST(req: Request) {
 
     const qrBatchPayload = generateBatchQRPayload(
       batchId,
-      QR_SECRET,
-      BASE_URL,
+      QR_SECRET as string,
+      BASE_URL as string,
       registry.topicId
     );
 
@@ -133,8 +148,8 @@ export async function POST(req: Request) {
         serialNumber,
         batchId,
         seq,
-        QR_SECRET,
-        BASE_URL
+        QR_SECRET as string,
+        BASE_URL as string
       );
 
       console.log("unit", qrUnitPayload);
@@ -158,6 +173,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   }
+
   catch (error) {
     console.error("Error creating batch:", error);
     return NextResponse.json(
@@ -165,4 +181,5 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
 }
