@@ -4,25 +4,14 @@ import { nanoid } from "nanoid";
 import { createBatchRegistry, registerUnitOnBatch, logBatchEvent } from "@/lib/hedera";
 import { generateQRPayload , generateBatchQRPayload} from "@/lib/qrPayload";
 
-// In your API route, add OPTIONS method handling
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
-}
 
 export const runtime = "nodejs";
 
 export const dynamic = "force-dynamic";
 
-const QR_SECRET = process.env.QR_SECRET;
+const QR_SECRET = process.env.QR_SECRET || "dev-secret"; 
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 console.log(QR_SECRET)
 
