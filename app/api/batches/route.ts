@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV === 'production') {
+  process.env.PINO_PRETTY_DISABLE = 'true';
+}
+import "@/lib/logPatch";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nanoid } from "nanoid";

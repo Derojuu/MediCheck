@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "prisma generate --no-engine && next build",
     "dev": "next dev",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate --no-engine",
     "lint": "next lint",
     "start": "next start"
   },
@@ -69,6 +69,8 @@
     "onnxruntime-node": "^1.22.0-rev",
     "onnxruntime-web": "^1.22.0",
     "pdfkit": "^0.17.2",
+    "pino": "^9.12.0",
+    "pino-pretty": "^13.1.1",
     "qr-scanner": "^1.4.2",
     "qrcode": "^1.5.4",
     "react": "^19",

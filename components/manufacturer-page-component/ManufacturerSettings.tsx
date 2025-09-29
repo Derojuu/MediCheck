@@ -111,9 +111,9 @@ const ManufacturerSettings = () => {
                         readOnly 
                     />
                 </div>
-                <Button className=" cursor-pointer" onClick={() => alert("pending feature")}>
+                {/* <Button className=" cursor-pointer" onClick={() => alert("pending feature")}>
                     Save Changes
-                </Button>
+                </Button> */}
                 </div>
             </CardContent>
             </Card>
