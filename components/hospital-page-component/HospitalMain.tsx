@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge"
 import { LoadingSpinner } from "@/components/ui/loading"
 import { Package, AlertTriangle, TrendingUp, Clock, CheckCircle, QrCode, Building2 } from "lucide-react";
 import { ManufacturerTab } from "@/utils";
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface HospitalStats {
     totalMedications: number;
@@ -28,6 +29,7 @@ const HospitalMain = ({ setActiveTab, orgId }: {
         alerts: 0,
     });
     const [loading, setLoading] = useState(true);
+    const [hospitalName, setHospitalName] = useState("");
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -47,7 +49,21 @@ const HospitalMain = ({ setActiveTab, orgId }: {
             }
         };
 
+        const fetchHospitalName = async () => {
+            if (!orgId) return;
+            try {
+                const response = await fetch(`/api/organizations/info?orgId=${orgId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setHospitalName(data.companyName);
+                }
+            } catch (error) {
+                setHospitalName("");
+            }
+        };
+
         fetchStats();
+        fetchHospitalName();
     }, [orgId]);
 
     const handleVerifyMedication = () => {
@@ -75,9 +91,14 @@ const HospitalMain = ({ setActiveTab, orgId }: {
             <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
                 <div className="min-w-0 flex-1">
                     <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hospital Dashboard</h1>
-                    <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">Welcome to Lagos University Teaching Hospital</p>
+                    <p className="text-muted-foreground mt-1 sm:mt-2 text-base sm:text-lg font-extrabold">
+                      Welcome{hospitalName ? ` to ${hospitalName}` : " to your hospital"}
+                    </p>
                 </div>
-                <div className="flex items-center justify-start sm:justify-end">
+                <div className="flex items-center justify-start sm:justify-end gap-2">
+                    <span className="hidden sm:inline">
+                        <ThemeToggle />
+                    </span>
                     <Badge variant="secondary" className="px-3 py-1.5 bg-primary/10 text-primary border-primary/20 text-sm">
                         <Building2 className="h-4 w-4 mr-2" />
                         Hospital
