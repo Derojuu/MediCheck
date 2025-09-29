@@ -152,32 +152,34 @@ const HospitalSettings = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-2">
                 <div>
                     <h1 className="font-montserrat font-bold text-3xl text-foreground">Settings</h1>
-                    <p className="text-muted-foreground">Manage your hospital preferences and configurations</p>
+                    <p className="text-muted-foreground mt-1 text-base sm:text-sm">Manage your hospital preferences and configurations</p>
                 </div>
-                {!isEditing && canEdit ? (
-                    <Button onClick={handleEdit} className="flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Edit Settings
-                    </Button>
-                ) : !canEdit ? (
-                    <div className="text-sm text-muted-foreground">
-                        Contact administrator to edit settings
-                    </div>
-                ) : (
-                    <div className="flex gap-2">
-                        <Button onClick={handleCancel} variant="outline" className="flex items-center gap-2">
-                            <X className="h-4 w-4" />
-                            Cancel
+                <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-0">
+                    {!isEditing && canEdit ? (
+                        <Button onClick={handleEdit} className="flex items-center gap-2 w-full sm:w-auto">
+                            <Edit className="h-4 w-4" />
+                            Edit Settings
                         </Button>
-                        <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
-                            <Save className="h-4 w-4" />
-                            {saving ? 'Saving...' : 'Save Changes'}
-                        </Button>
-                    </div>
-                )}
+                    ) : !canEdit ? (
+                        <div className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-left">
+                            Contact administrator to edit settings
+                        </div>
+                    ) : (
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <Button onClick={handleCancel} variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
+                                <X className="h-4 w-4" />
+                                Cancel
+                            </Button>
+                            <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2 w-full sm:w-auto">
+                                <Save className="h-4 w-4" />
+                                {saving ? 'Saving...' : 'Save Changes'}
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <Card>
