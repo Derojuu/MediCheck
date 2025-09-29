@@ -88,6 +88,7 @@ const HospitalReports = () => {
                     reportType,
                     severity,
                     description: reportMessage.trim(),
+                    // reporterId: undefined // Only include if you have it
                 }),
             });
 

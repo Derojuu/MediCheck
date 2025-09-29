@@ -190,20 +190,11 @@ const HospitalAlerts = () => {
                         <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
                     </Button>
-                    
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowDismissed(!showDismissed)}
-                        className="w-full sm:w-auto"
-                    >
-                        {showDismissed ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                        {showDismissed ? 'Hide Dismissed' : 'Show Dismissed'}
-                    </Button>
                 </div>
             </div>
 
-            {/* Filter Bar */}
+            {/* Filter Bar (commented out, not needed for now) */}
+            {/**
             <Card className="shadow-sm">
                 <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -245,6 +236,7 @@ const HospitalAlerts = () => {
                     </div>
                 </CardContent>
             </Card>
+            */}
 
             {/* Alert Statistics Dashboard */}
             <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
