@@ -417,7 +417,7 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
             </div>
 
             {/* Batch Overview Stats */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Batches</CardTitle>
@@ -427,20 +427,6 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                         <div className="text-2xl font-bold">{batches.length}</div>
                         <p className="text-xs text-muted-foreground">
                             All batches created
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Delivered</CardTitle>
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {batches.filter(batch => batch.status === $Enums.BatchStatus.DELIVERED).length}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            Successfully delivered
                         </p>
                     </CardContent>
                 </Card>
@@ -580,7 +566,6 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                     <TableHead className="min-w-[120px] hidden md:table-cell">Expiry Date</TableHead>
                                     <TableHead className="min-w-[100px] hidden sm:table-cell">Batch Size</TableHead>
                                     <TableHead className="min-w-[120px]">Status</TableHead>
-                                    <TableHead className="min-w-[120px] hidden md:table-cell">Location</TableHead>
                                     <TableHead className="min-w-[140px]">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -598,7 +583,6 @@ const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; 
                                                 <span className="text-xs">{getStatusDisplay(batch.status)}</span>
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="hidden md:table-cell">{batch.currentLocation || 'Not set'}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-col sm:flex-row gap-2">
                                                 <Button

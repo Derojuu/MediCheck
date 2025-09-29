@@ -155,7 +155,7 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
             </div>
 
             {/* Stats Cards - Mobile: Stacked Vertically, Desktop: Grid */}
-            <div className="space-y-4 sm:space-y-6 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:space-y-0">
+            <div className="space-y-4 sm:space-y-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-y-0">
                 <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Total Batches</CardTitle>
@@ -164,7 +164,6 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
                     <CardContent>
                         <div className="text-2xl sm:text-3xl font-bold text-foreground">{stats.totalBatches}</div>
                         <p className="text-xs text-muted-foreground mt-1">
-                            <span className="text-accent font-medium">+15%</span> from last month
                         </p>
                     </CardContent>
                 </Card>
@@ -184,23 +183,11 @@ const ManufacturerMain = ({ setActiveTab, orgId }: {
 
                 <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Pending Quality</CardTitle>
-                        <FlaskConical className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl sm:text-3xl font-bold text-orange-600">{stats.pendingQuality}</div>
-                        <p className="text-xs text-muted-foreground mt-1">Awaiting QC approval</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="glass-effect border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Recent Transfers</CardTitle>
                         <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl sm:text-3xl font-bold text-foreground">{stats.recentTransfers}</div>
-
                     </CardContent>
                 </Card>
             </div>
