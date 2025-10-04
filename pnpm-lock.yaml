@@ -185,9 +185,12 @@ importers:
       pdfkit:
         specifier: ^0.17.2
         version: 0.17.2
-      puppeteer:
-        specifier: ^24.22.3
-        version: 24.22.3(typescript@5.9.2)
+      pino:
+        specifier: ^9.12.0
+        version: 9.12.0
+      pino-pretty:
+        specifier: ^13.1.1
+        version: 13.1.1
       qr-scanner:
         specifier: ^1.4.2
         version: 1.4.2
@@ -916,7 +919,6 @@ packages:
   '@next/swc-win32-x64-msvc@15.4.6':
     resolution: {integrity: sha512-T4ufqnZ4u88ZheczkBTtOF+eKaM14V8kbjud/XrAakoM5DKQWjW09vD6B9fsdsWS2T7D5EY31hRHdta7QKWOng==}
     engines: {node: '>= 10'}
-    cpu: [x64]
     os: [win32]
 
   '@next/swc-win32-x64-msvc@15.5.2':
@@ -4159,8 +4161,8 @@ packages:
     resolution: {integrity: sha512-dMACeu63HtRLmCG8VKdy4cShCPKaYDR4youZqoSWLxl5Gu99HUw8bw75thbPv9Nip+H+QYX8o3ZJbTdVZZ2TVg==}
     hasBin: true
 
-  pino@9.9.4:
-    resolution: {integrity: sha512-d1XorUQ7sSKqVcYdXuEYs2h1LKxejSorMEJ76XoZ0pPDf8VzJMe7GlPXpMBZeQ9gE4ZPIp5uGD+5Nw7scxiigg==}
+  pino@9.12.0:
+    resolution: {integrity: sha512-0Gd0OezGvqtqMwgYxpL7P0pSHHzTJ0Lx992h+mNlMtRVfNnqweWmf0JmRWk5gJzHalyd2mxTzKjhiNbGS2Ztfw==}
     hasBin: true
 
   pirates@4.0.7:
@@ -4609,9 +4611,8 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
-  smart-buffer@4.2.0:
-    resolution: {integrity: sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==}
-    engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
+  slow-redact@0.3.0:
+    resolution: {integrity: sha512-cf723wn9JeRIYP9tdtd86GuqoR5937u64Io+CYjlm2i7jvu7g0H+Cp0l0ShAf/4ZL+ISUTVT+8Qzz7RZmp9FjA==}
 
   socket.io-client@4.8.1:
     resolution: {integrity: sha512-hJVXfu3E28NmzGk8o1sHhN3om52tRvwYeidbj7xKy2eIIse5IoKX3USlS6Tqt3BHAtflLIkCQBkzVrEEfWUyYQ==}
@@ -5767,7 +5768,7 @@ snapshots:
       crypto-js: 4.2.0
       js-base64: 3.7.8
       long: 5.3.2
-      pino: 9.9.4
+      pino: 9.12.0
       pino-pretty: 13.1.1
       protobufjs: 7.2.5
       rfc4648: 1.5.4
@@ -5790,7 +5791,7 @@ snapshots:
       crypto-js: 4.2.0
       js-base64: 3.7.8
       long: 5.3.2
-      pino: 9.9.4
+      pino: 9.12.0
       pino-pretty: 13.1.1
       protobufjs: 7.2.5
       rfc4648: 1.5.4
@@ -5862,7 +5863,7 @@ snapshots:
       file-type: 20.5.0
       ioredis: 5.7.0
       mime-types: 2.1.35
-      pino: 9.9.4
+      pino: 9.12.0
       pino-pretty: 13.1.1
       zod: 3.25.67
     transitivePeerDependencies:
@@ -5915,7 +5916,7 @@ snapshots:
       file-type: 20.5.0
       ioredis: 5.7.0
       mime-types: 2.1.35
-      pino: 9.9.4
+      pino: 9.12.0
       pino-pretty: 13.1.1
       zod: 3.25.67
     transitivePeerDependencies:
@@ -10154,10 +10155,9 @@ snapshots:
       sonic-boom: 2.8.0
       thread-stream: 0.15.2
 
-  pino@9.9.4:
+  pino@9.12.0:
     dependencies:
       atomic-sleep: 1.0.0
-      fast-redact: 3.5.0
       on-exit-leak-free: 2.1.2
       pino-abstract-transport: 2.0.0
       pino-std-serializers: 7.0.0
@@ -10165,6 +10165,7 @@ snapshots:
       quick-format-unescaped: 4.0.4
       real-require: 0.2.0
       safe-stable-stringify: 2.5.0
+      slow-redact: 0.3.0
       sonic-boom: 4.2.0
       thread-stream: 3.1.0
 
@@ -10726,7 +10727,7 @@ snapshots:
 
   slash@3.0.0: {}
 
-  smart-buffer@4.2.0: {}
+  slow-redact@0.3.0: {}
 
   socket.io-client@4.8.1:
     dependencies:

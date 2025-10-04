@@ -567,7 +567,7 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                         <TableCell>{transfer.fromOrg.companyName}</TableCell>
                         <TableCell>{transfer.toOrg.companyName}</TableCell>
                         <TableCell>
-                          <Badge variant={getStatusVariant(transfer.status)} className={getStatusColor(transfer.status)}>
+                          <Badge variant={getStatusVariant(transfer.status)} className={getStatusColor(transfer.status) + " bg-transparent border-none shadow-none p-0 font-semibold"}>
                             {transfer.status}
                           </Badge>
                         </TableCell>
@@ -626,35 +626,33 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                             </div>
                           )}
                         </div>
-                        <Badge variant={getStatusVariant(transfer.status)} className={`${getStatusColor(transfer.status)} text-xs`}>
+                        <Badge variant={getStatusVariant(transfer.status)} className={`${getStatusColor(transfer.status)} text-xs bg-transparent border-none shadow-none p-0 font-semibold`}>
                           {transfer.status}
                         </Badge>
                       </div>
 
                       {/* Main content */}
-                      <div className="space-y-3">
-                        <div className="bg-muted/30 rounded-lg p-3">
-                          <div className="flex items-center justify-between">
+                      <div className="space-y-4">
+                        <div className="bg-muted/30 rounded-lg p-4 flex flex-col gap-2">
+                          <div className="flex flex-col gap-1">
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Batch</span>
-                            <span className="font-mono text-sm font-semibold">{transfer.batch.batchId}</span>
+                            <span className="font-mono text-base font-semibold break-all">{transfer.batch.batchId}</span>
                           </div>
-                          <div className="mt-1">
+                          <div>
                             <span className="text-sm text-foreground">{transfer.batch.drugName}</span>
                           </div>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1">
+                        <div className="flex flex-col gap-2">
+                          <div>
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">From</span>
                             <p className="text-sm font-medium text-foreground leading-tight">{transfer.fromOrg.companyName}</p>
                           </div>
-                          <div className="space-y-1">
+                          <div>
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">To</span>
                             <p className="text-sm font-medium text-foreground leading-tight">{transfer.toOrg.companyName}</p>
                           </div>
                         </div>
-
-                        <div className="pt-3 border-t border-border/40 flex items-center justify-between">
+                        <div className="pt-4 border-t border-border/40 flex flex-col gap-2">
                           <span className="text-xs text-muted-foreground">
                             {new Date(transfer.createdAt).toLocaleDateString('en-US', { 
                               month: 'short', 
@@ -662,7 +660,6 @@ const Transfers = ({ orgId, allBatches, loadBatches }: TransfersProps) => {
                               year: 'numeric' 
                             })}
                           </span>
-                          
                           {/* Quick actions for mobile */}
                           {transfer.canApprove && (
                             <div className="flex gap-2">

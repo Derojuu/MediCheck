@@ -1,30 +1,97 @@
-# Hackathon winning design
+# AI + Blockchain Medication Verification & Traceability Platform
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+A full-stack application built with **Next.js**, **Prisma ORM**, **PostgreSQL**, and **Clerk Authentication** to tackle the global crisis of **counterfeit drugs** in Africa.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/derojuus-projects/v0-hackathon-winning-design)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/vMTNrv8gvhU)
+The platform utilizes the **Hedera Consensus Service** for secure, tamper-proof drug traceability and **AI-powered verification** to educate consumers and flag counterfeit drugs in real time, increasing patient safety and supply chain transparency.
 
-## Overview
+---
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+## Key Features
 
-## Deployment
+* **Drug Traceability** – Securely register drug batches and individual units on **Hedera** using QR codes or NFC IDs for unique identification.
+* **AI Verification** – Consumers can scan a drug unit to instantly verify its authenticity and supply chain journey, with verification results provided in their **local language**.
+* **Immutable Records** – Every critical supply chain event (manufacturer $\to$ distributor $\to$ patient) is recorded as a **cryptographically secure transaction** on the blockchain.
+* **Authentication & Role Management** – Robust and secure signup/login workflows handled by **Clerk**.
+* **PostgreSQL + Prisma ORM** – Provides a strong, relational backend for managing off-chain data such as user profiles, business details, and analytics.
+* **Next.js Full-Stack** – A unified codebase for both API routes and the user interface, ensuring fast development and high performance.
 
-Your project is live at:
+---
 
-**[https://vercel.com/derojuus-projects/v0-hackathon-winning-design](https://vercel.com/derojuus-projects/v0-hackathon-winning-design)**
+## Tech Stack
 
-## Build your app
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Frontend & Backend** | [Next.js 15](https://nextjs.org/) | Full-stack React framework for rapid development. |
+| **Authentication** | [Clerk](https://clerk.com/) | Secure, drop-in user management. |
+| **Database** | PostgreSQL | Robust, open-source relational database. |
+| **ORM** | [Prisma](https://www.prisma.io/) | Next-generation ORM for type-safe database access. |
+| **Blockchain** | [Hashgraphonline SDK](hashgraphonline.com/) | Integration for fast, low-cost decentralized consensus and data storage. |
+| **AI/LLM** | Gemini | Used for local-language drug verification and consumer education. |
+| **Styling** | **Tailwind CSS** | Utility-first CSS framework for rapid UI building. |
 
-Continue building your app on:
+---
 
-**[https://v0.app/chat/projects/vMTNrv8gvhU](https://v0.app/chat/projects/vMTNrv8gvhU)**
+## Requirements
 
-## How It Works
+To run the project locally, you will need:
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+* **Node.js** $\ge 18.x$
+* **pnpm** (latest versions)
+* **Prisma CLI** (`npm install -g prisma`)
+
+---
+
+## Environment Variables
+
+Create a file named **`.env`** at the root of your project and it should contain the following:
+
+```env
+DATABASE_URL=VALUE
+# Direct connection URL (non-pooled) for migrations and schema operations
+POSTGRES_URL=VALUE
+
+# HEDERA
+HEDERA_OPERATOR_ID=VALUE
+HEDERA_OPERATOR_KEY=VAUE
+
+# CLERK
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=VALUE
+CLERK_SECRET_KEY=VALUUE
+
+QR_SECRET=VALUE
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+NODE_ENV=development
+
+# GEMINI
+GEMINI_API_KEY=VALUE
+
+```
+
+## Local Development Setup
+
+1. Clone the repository Bash
+
+    ```
+        git clone "https://github.com/Derojuu/MediCheck/" medicheck 
+    ```
+
+2. cd medicheck 
+3. Install dependencies
+    ```
+        pnpm install
+        # or
+        yarn install
+    ```
+
+4. Configure environment variables
+Create a .env.local file in the project root as shown in the section above.
+
+5. Run the development server
+    ```
+        npm run dev
+        # or
+        yarn dev
+    ```
+
+Visit http://localhost:3000 to see the application.

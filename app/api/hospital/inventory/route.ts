@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
     const transfers = await prisma.ownershipTransfer.findMany({
       where: {
         toOrgId: orgId,
-        status: "COMPLETED"
+        status: "COMPLETED",
+        batch: {
+          organizationId: orgId,
+        },
       },
       include: {
         batch: {
@@ -35,19 +38,19 @@ export async function GET(request: NextRequest) {
             batchSize: true,
             expiryDate: true,
             status: true,
-            manufacturingDate: true
-          }
+            manufacturingDate: true,
+          },
         },
         fromOrg: {
           select: {
             companyName: true,
-            organizationType: true
-          }
-        }
+            organizationType: true,
+          },
+        },
       },
       orderBy: {
-        transferDate: "desc"
-      }
+        transferDate: "desc",
+      },
     });
 
     // Transform the data to match the expected format

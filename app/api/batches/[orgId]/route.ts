@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const batches = await prisma.medicationBatch.findMany({
-      where: { organizationId: orgId },
+      where: { organizationId: org.id },
       orderBy: { createdAt: "desc" },
       include: {
         _count: {

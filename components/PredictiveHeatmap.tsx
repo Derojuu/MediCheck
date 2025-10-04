@@ -284,7 +284,7 @@ export default function PredictiveHeatmap({
               <MapContainer
                 center={[9.0820, 8.6753]} // Center of Nigeria
                 zoom={6}
-                style={{ height: '100%', width: '100%' }}
+                style={{ height: '500px', width: '100%' }}
                 className="rounded-b-lg"
               >
                 <TileLayer

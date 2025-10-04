@@ -126,11 +126,8 @@ export function HospitalSidebar({ activeTab, setActiveTab, orgId, isMobile, onTa
             )
           })}
         </nav>
-        {/* Theme Toggle and Sign Out */}
+        {/* Sign Out (moved up, after border line) and ThemeToggle only for mobile */}
         <div className="p-4 border-t flex-shrink-0">
-          <div className="flex items-center justify-center mb-3">
-            <ThemeToggle />
-          </div>
           <Button
             variant="ghost"
             className={`w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors ${isMobile ? 'text-base h-12' : 'text-xs sm:text-sm'}`}
@@ -141,6 +138,11 @@ export function HospitalSidebar({ activeTab, setActiveTab, orgId, isMobile, onTa
             <span className={isMobile ? 'block' : 'hidden sm:inline'}>{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>
             {!isMobile && <span className="sm:hidden">{isSigningOut ? '...' : 'Out'}</span>}
           </Button>
+          {isMobile && (
+            <div className="flex items-center justify-center mt-3">
+              <ThemeToggle />
+            </div>
+          )}
         </div>
       </div>
     </>
