@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import PDFDocument from "pdfkit";
+import puppeteer from "puppeteer";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     // Find or create User record
     let user = await prisma.user.findUnique({
-      where: { clerkUserId: userId }
+      where: { clerkUserId: userId },
     });
 
     if (!user) {
@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
         data: {
           clerkUserId: userId,
           userRole: "SUPER_ADMIN",
-          isActive: true
-        }
+          isActive: true,
+        },
       });
     }
 
@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
         organizationType: "REGULATOR",
         OR: [
           { adminId: user.id },
-          { teamMembers: { some: { userId: user.id } } }
-        ]
-      }
+          { teamMembers: { some: { userId: user.id } } },
+        ],
+      },
     });
 
     if (!organization) {
@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
           agencyName: "NAFDAC",
           officialId: `REG-${Date.now()}`,
           isVerified: true,
-          isActive: true
-        }
+          isActive: true,
+        },
       });
     }
 
@@ -82,54 +82,40 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    // Log report generation
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        action: `REPORT_GENERATED`,
-        entityType: "REPORT",
-        details: {
-          reportType,
-          generatedAt: new Date().toISOString()
-        }
-      }
-    });
+    // Generate HTML content for the report
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; }
+            h1 { text-align: center; }
+            h2 { margin-top: 20px; }
+            p, li { margin: 10px 0; }
+          </style>
+        </head>
+        <body>
+          <h1>Regulatory Report</h1>
+          <p><strong>Type:</strong> ${reportType}</p>
+          <p><strong>Generated at:</strong> ${new Date().toLocaleString()}</p>
+          <h2>Organization Info</h2>
+          <p><strong>Regulator:</strong> ${organization.companyName} (${organization.agencyName})</p>
+          <p><strong>Contact:</strong> ${organization.contactEmail}</p>
+          <h2>Report Details</h2>
+          <ul>
+            ${Object.entries(reportData)
+              .map(([key, value]) => `<li><strong>${key}:</strong> ${JSON.stringify(value)}</li>`)
+              .join("")}
+          </ul>
+        </body>
+      </html>
+    `;
 
-    // --- PDF GENERATION ---
-    const doc = new PDFDocument({ margin: 40, size: "A4" });
-
-    // Register and use your custom font
-    const fontPath = process.cwd() + "/public/fonts/OpenSans-VariableFont_wdth,wght.ttf";
-    console.log("FONT PATH:", fontPath);
-    doc.registerFont("custom", fontPath);
-    doc.font("custom");
-
-    const chunks: Uint8Array[] = [];
-    doc.on("data", (chunk) => chunks.push(chunk));
-
-    // Header
-    doc.font("custom").fontSize(22).text("Regulatory Report", { align: "center" }).moveDown(0.5);
-    doc.font("custom").fontSize(14).text(`Type: ${capitalize(reportType)}`, { align: "center" }).moveDown(0.5);
-    doc.font("custom").fontSize(10).text(`Generated at: ${new Date().toLocaleString()}`, { align: "center" }).moveDown(1.5);
-
-    // Organization Info
-    doc.font("custom").fontSize(11).text("Regulator:", { continued: true });
-    doc.font("custom").fontSize(11).text(` ${organization.companyName} (${organization.agencyName})`).moveDown(0.5);
-    doc.font("custom").fontSize(11).text("Contact:", { continued: true });
-    doc.font("custom").fontSize(11).text(` ${organization.contactEmail}`).moveDown(1);
-
-    // Section: Report Data
-    doc.font("custom").fontSize(14).text("Report Details", { underline: true }).moveDown(0.5);
-
-    // Render report data in a readable format
-    renderReportSection(doc, reportType, reportData);
-
-    doc.end();
-
-    // Wait for PDF to finish
-    const pdfBuffer = await new Promise<Buffer>((resolve) => {
-      doc.on("end", () => resolve(Buffer.concat(chunks)));
-    });
+    // Launch Puppeteer and generate the PDF
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(htmlContent);
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+    await browser.close();
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
@@ -138,9 +124,8 @@ export async function GET(request: NextRequest) {
         "Content-Disposition": `attachment; filename="${reportType}-report.pdf"`,
       },
     });
-
   } catch (error) {
-    console.error("Error generating report:", error);
+    console.error("Error generating PDF:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

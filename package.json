@@ -69,6 +69,7 @@
     "onnxruntime-node": "^1.22.0-rev",
     "onnxruntime-web": "^1.22.0",
     "pdfkit": "^0.17.2",
+    "puppeteer": "^24.22.3",
     "qr-scanner": "^1.4.2",
     "qrcode": "^1.5.4",
     "react": "^19",
