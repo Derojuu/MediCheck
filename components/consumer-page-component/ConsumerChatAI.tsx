@@ -113,61 +113,53 @@ export function ConsumerChatAI({ scanResult, showChat }: ConsumerChatAIProps) {
       timestamp: new Date().toISOString()
     }
     
-    // Add user message immediately
     setChatMessages(prev => [...prev, userMessage])
+    
+    const currentInput = chatInput
     setChatInput("")
     setIsAILoading(true)
 
     try {
-      // Simulate AI response with contextual information
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          scanResult: scanResult,
+          userProfile: userProfile,
+          features: {
+            drugInteractionCheck: true,
+            dosageCalculation: true
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response')
+      }
+
+      const data = await response.json()
       
-      let aiResponse = ""
-      const question = chatInput.toLowerCase()
-
-      // Context-aware responses based on scan result
-      if (scanResult) {
-        if (question.includes("dosage") || question.includes("dose") || question.includes("how much")) {
-          aiResponse = `For ${scanResult.drugName}, the recommended dosage is: ${scanResult.dosage}. Always follow your healthcare provider's specific instructions for your condition.`
-        } else if (question.includes("side effect") || question.includes("reaction")) {
-          aiResponse = `Possible side effects of ${scanResult.drugName} include: ${scanResult.sideEffects.join(", ")}. If you experience any unusual symptoms, consult your healthcare provider immediately.`
-        } else if (question.includes("safe") || question.includes("safety")) {
-          aiResponse = `Based on the scan, this medication shows: ${scanResult.safetyRating}. ${scanResult.aiRecommendation}`
-        } else if (question.includes("expire") || question.includes("expiry")) {
-          aiResponse = `This ${scanResult.drugName} expires on ${scanResult.expiryDate}. Check the packaging for storage instructions and do not use after the expiration date.`
-        } else if (question.includes("genuine") || question.includes("authentic") || question.includes("real")) {
-          aiResponse = `The scan result shows this medication as "${scanResult.status}" with a verification score of ${scanResult.verificationScore}%. ${scanResult.aiRecommendation}`
-        } else {
-          aiResponse = `I can help you with information about ${scanResult.drugName}. You can ask me about dosage, side effects, safety, or expiration. ${scanResult.aiRecommendation}`
-        }
-      } else {
-        // General responses when no scan result
-        if (question.includes("how") && question.includes("scan")) {
-          aiResponse = "To scan a medication, click the 'Scan Medication' button and point your camera at the QR code on the medication package. Make sure the code is well-lit and clearly visible."
-        } else if (question.includes("what") && question.includes("qr")) {
-          aiResponse = "QR codes on medications contain information about the drug, batch number, expiration date, and authenticity. Scanning helps verify if your medication is genuine and safe to use."
-        } else if (question.includes("safe") || question.includes("safety")) {
-          aiResponse = "Always verify medications before use. Check expiration dates, look for signs of tampering, and only purchase from licensed pharmacies. If you're unsure about a medication's authenticity, consult your pharmacist."
-        } else {
-          aiResponse = "I'm here to help you with medication verification and safety information. You can ask me about scanning procedures, medication safety, or any concerns about your prescriptions. Scan a medication first to get specific information!"
-        }
-      }
-
-      const aiMessage: ChatMessage = {
+      const aiResponse: ChatMessage = {
         type: "ai",
-        content: aiResponse,
+        content: data.message,
         timestamp: new Date().toISOString()
       }
 
-      setChatMessages(prev => [...prev, aiMessage])
+      setChatMessages(prev => [...prev, aiResponse])
+      
     } catch (error) {
-      console.error('Error generating AI response:', error)
-      const errorMessage: ChatMessage = {
+      console.error('Error sending message:', error)
+      
+      const fallbackResponse: ChatMessage = {
         type: "ai",
-        content: "I'm sorry, I'm having trouble responding right now. Please try again later.",
+        content: "I'm sorry, I'm having trouble connecting right now. Please consult your healthcare provider or pharmacist for medication guidance.",
         timestamp: new Date().toISOString()
       }
-      setChatMessages(prev => [...prev, errorMessage])
+      
+      setChatMessages(prev => [...prev, fallbackResponse])
     } finally {
       setIsAILoading(false)
     }

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading";
-import { AlertTriangle, TrendingUp, FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { AlertTriangle, TrendingUp, ClipboardList, Timer, CheckCircle, ShieldAlert } from "lucide-react";
 import { toast } from "react-toastify";
 
 interface MonthlyStats {
@@ -160,7 +160,7 @@ const HospitalReports = () => {
                                 <p className="text-sm font-medium text-muted-foreground">Total Reports</p>
                                 <p className="text-2xl font-bold text-blue-600">{reportsData?.recentReports?.length || 0}</p>
                             </div>
-                            <FileText className="h-8 w-8 text-blue-500" />
+                            <ClipboardList className="h-8 w-8 text-blue-500" />
                         </div>
                     </CardContent>
                 </Card>
@@ -174,7 +174,7 @@ const HospitalReports = () => {
                                     {reportsData?.recentReports?.filter(r => r.status.toLowerCase() === 'pending').length || 0}
                                 </p>
                             </div>
-                            <Clock className="h-8 w-8 text-orange-500" />
+                            <Timer className="h-8 w-8 text-orange-500" />
                         </div>
                     </CardContent>
                 </Card>
@@ -202,7 +202,7 @@ const HospitalReports = () => {
                                     {reportsData?.recentReports?.filter(r => r.severity.toLowerCase() === 'critical').length || 0}
                                 </p>
                             </div>
-                            <AlertCircle className="h-8 w-8 text-red-500" />
+                            <ShieldAlert className="h-8 w-8 text-red-500" />
                         </div>
                     </CardContent>
                 </Card>
@@ -253,6 +253,83 @@ const HospitalReports = () => {
                                 </p>
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5" />
+                            Report Counterfeit
+                        </CardTitle>
+                        <CardDescription>Report suspected counterfeit medications</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4 sm:space-y-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="report-type" className="text-sm font-medium">Report Type *</Label>
+                            <Select value={reportType} onValueChange={setReportType}>
+                                <SelectTrigger className={`h-10 sm:h-11 ${reportType ? 'border-green-500' : 'border-border'}`}>
+                                    <SelectValue placeholder="Select report type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="COUNTERFEIT_DETECTED">Counterfeit Detected</SelectItem>
+                                    <SelectItem value="PACKAGING_ISSUE">Packaging Issue</SelectItem>
+                                    <SelectItem value="EXPIRY_MISMATCH">Expiry Mismatch</SelectItem>
+                                    <SelectItem value="MULTIPLE_SCANS">Multiple Scans</SelectItem>
+                                    <SelectItem value="SUSPICIOUS_ACTIVITY">Suspicious Activity</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="severity" className="text-sm font-medium">Severity *</Label>
+                            <Select value={severity} onValueChange={setSeverity}>
+                                <SelectTrigger className={`h-10 sm:h-11 ${severity ? 'border-green-500' : 'border-border'}`}>
+                                    <SelectValue placeholder="Select severity level" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="LOW">Low</SelectItem>
+                                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                                    <SelectItem value="HIGH">High</SelectItem>
+                                    <SelectItem value="CRITICAL">Critical</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <Label htmlFor="report" className="text-sm font-medium">Report Details *</Label>
+                                <span className="text-xs text-muted-foreground">
+                                    {reportMessage.length}/500
+                                </span>
+                            </div>
+                            <Textarea
+                                id="report"
+                                placeholder="Describe the suspected counterfeit medication in detail..."
+                                value={reportMessage}
+                                onChange={(e) => setReportMessage(e.target.value)}
+                                rows={4}
+                                maxLength={500}
+                                className={`min-h-[100px] text-sm sm:text-base ${
+                                    reportMessage.length > 0 ? 'border-green-500' : 'border-border'
+                                }`}
+                            />
+                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                                <div 
+                                    className="bg-blue-500 h-1 rounded-full transition-all"
+                                    style={{ width: `${Math.min((reportMessage.length / 500) * 100, 100)}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        <Button 
+                            onClick={handleReportCounterfeit} 
+                            disabled={submitting || !reportType || !severity || !reportMessage.trim()}
+                            className="w-full h-10 sm:h-11"
+                        >
+                            <AlertTriangle className="h-4 w-4 mr-2" />
+                            {submitting ? 'Submitting...' : 'Submit Report'}
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
