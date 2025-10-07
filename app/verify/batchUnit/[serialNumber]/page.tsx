@@ -31,6 +31,7 @@ export default function VerifyUnitPage() {
     const [error, setError] = useState<string | null>(null);
     const [language, setLanguage] = useState(africanLanguages[0]);
     const [aiTranslation, setAiTranslation] = useState<GeminiResponse | undefined>();
+    const [showFullDetails, setShowFullDetails] = useState(false);
 
     useEffect(() => {
         if (authenticityResultCheck) {
@@ -123,7 +124,7 @@ export default function VerifyUnitPage() {
                     <div className="absolute bottom-20 right-20 w-40 h-40 bg-indigo-500/8 rounded-full blur-xl"></div>
                 </div>
                 <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
-                    <Card className="w-full max-w-xs sm:max-w-sm mx-auto bg-white/90 dark:bg-zinc-900/90 rounded-xl shadow-lg border border-border/60 z-10">
+                    <Card className="w-full max-w-xs sm:max-w-sm mx-auto rounded-xl shadow-lg z-10">
                         <CardHeader>
                             <CardTitle className="text-lg sm:text-xl font-bold text-foreground text-center">Verifying Unit</CardTitle>
                             <CardDescription className="text-muted-foreground text-center text-xs sm:text-sm">
@@ -132,7 +133,7 @@ export default function VerifyUnitPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="flex flex-col items-center justify-center space-y-4 py-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                 <div className="text-sm text-muted-foreground">Verifying unit authenticity...</div>
                             </div>
                         </CardContent>
@@ -153,7 +154,7 @@ export default function VerifyUnitPage() {
                     <div className="absolute bottom-20 left-20 w-40 h-40 bg-orange-500/8 rounded-full blur-xl"></div>
                 </div>
                 <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
-                    <Card className="w-full max-w-md mx-auto bg-white/90 dark:bg-zinc-900/90 rounded-xl shadow-lg border border-border/60 z-10">
+                    <Card className="w-full max-w-md mx-auto rounded-xl shadow-lg z-10">
                         <CardHeader>
                             <CardTitle className="text-xl sm:text-2xl font-bold text-red-600">Verification Error</CardTitle>
                         </CardHeader>
@@ -176,17 +177,20 @@ export default function VerifyUnitPage() {
                 <div className="absolute bottom-20 left-20 w-48 h-48 bg-blue-500/8 rounded-full blur-xl"></div>
                 <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-purple-500/10 rounded-full blur-lg transform -translate-x-1/2 -translate-y-1/2"></div>
             </div>
-            <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
-                <Card className="w-full max-w-lg mx-auto bg-white/90 dark:bg-zinc-900/90 rounded-xl shadow-lg p-4 sm:p-8 my-8 sm:my-16 border border-border/60 relative z-10">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="font-bold text-xl sm:text-2xl text-primary">Batch Unit Verification</CardTitle>
-                        <CardDescription className="text-xs sm:text-sm text-muted-foreground">
-                            Serial: <span className="font-mono">{serialNumber}</span>
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-                            <Badge variant={valid ? "default" : "destructive"} className="text-xs px-3 py-1">
+            <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-20 lg:pt-16 pb-8">
+                <div className="w-full max-w-7xl mx-auto space-y-6">
+                    {/* Header Section */}
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 lg:gap-6 mb-6">
+                        <div className="flex-1 min-w-0">
+                            <h1 className="font-bold text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-foreground mb-2 leading-tight">
+                                Batch Unit Verification
+                            </h1>
+                            <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">
+                                Serial: <span className="font-mono text-foreground text-sm sm:text-base lg:text-lg break-all">{serialNumber}</span>
+                            </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row sm:items-center gap-3 lg:gap-4 shrink-0">
+                            <Badge variant={valid ? "default" : "destructive"} className="text-sm px-4 py-2 w-fit">
                                 {valid === null ? "Checking..." : valid ? "GENUINE" : "SUSPICIOUS"}
                             </Badge>
                             <div className="flex items-center gap-2">
@@ -195,7 +199,7 @@ export default function VerifyUnitPage() {
                                     id="language"
                                     value={language}
                                     onChange={(e) => setLanguage(e.target.value)}
-                                    className="border border-border rounded px-2 py-1 text-sm focus:outline-none bg-background dark:bg-zinc-900"
+                                    className="border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground min-w-[120px]"
                                 >
                                     {africanLanguages.map((lang) => (
                                         <option key={lang} value={lang}>{lang}</option>
@@ -203,40 +207,123 @@ export default function VerifyUnitPage() {
                                 </select>
                             </div>
                         </div>
-                        {aiTranslation ? (
-                            <div className="space-y-4 text-left">
-                                <div>
-                                    <h2 className="font-semibold text-lg text-primary">{aiTranslation.Title[0]}</h2>
-                                    <p className="text-base font-medium">{aiTranslation.Title[1]}</p>
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold text-md">{aiTranslation.Summary[0]}</h3>
-                                    <p className="text-sm">{aiTranslation.Summary[1]}</p>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-md">{aiTranslation.Reasons[0]}</h4>
-                                    <ul className="list-disc list-inside text-sm pl-2">
-                                        {aiTranslation.Reasons[1].map((reason, index) => (
-                                            <li key={index}>{reason}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-md">{aiTranslation.RecommendedAction[0]}</h4>
-                                    <ul className="list-disc list-inside text-sm pl-2">
-                                        {aiTranslation.RecommendedAction[1].map((action, index) => (
-                                            <li key={index}>{action}</li>
-                                        ))}
-                                    </ul>
-                                </div>
+                    </div>
+
+                    {aiTranslation ? (
+                        <div className="space-y-6">
+                            {/* Title and Summary Cards - Always Visible */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg sm:text-xl text-primary">
+                                            {aiTranslation.Title[0]}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="text-base font-medium text-foreground leading-relaxed">
+                                            {aiTranslation.Title[1]}
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                                
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg sm:text-xl text-primary">
+                                            {aiTranslation.Summary[0]}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                                            {aiTranslation.Summary[1]}
+                                        </p>
+                                    </CardContent>
+                                </Card>
                             </div>
-                        ) : (
-                            <div className="flex items-center justify-center py-8">
-                                <span className="text-muted-foreground">Loading translation...</span>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+
+                            {/* See More Button */}
+                            {!showFullDetails && (
+                                <div className="flex justify-center lg:justify-start">
+                                    <button
+                                        onClick={() => setShowFullDetails(true)}
+                                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer"
+                                    >
+                                        See More Details
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Detailed Content Cards - Expandable */}
+                            {showFullDetails && (
+                                <div className="space-y-6 animate-in slide-in-from-top-2 duration-300">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle className="text-lg sm:text-xl text-primary">
+                                                    {aiTranslation.Reasons[0]}
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    Analysis and reasoning behind the verification result
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <ul className="space-y-3">
+                                                    {aiTranslation.Reasons[1].map((reason, index) => (
+                                                        <li key={index} className="flex items-start gap-3 text-sm sm:text-base">
+                                                            <span className="text-primary font-bold mt-1 flex-shrink-0">•</span>
+                                                            <span className="text-muted-foreground leading-relaxed">{reason}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </CardContent>
+                                        </Card>
+                                        
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle className="text-lg sm:text-xl text-primary">
+                                                    {aiTranslation.RecommendedAction[0]}
+                                                </CardTitle>
+                                                <CardDescription>
+                                                    Recommended next steps and actions to take
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <ul className="space-y-3">
+                                                    {aiTranslation.RecommendedAction[1].map((action, index) => (
+                                                        <li key={index} className="flex items-start gap-3 text-sm sm:text-base">
+                                                            <span className="text-green-600 font-bold mt-1 flex-shrink-0">✓</span>
+                                                            <span className="text-muted-foreground leading-relaxed">{action}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                    
+                                    {/* Show Less Button - At the bottom of expanded content */}
+                                    <div className="flex justify-center lg:justify-start">
+                                        <button
+                                            onClick={() => setShowFullDetails(false)}
+                                            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer"
+                                        >
+                                            Show Less
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <Card>
+                            <CardContent className="py-12">
+                                <div className="flex items-center justify-center">
+                                    <div className="text-center space-y-3">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+                                        <span className="text-muted-foreground text-base">Loading translation...</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
             </main>
         </div>
     );
