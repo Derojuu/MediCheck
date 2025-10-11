@@ -17,7 +17,8 @@ export default clerkMiddleware(async (auth, req) => {
     pathname.startsWith("/api/hotspots") ||
     pathname.startsWith("/api/batches") ||
     pathname.startsWith("/api/verify") ||
-    pathname.startsWith("/api/geminiTranslation")
+    pathname.startsWith("/api/geminiTranslation") ||
+    pathname.startsWith("/api/auth")
   ) {
     return NextResponse.next();
   }

@@ -13,7 +13,8 @@ import {
   LogOut,
   Building2,
   Truck,
-  Camera
+  Camera,
+  Users
 } from "lucide-react"
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
@@ -69,6 +70,7 @@ export function HospitalSidebar({ activeTab, setActiveTab, orgId, isMobile, onTa
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "inventory", label: "Inventory", icon: Package },
     // { id: "patients", label: "Patient Records", icon: Users },
+    { id: "team", label: "Team Members", icon: Users },
     { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "qr-scanner", label: "Qr Scanner", icon: Camera },
     { id: "transfers", label: "Batch Transfers", icon: Truck },

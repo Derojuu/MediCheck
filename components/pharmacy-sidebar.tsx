@@ -32,6 +32,7 @@ export function PharmacySidebar({ activeTab, setActiveTab }: PharmacySidebarProp
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "prescriptions", label: "Prescriptions", icon: ClipboardList },
     { id: "inventory", label: "Inventory", icon: Package },
+    { id: "team", label: "Team Members", icon: Users },
     { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ]
