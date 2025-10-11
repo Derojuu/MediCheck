@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 // components import 
 import { ManufacturerSidebar } from "@/components/manufacturer-page-component/manufacturer-sidebar";
-import { TeamManagement } from "@/components/team-management";
+import { TeamMemberManagement } from "@/components/team-member-management";
 import QRGenerationComponent from "@/components/QRGenerationComponent";
 import ManufacturerReports from "@/components/manufacturer-page-component/ManufacturerReports";
 import ManufacturerSettings from "@/components/manufacturer-page-component/ManufacturerSettings";
@@ -202,10 +202,10 @@ export default function ManufacturerDashboard() {
           )}
 
           {activeTab === "team" && (
-            <div className="space-y-6">
-              <h1 className="font-montserrat font-bold text-3xl text-foreground">Team Management</h1>
-              <TeamManagement />
-            </div>
+            <TeamMemberManagement 
+              organizationType="MANUFACTURER" 
+              organizationId={orgId}
+            />
           )}
 
           {activeTab === "reports" && (

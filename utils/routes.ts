@@ -9,6 +9,7 @@ export const publicRoutes: Record<string, string> = {
 export const authRoutes: Record<string, string> = {
   login: "/auth/login",
   register: "/auth/register",
+  teamMemberLogin: "/auth/team-member-login",
 };
 
 export const consumerRoutes: Record<string, string> = {

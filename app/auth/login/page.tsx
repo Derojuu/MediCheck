@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Shield, ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { Shield, ArrowLeft, Eye, EyeOff, Users } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSignIn, useUser } from "@clerk/nextjs";
@@ -126,7 +126,7 @@ export default function LoginPage() {
       </nav>
 
       {/* Main Content with matching background effects */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden pt-16 sm:pt-20 pb-8">
+      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden pt-24 sm:pt-28 pb-8">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 gradient-transition"></div>
         <div className="absolute top-20 left-4 sm:left-10 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[12000ms]"></div>
         <div className="absolute bottom-20 right-4 sm:right-10 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl bg-decoration animate-pulse duration-[10000ms] delay-2000"></div>
@@ -192,7 +192,16 @@ export default function LoginPage() {
                 </Button>
               </form>
 
-              <div className="mt-6 sm:mt-8 text-center">
+              <div className="mt-6 sm:mt-8 text-center space-y-3">
+                <div className="border-t border-border/50 pt-4">
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href="/auth/team-member-login" className="flex items-center justify-center space-x-2">
+                      <Users className="h-4 w-4" />
+                      <span>Team Member Login</span>
+                    </Link>
+                  </Button>
+                </div>
+                
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   Don't have an account?{" "}
                   <Link href="/auth/register" className="text-primary hover:text-accent transition-colors duration-300 font-medium hover:underline">
