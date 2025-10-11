@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,10 +11,32 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Truck, Package, Users, AlertTriangle, TrendingUp, Clock, ArrowRightLeft, Building2, QrCode, FileText, Search } from "lucide-react"
 import { DistributorSidebar } from "@/components/distributor-sidebar"
 import { TransferOwnership } from "@/components/transfer-ownership"
+import { TeamMemberManagement } from "@/components/team-member-management"
+import { toast } from "react-toastify"
 
 export default function DrugDistributorDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard")
   const [searchQuery, setSearchQuery] = useState("")
+  const [orgId, setOrgId] = useState("")
+  const [orgLoading, setOrgLoading] = useState(true)
+
+  // Fetch orgId
+  useEffect(() => {
+    const loadOrg = async () => {
+      setOrgLoading(true);
+      try {
+        const res = await fetch("/api/organizations/me");
+        const data = await res.json();
+        setOrgId(data.organizationId);
+      } catch (error) {
+        console.error("Error fetching organization:", error);
+        toast.error("Failed to load organization data");
+      } finally {
+        setOrgLoading(false);
+      }
+    };
+    loadOrg();
+  }, []);
 
   // Mock data
   const stats = {
@@ -412,6 +434,13 @@ export default function DrugDistributorDashboard() {
           )}
 
           {activeTab === "transfer" && <TransferOwnership />}
+
+          {activeTab === "team" && (
+            <TeamMemberManagement 
+              organizationType="distributor"
+              organizationId={orgId}
+            />
+          )}
 
           {activeTab === "partners" && (
             <div className="space-y-6">

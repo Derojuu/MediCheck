@@ -12,6 +12,7 @@ import {
   Settings,
   LogOut,
   Truck,
+  Users,
 } from "lucide-react"
 import Link from "next/link"
 import { useClerk } from "@clerk/nextjs"
@@ -81,6 +82,7 @@ export function ManufacturerSidebar({
     { id: "products", label: "Product Catalog", icon: Factory },
     { id: "transfers", label: "Batch Transfers", icon: Truck },
     { id: "qr-generator", label: "QR Generator", icon: QrCode },
+    { id: "team", label: "Team Management", icon: Users },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
