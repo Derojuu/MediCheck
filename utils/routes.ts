@@ -10,6 +10,8 @@ export const authRoutes: Record<string, string> = {
   login: "/auth/login",
   register: "/auth/register",
   teamMemberLogin: "/auth/team-member-login",
+  forgotPassword: "/auth/forgot-password",
+  resetPassword: "/auth/reset-password",
 };
 
 export const consumerRoutes: Record<string, string> = {
