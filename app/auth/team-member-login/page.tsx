@@ -49,7 +49,7 @@ export default function TeamMemberLoginPage() {
         await signIn.create({
           identifier: email,
           strategy: "email_link",
-          redirectUrl: `${window.location.origin}/dashboard`
+          redirectUrl: `${window.location.origin}/auth/login`
         })
 
         setEmailSent(true)

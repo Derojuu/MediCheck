@@ -1,7 +1,7 @@
 // app/api/team-members/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 
 export async function PUT(
   request: NextRequest,
@@ -128,7 +128,20 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    // Delete team member and associated user
+    // Delete from Clerk first, then from database
+    const clerk = await clerkClient()
+    
+    try {
+      // Delete user from Clerk if they only existed as a team member
+      if (teamMember.user.userRole === 'ORGANIZATION_MEMBER') {
+        await clerk.users.deleteUser(teamMember.user.clerkUserId)
+      }
+    } catch (clerkError) {
+      console.error('Error deleting user from Clerk:', clerkError)
+      // Continue with database deletion even if Clerk deletion fails
+    }
+
+    // Delete team member and associated user from database
     await prisma.$transaction(async (tx) => {
       // Delete team member
       await tx.teamMember.delete({
