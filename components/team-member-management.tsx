@@ -191,10 +191,14 @@ export function TeamMemberManagement({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="font-bold text-2xl text-foreground">Team Management</h2>
-          <p className="text-muted-foreground">Manage your organization's team members and access permissions</p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-0">
+        <div className="flex flex-col">
+          <h2 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Team Management
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            Manage your organization's team members and access permissions
+          </p>
         </div>
         <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
           <DialogTrigger asChild>
