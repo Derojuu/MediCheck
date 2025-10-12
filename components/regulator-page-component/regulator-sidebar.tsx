@@ -55,6 +55,7 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
     { id: "reports", label: "Reports", icon: FileText },
     { id: "alerts", label: "Alerts", icon: AlertTriangle },
     { id: "entities", label: "Registered Entities", icon: Users },
+    { id: "team", label: "Team Members", icon: Users },
     { id: "settings", label: "Settings", icon: Settings },
     { id: "analytics", label: "Analytics", icon: Eye },
   ]

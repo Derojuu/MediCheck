@@ -34,6 +34,7 @@ export function DistributorSidebar({ activeTab, setActiveTab }: DistributorSideb
     { id: "inventory", label: "Inventory", icon: Package },
     { id: "transfer", label: "Transfer Ownership", icon: ArrowUpRight },
     { id: "partners", label: "Partners", icon: Users },
+    { id: "team", label: "Team Members", icon: Users },
     { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ]
