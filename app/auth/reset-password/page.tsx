@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -9,41 +9,33 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { authRoutes } from "@/utils";
-import { useAuth, useSignIn } from "@clerk/nextjs";
-import { Eye, EyeOff, Shield, ArrowLeft } from "lucide-react";
+import { useSignIn } from "@clerk/nextjs";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Shield, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
-export default function ResetPasswordPage() {
-  const [email, setEmail] = useState("");
+function ResetPasswordForm() {
   const [otpCode, setOtpCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [step, setStep] = useState<"email" | "reset">("email");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signIn, setActive } = useSignIn();
-  const { userId } = useAuth();
+  const { signIn } = useSignIn();
 
-  // Redirect if user is already signed in
-  useEffect(() => {
-    if (userId) {
-      router.push("/");
-    }
-  }, [userId, router]);
+  const email = searchParams.get("email");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!password || !confirmPassword) {
+    if (!otpCode || !password || !confirmPassword) {
       toast.error("Please fill in all fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error("Passwords don't match");
       return;
     }
 
@@ -55,28 +47,14 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
 
     try {
-      if (!otpCode) {
-        toast.error("Please enter the OTP code from your email");
-        return;
-      }
-
-      // Use Clerk's password reset functionality with OTP
-      const result = await signIn?.attemptFirstFactor({
+      await signIn?.attemptFirstFactor({
         strategy: "reset_password_email_code",
         code: otpCode,
         password: password,
       });
 
-      if (result?.status === "complete") {
-        if (setActive) {
-          await setActive({ session: result.createdSessionId });
-        }
-        toast.success("Password reset successfully!");
-        router.push("/");
-      } else {
-        // Handle cases where more steps are needed
-        toast.error("Failed to reset password. Please try again.");
-      }
+      toast.success("Password updated successfully!");
+      router.push("/auth/login");
     } catch (error: any) {
       console.error("Reset password error:", error);
       
@@ -100,7 +78,7 @@ export default function ResetPasswordPage() {
         <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-primary/4 rounded-full blur-lg bg-decoration gradient-transition animate-pulse duration-[4000ms] delay-2000"></div>
       </div>
 
-      {/* Navigation - Updated to match login page */}
+      {/* Navigation */}
       <nav className="border-b border-border/50 bg-card/95 backdrop-blur-xl fixed top-0 left-0 right-0 z-50 shadow-lg glass-effect theme-transition">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
@@ -139,8 +117,8 @@ export default function ResetPasswordPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-foreground">Set New Password</CardTitle>
             <CardDescription className="text-muted-foreground">
-              {searchParams.get("email") ? (
-                <>Enter the verification code sent to <strong>{searchParams.get("email")}</strong> and your new password</>
+              {email ? (
+                <>Enter the verification code sent to <strong>{email}</strong> and your new password</>
               ) : (
                 "Enter the verification code from your email and your new password"
               )}
@@ -155,16 +133,13 @@ export default function ResetPasswordPage() {
                 <Input
                   id="otpCode"
                   type="text"
-                  placeholder="Enter the 6-digit code from your email"
+                  placeholder="000000"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  required
                   maxLength={6}
-                  className="glass-input text-center text-sm tracking-widest"
+                  className="glass-input text-center tracking-widest text-sm"
+                  required
                 />
-                <p className="text-xs text-muted-foreground">
-                  Check your email for the verification code
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -178,9 +153,8 @@ export default function ResetPasswordPage() {
                     placeholder="Enter new password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
                     className="glass-input pr-10"
+                    required
                   />
                   <Button
                     type="button"
@@ -209,9 +183,8 @@ export default function ResetPasswordPage() {
                     placeholder="Confirm new password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    minLength={8}
                     className="glass-input pr-10"
+                    required
                   />
                   <Button
                     type="button"
@@ -229,9 +202,11 @@ export default function ResetPasswordPage() {
                 </div>
               </div>
 
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>Password requirements:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>Password must be at least 8 characters long</li>
+                  <li>At least 8 characters long</li>
+                  <li>Mix of letters, numbers, and symbols recommended</li>
                 </ul>
               </div>
 
@@ -248,7 +223,7 @@ export default function ResetPasswordPage() {
                   href={authRoutes.login} 
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Back to Sign In
+                  Remember your password? Sign in
                 </Link>
               </div>
             </form>
@@ -256,5 +231,17 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
