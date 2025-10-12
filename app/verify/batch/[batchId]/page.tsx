@@ -149,7 +149,7 @@ export default function VerifyBatchPage() {
         return {
           bg: "bg-slate-100 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700",
           text: "text-slate-700 dark:text-slate-300",
-          badge: "text-slate-700 dark:text-slate-300",
+          badge: "text-slate-700 dark:text-slate300",
           label: "Created",
           message: (
             <>
@@ -200,55 +200,55 @@ export default function VerifyBatchPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-        <MobileHeader />
-        <DesktopHeader />
-        {/* Background Decorations */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-20 w-56 h-56 bg-blue-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-20 left-20 w-40 h-40 bg-green-500/8 rounded-full blur-xl"></div>
+        <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+            <MobileHeader />
+            <DesktopHeader />
+            {/* Background Decorations */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-20 right-20 w-56 h-56 bg-blue-500/6 rounded-full blur-2xl"></div>
+                <div className="absolute bottom-20 left-20 w-40 h-40 bg-green-500/8 rounded-full blur-xl"></div>
+            </div>
+            <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
+                <Card className="w-full max-w-xs sm:max-w-sm mx-auto rounded-xl shadow-lg z-10">
+                    <CardHeader>
+                        <CardTitle className="text-lg sm:text-xl font-bold text-foreground">Verifying Batch</CardTitle>
+                        <CardDescription className="text-muted-foreground text-xs sm:text-sm">
+                            Please wait while we verify this batch. This may take a few seconds.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-col items-center justify-center space-y-4 py-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <div className="text-sm text-muted-foreground">Verifying batch authenticity...</div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </main>
         </div>
-        <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
-          <Card className="w-full max-w-xs sm:max-w-sm mx-auto bg-white/90 dark:bg-slate-900/90 rounded-xl shadow-lg border border-border/60 z-10">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl font-bold text-foreground">Verifying Batch</CardTitle>
-              <CardDescription className="text-muted-foreground text-xs sm:text-sm">
-                Please wait while we verify this batch. This may take a few seconds.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center space-y-4 py-2">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                <div className="text-sm text-muted-foreground">Verifying batch authenticity...</div>
-              </div>
-            </CardContent>
-          </Card>
-        </main>
-      </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-        <MobileHeader />
-        <DesktopHeader />
-        {/* Background Decorations */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-20 w-56 h-56 bg-red-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-20 left-20 w-40 h-40 bg-orange-500/8 rounded-full blur-xl"></div>
+        <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+            <MobileHeader />
+            <DesktopHeader />
+            {/* Background Decorations */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-20 right-20 w-56 h-56 bg-red-500/6 rounded-full blur-2xl"></div>
+                <div className="absolute bottom-20 left-20 w-40 h-40 bg-orange-500/8 rounded-full blur-xl"></div>
+            </div>
+            <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
+                <Card className="w-full max-w-md mx-auto rounded-xl shadow-lg z-10">
+                    <CardHeader>
+                        <CardTitle className="text-xl sm:text-2xl font-bold text-red-600">Verification Error</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm sm:text-base">{error}</p>
+                    </CardContent>
+                </Card>
+            </main>
         </div>
-        <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
-          <Card className="w-full max-w-md mx-auto bg-white/90 dark:bg-slate-900/90 rounded-xl shadow-lg border border-border/60 z-10">
-            <CardHeader>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-red-600">Verification Error</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm sm:text-base">{error}</p>
-            </CardContent>
-          </Card>
-        </main>
-      </div>
     );
   }
 
@@ -263,7 +263,7 @@ export default function VerifyBatchPage() {
         <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-green-500/10 rounded-full blur-lg transform -translate-x-1/2 -translate-y-1/2"></div>
       </div>
       <main className="flex flex-1 items-center justify-center w-full px-2 sm:px-4">
-        <Card className="w-full max-w-lg mx-auto bg-white/90 dark:bg-slate-900/90 rounded-xl shadow-lg p-4 sm:p-8 my-8 sm:my-16 border border-border/60 relative z-10">
+        <Card className="w-full max-w-lg mx-auto rounded-xl shadow-lg p-4 sm:p-8 my-8 sm:my-16 relative z-10">
           <CardHeader className="pb-2">
             <CardTitle className="font-bold text-xl sm:text-2xl text-foreground">Batch Verification</CardTitle>
             <CardDescription className="text-xs sm:text-sm text-muted-foreground">
@@ -319,7 +319,7 @@ export default function VerifyBatchPage() {
               </div>
             )}
             <Link
-              className="mt-6 inline-block rounded bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm sm:text-base font-semibold shadow transition-colors"
+              className="mt-6 inline-block rounded bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 text-sm sm:text-base font-semibold shadow transition-colors"
               href={getRedirectPath(publicMetadata?.role, publicMetadata?.organizationType)}
             >
               Go To Dashboard
