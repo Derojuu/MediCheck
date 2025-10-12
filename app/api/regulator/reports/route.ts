@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import puppeteer from "puppeteer";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
@@ -85,8 +84,14 @@ export async function GET(request: NextRequest) {
     // Generate HTML content for the report
     const htmlContent = generateHtmlReport(reportType, reportData, organization);
 
+    // Dynamic import puppeteer to avoid build issues
+    const puppeteer = await import('puppeteer');
+    
     // Launch Puppeteer and generate the PDF
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.default.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     await page.setContent(htmlContent);
     const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });

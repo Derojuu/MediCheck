@@ -204,7 +204,7 @@ export function TeamMemberManagement({
           <DialogTrigger asChild>
             <Button className="cursor-pointer" disabled={loading}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Team Member
+              Add Team Members
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">

@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkWrapper } from "@/components/ClerkWrapper";
 import { ToastWrapper } from "@/components/ToastWrapper";
+import { SessionSetup } from "@/components/SessionSetup";
 import "leaflet/dist/leaflet.css";
 
 
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable} min-h-screen bg-background font-sans antialiased theme-transition`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <ClerkWrapper>
+            <SessionSetup />
             <ToastWrapper />
             <main className="page-transition">
               {children}

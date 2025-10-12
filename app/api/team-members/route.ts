@@ -151,7 +151,6 @@ export async function POST(request: NextRequest) {
         firstName: name.split(' ')[0] || name,
         lastName: name.split(' ').slice(1).join(' ') || '',
         publicMetadata: {
-          organizationId: organizationId,
           organizationType: organization.organizationType,
           role: 'ORGANIZATION_MEMBER'
         },
