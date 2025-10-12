@@ -209,8 +209,8 @@ export function TeamMemberManagement({
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Add Team Member</DialogTitle>
-              <DialogDescription>Add a new team member to your organization</DialogDescription>
+              <DialogTitle>Add Team Members</DialogTitle>
+              <DialogDescription>Add new team members to your organization</DialogDescription>
             </DialogHeader>
             <div className="space-y-6">
               <div className="space-y-2">
