@@ -210,7 +210,7 @@ export function TeamMemberManagement({
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Add Team Member</DialogTitle>
-              <DialogDescription>Add new team members to your organization</DialogDescription>
+              <DialogDescription>Add a new team member to your organization</DialogDescription>
             </DialogHeader>
             <div className="space-y-6">
               <div className="space-y-2">

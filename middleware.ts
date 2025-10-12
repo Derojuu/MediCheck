@@ -25,10 +25,18 @@ export default clerkMiddleware(async (auth, req) => {
 
   const { userId, sessionClaims } = await auth();
 
+  // ✅ Enhanced debugging for production issues
+  console.log("=== MIDDLEWARE DEBUG START ===");
+  console.log("userId:", userId);
+  console.log("sessionClaims exists:", !!sessionClaims);
+  console.log("sessionClaims.publicMetadata:", JSON.stringify(sessionClaims?.publicMetadata, null, 2));
+  console.log("Full sessionClaims:", JSON.stringify(sessionClaims, null, 2));
+
   // ✅ Extract user role & organization type from metadata
   type PublicMetadata = {
     role?: string;
     organizationType?: string;
+    organizationId?: string;
     [key: string]: unknown;
   };
 
@@ -41,23 +49,36 @@ export default clerkMiddleware(async (auth, req) => {
 
   console.log("middleware code: role FROM CLERK", role);
   console.log("middleware code: orgType FROM CLERK", orgType);
+  console.log("middleware code: organizationId FROM CLERK", publicMetadata?.organizationId);
 
   // Fallback to cookie if metadata is missing
   if (!role || !orgType) {
+    console.log("Missing role or orgType from Clerk, checking cookie fallback...");
     const cookie = req.cookies.get("user_fallback");
     if (cookie) {
       try {
         const { role: cRole, organizationType: cOrg } = JSON.parse(
           cookie.value
         );
-        console.log("cookie valuue", cRole, cOrg);
+        console.log("Cookie fallback found - role:", cRole, "orgType:", cOrg);
         role = cRole;
         orgType = cOrg;
-      } catch {
-        console.log("error occurred while getting value from cookie");
+      } catch (error) {
+        console.log("Error parsing cookie fallback:", error);
       }
+    } else {
+      console.log("No cookie fallback available");
     }
   }
+
+  // If still no role/orgType and user is signed in, try to fetch from database
+  if (userId && (!role || !orgType)) {
+    console.log("Still missing metadata, user might be team member needing database lookup");
+    // We'll handle this case in the dashboard routing logic below
+  }
+
+  console.log("Final values - role:", role, "orgType:", orgType);
+  console.log("=== MIDDLEWARE DEBUG END ===");
 
   console.log("Middleware invoked for path:", pathname);
 
@@ -99,7 +120,10 @@ export default clerkMiddleware(async (auth, req) => {
 
   // ✅ Organization routes → only for organization members
   if (pathname.startsWith("/dashboard")) {
+    console.log("Dashboard route detected, checking authorization...");
+    
     if (role !== UserRole.ORGANIZATION_MEMBER) {
+      console.log("User role is not ORGANIZATION_MEMBER, redirecting to unauthorized");
       return NextResponse.redirect(new URL(publicRoutes.unauthorized, req.url));
     }
 
@@ -108,9 +132,27 @@ export default clerkMiddleware(async (auth, req) => {
       ? orgnaizationRoutes[orgType.toLowerCase()]
       : undefined;
 
-    if (!allowedRoute || !pathname.startsWith(allowedRoute)) {
+    console.log("Organization type:", orgType);
+    console.log("Allowed route:", allowedRoute);
+    console.log("Current pathname:", pathname);
+
+    if (!allowedRoute) {
+      console.log("No allowed route found for organization type:", orgType);
+      // If we have a signed-in org member but no orgType, redirect to a fallback route
+      // This can happen during magic link auth where metadata isn't immediately available
+      if (userId && role === UserRole.ORGANIZATION_MEMBER) {
+        console.log("Org member without orgType detected - redirecting to general dashboard");
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
       return NextResponse.redirect(new URL(publicRoutes.unauthorized, req.url));
     }
+
+    if (!pathname.startsWith(allowedRoute)) {
+      console.log("Pathname doesn't match allowed route, redirecting to correct dashboard");
+      return NextResponse.redirect(new URL(allowedRoute, req.url));
+    }
+
+    console.log("Dashboard authorization successful");
   }
 
   return NextResponse.next();
