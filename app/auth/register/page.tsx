@@ -97,6 +97,7 @@ export default function RegisterPage() {
       if (result.status === "complete") {
 
         // 2. Create user in your DB
+        
         // Send all form data
         const res = await fetch("/api/register", {
           method: "POST",
