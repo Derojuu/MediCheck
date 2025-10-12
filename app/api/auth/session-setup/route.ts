@@ -54,12 +54,11 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Set cookie as fallback for middleware
+    // Set cookie as fallback for middleware (organizationId not needed in cookie since middleware only uses role/orgType)
     if (role && organizationType) {
       response.cookies.set('user_fallback', JSON.stringify({
         role,
-        organizationType,
-        organizationId
+        organizationType
       }), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

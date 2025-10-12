@@ -36,7 +36,6 @@ export default clerkMiddleware(async (auth, req) => {
   type PublicMetadata = {
     role?: string;
     organizationType?: string;
-    organizationId?: string;
     [key: string]: unknown;
   };
 
@@ -49,7 +48,6 @@ export default clerkMiddleware(async (auth, req) => {
 
   console.log("middleware code: role FROM CLERK", role);
   console.log("middleware code: orgType FROM CLERK", orgType);
-  console.log("middleware code: organizationId FROM CLERK", publicMetadata?.organizationId);
 
   // Fallback to cookie if metadata is missing
   if (!role || !orgType) {
