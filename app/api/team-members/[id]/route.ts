@@ -128,32 +128,30 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    // Delete from Clerk first, then from database
+    // Delete from both Clerk and database
     const clerk = await clerkClient()
     
+    // Always delete from Clerk first
     try {
-      // Delete user from Clerk if they only existed as a team member
-      if (teamMember.user.userRole === 'ORGANIZATION_MEMBER') {
-        await clerk.users.deleteUser(teamMember.user.clerkUserId)
-      }
+      await clerk.users.deleteUser(teamMember.user.clerkUserId)
+      console.log(`Successfully deleted user ${teamMember.user.clerkUserId} from Clerk`)
     } catch (clerkError) {
       console.error('Error deleting user from Clerk:', clerkError)
       // Continue with database deletion even if Clerk deletion fails
+      // This ensures we don't leave orphaned records in the database
     }
 
     // Delete team member and associated user from database
     await prisma.$transaction(async (tx) => {
-      // Delete team member
+      // Delete team member first (due to foreign key constraints)
       await tx.teamMember.delete({
         where: { id: teamMemberId }
       })
 
-      // Delete associated user if they only existed as a team member
-      if (teamMember.user.userRole === 'ORGANIZATION_MEMBER') {
-        await tx.user.delete({
-          where: { id: teamMember.userId }
-        })
-      }
+      // Always delete the associated user from database
+      await tx.user.delete({
+        where: { id: teamMember.userId }
+      })
     })
 
     return NextResponse.json({ message: 'Team member removed successfully' })
