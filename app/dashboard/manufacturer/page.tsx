@@ -12,6 +12,7 @@ import ManufacturerProducts from "@/components/manufacturer-page-component/Manuf
 import ManufacturerBatch from "@/components/manufacturer-page-component/ManufacturerBatch";
 import Transfers from "@/components/Transfers";
 import ManufacturerMain from "@/components/manufacturer-page-component/ManufacturerMain"
+import { AnalyticsDashboard } from "@/components/AnalyticsDashboard"
 import { LoadingSpinner } from "@/components/ui/loading"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -205,6 +206,13 @@ export default function ManufacturerDashboard() {
             <TeamMemberManagement 
               organizationType="MANUFACTURER" 
               organizationId={orgId}
+            />
+          )}
+
+          {activeTab === "analytics" && (
+            <AnalyticsDashboard 
+              dashboardType="manufacturer"
+              title="Manufacturing Analytics"
             />
           )}
 

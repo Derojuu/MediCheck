@@ -27,7 +27,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   // ✅ Enhanced debugging for production issues
   console.log("=== MIDDLEWARE DEBUG START ===");
-  console.log("userId:", userId);
+  console.log("userId:", userId);  
   console.log("sessionClaims exists:", !!sessionClaims);
   console.log("sessionClaims.publicMetadata:", JSON.stringify(sessionClaims?.publicMetadata, null, 2));
   console.log("Full sessionClaims:", JSON.stringify(sessionClaims, null, 2));
@@ -131,18 +131,24 @@ export default clerkMiddleware(async (auth, req) => {
       : undefined;
 
     console.log("Organization type:", orgType);
+
     console.log("Allowed route:", allowedRoute);
+    
     console.log("Current pathname:", pathname);
 
     if (!allowedRoute) {
+
       console.log("No allowed route found for organization type:", orgType);
       // If we have a signed-in org member but no orgType, redirect to a fallback route
       // This can happen during magic link auth where metadata isn't immediately available
+
       if (userId && role === UserRole.ORGANIZATION_MEMBER) {
         console.log("Org member without orgType detected - redirecting to general dashboard");
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
+
       return NextResponse.redirect(new URL(publicRoutes.unauthorized, req.url));
+
     }
 
     if (!pathname.startsWith(allowedRoute)) {
@@ -154,6 +160,7 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   return NextResponse.next();
+
 });
 
 export const config = {

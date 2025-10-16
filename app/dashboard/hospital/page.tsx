@@ -12,6 +12,7 @@ import HospitalMain from "@/components/hospital-page-component/HospitalMain";
 import Transfers from "@/components/Transfers";
 import QRScanner from "@/components/qr-scanner";
 import { TeamMemberManagement } from "@/components/team-member-management";
+import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Menu, Shield, X } from "lucide-react";
@@ -183,6 +184,13 @@ export default function HospitalDashboard() {
             <TeamMemberManagement 
               organizationType="hospital"
               organizationId={orgId}
+            />
+          )}
+
+          {activeTab === "analytics" && (
+            <AnalyticsDashboard 
+              dashboardType="hospital"
+              title="Hospital Analytics"
             />
           )}
 

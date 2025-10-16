@@ -13,6 +13,7 @@ import {
   LogOut,
   Truck,
   Users,
+  BarChart3,
 } from "lucide-react"
 import Link from "next/link"
 import { useClerk } from "@clerk/nextjs"
@@ -78,6 +79,7 @@ export function ManufacturerSidebar({
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "batches", label: "Batch Management", icon: Package },
     { id: "products", label: "Product Catalog", icon: Factory },
     { id: "transfers", label: "Batch Transfers", icon: Truck },
