@@ -1,7 +1,6 @@
-
 import { HederaLogPayload } from "@/utils";
 import { prisma } from "./prisma";
-import { hederaClient } from "./hederaClient";
+import { hedera2Client } from "./hedera2Client";
 
 export async function autoFlagBatch(
   batchId: string,
@@ -33,7 +32,7 @@ export async function autoFlagBatch(
   });
 
   // Post to Hedera
-  const response = await hederaClient.registerEntry(topicId, {
+  const response = await hedera2Client.registerEntry(topicId, {
     targetTopicId: topicId,
     metadata: message,
   });

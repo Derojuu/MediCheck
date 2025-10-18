@@ -95,7 +95,7 @@
     "@next/swc-win32-x64-msvc": "^15.4.6",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/leaflet": "^1.9.20",
-    "@types/node": "^22.0.0",
+    "@types/node": "^22.18.11",
     "@types/pdfkit": "^0.17.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",

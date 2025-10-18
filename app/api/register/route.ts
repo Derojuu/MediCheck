@@ -4,6 +4,11 @@ import { UserRole } from "@/lib/generated/prisma";
 import { ORG_TYPE_MAP } from "@/utils";
 import { clerkClient } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
+import { createAndRegisterAgent } from "@/lib/hcs10.ts";
+import {
+  AIAgentCapability,
+} from "@hashgraphonline/standards-sdk";
+
 
 export async function POST(req: Request) {
     console.log("Starting user registration...");
@@ -94,6 +99,7 @@ export async function POST(req: Request) {
       // Handle Organization
       if (accountType === "organization") {
         console.log("Registering organization of type:", organizationType);
+
         console.log(ORG_TYPE_MAP);
 
         if (!ORG_TYPE_MAP[organizationType]) {
@@ -126,6 +132,29 @@ export async function POST(req: Request) {
         });
 
         console.log("Organization created:", organization.id);
+
+        // ✅ create Hedera counterpart agent
+        const agentResult = await createAndRegisterAgent({
+          name: `${companyName}-Agent`,
+          description: `${companyName} Hedera Agent`,
+          orgId: organization.id,
+          role: organizationType, // manufacturer | distributor | pharmacy | etc
+          model: "gpt-4",
+          capabilities: [AIAgentCapability.TEXT_GENERATION],
+          metadata: {
+            contactEmail,
+            contactPhone,
+            country,
+          },
+        });
+
+          if (!agentResult.success) {
+            console.error("Failed to create HCS-10 agent:", agentResult.error);
+            // optional rollback or alert handling here
+          } else {
+            console.log("HCS-10 agent registered:", agentResult?.data?.accountId);
+          }
+
 
         // Add the admin as a team member
         const teamMember = await prisma.teamMember.create({

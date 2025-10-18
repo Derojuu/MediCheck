@@ -69,6 +69,7 @@ model Organization {
   updatedAt         DateTime         @updatedAt
 
   medicationBatches MedicationBatch[]
+  organizationAgent Agent? @relation("OrgAgent")
   users             User                @relation(fields: [adminId], references: [id], onDelete: Cascade)
   transfersFrom     OwnershipTransfer[] @relation("TransferFrom")
   transfersTo       OwnershipTransfer[] @relation("TransferTo")
@@ -292,6 +293,39 @@ model AuditLog {
 
   @@map("audit_logs")
 }
+
+
+model Agent {
+  id             Int      @id @default(autoincrement())
+  accountId      String   @unique   // Hedera account e.g. "0.0.54321"
+  role           String     // "manufacturer" | "distributor" | "pharmacy" | "hospital" | "regulator" | "gateway"
+  inboundTopic   String
+  outboundTopic  String
+  connectionTopic String?   // optional
+  managedRegistry String?   // HCS-2 topicId this agent manages (if manufacturer)
+  profileId      String?    // hcs-11 ref
+  publicKey      String     // agent signing pubkey
+  privateKey     String?
+  createdAt      DateTime   @default(now())
+
+  messages AgentMessage[]
+
+  orgId        String       @unique
+  organization Organization @relation("OrgAgent", fields: [orgId], references: [id])
+}
+
+
+model AgentMessage {
+  id          Int      @id @default(autoincrement())
+  topicId     String
+  message     Json
+  sequence    Int?
+  createdAt   DateTime @default(now())
+
+  agentId     Int
+  Agent       Agent    @relation(fields: [agentId], references: [id])
+}
+
 
 enum UserRole {
   ORGANIZATION_MEMBER
