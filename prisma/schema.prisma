@@ -165,6 +165,8 @@ model MedicationUnit {
   // ✅ On-chain footprint for this specific unit
   registrySequence Int? // sequence number of the unit’s registration on-chain
   updatedAt        DateTime   @updatedAt // Auto updated on changes
+  //
+  soldAt           DateTime? 
 
   // Relation back to MedicationBatch
   batch MedicationBatch @relation(fields: [batchId], references: [id])
@@ -213,6 +215,8 @@ model ScanHistory {
   consumerId   String?
   //
   isAnonymous  Boolean
+  //
+  hcs10Seq      Int? 
   //
   region       String?
   scanDate     DateTime        @default(now())

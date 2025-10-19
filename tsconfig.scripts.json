@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist-scripts",
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": false,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true
+  },
+  "include": ["lib/**/*.ts", "scripts/**/*.ts"]
+}
+

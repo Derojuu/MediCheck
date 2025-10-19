@@ -35,45 +35,6 @@ interface Product {
     storageConditions?: string;
 }
 
-// Mock organization data for transfer destination dropdown
-const mockOrganizations = [
-    {
-        id: "org-001",
-        companyName: "MedCorp Distributors",
-        organizationType: "DRUG_DISTRIBUTOR"
-    },
-    {
-        id: "org-002",
-        companyName: "City General Hospital",
-        organizationType: "HOSPITAL"
-    },
-    {
-        id: "org-003",
-        companyName: "QuickCare Pharmacy",
-        organizationType: "PHARMACY"
-    },
-    {
-        id: "org-004",
-        companyName: "HealthLink Distributors",
-        organizationType: "DRUG_DISTRIBUTOR"
-    },
-    {
-        id: "org-005",
-        companyName: "Metro Medical Center",
-        organizationType: "HOSPITAL"
-    },
-    {
-        id: "org-006",
-        companyName: "WellCare Pharmacy Chain",
-        organizationType: "PHARMACY"
-    },
-    {
-        id: "org-007",
-        companyName: "National Health Regulator",
-        organizationType: "REGULATOR"
-    }
-];
-
 const ManufacturerBatch = ({ orgId, allBatches, loadBatches }: { orgId: string; allBatches: MedicationBatchInfoProps[]; loadBatches: () => void }) => {
 
     const [isCreateBatchOpen, setIsCreateBatchOpen] = useState(false);

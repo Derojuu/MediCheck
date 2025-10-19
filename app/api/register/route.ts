@@ -135,7 +135,7 @@ export async function POST(req: Request) {
 
         // ✅ create Hedera counterpart agent
         const agentResult = await createAndRegisterAgent({
-          name: `${companyName}-Agent`,
+          name: `${companyName}-Agen`,
           description: `${companyName} Hedera Agent`,
           orgId: organization.id,
           role: organizationType, // manufacturer | distributor | pharmacy | etc

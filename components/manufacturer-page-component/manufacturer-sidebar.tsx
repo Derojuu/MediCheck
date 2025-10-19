@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LoadingSpinner } from "@/components/ui/loading"
 import {
   Shield,
   LayoutDashboard,
@@ -110,6 +111,15 @@ export function ManufacturerSidebar({
 
   return (
     <>
+      {/* Full-page loading overlay when signing out */}
+      {isSigningOut && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card p-8 rounded-lg shadow-lg border">
+            <LoadingSpinner size="large" text="Signing out..." />
+          </div>
+        </div>
+      )}
+      
       {/* Mobile Overlay */}
       {isMobile && showSidebar && (
         <div
@@ -193,9 +203,9 @@ export function ManufacturerSidebar({
               onClick={handleSignOut}
               disabled={isSigningOut}
             >
-              <LogOut className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3'} ${isSigningOut ? 'animate-spin' : ''}`} />
-              <span className={isMobile ? 'block' : 'hidden sm:inline'}>{isSigningOut ? 'Signing out...' : 'Sign Out'}</span>
-              {!isMobile && <span className="sm:hidden">{isSigningOut ? '...' : 'Out'}</span>}
+              <LogOut className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3'}`} />
+              <span className={isMobile ? 'block' : 'hidden sm:inline'}>Sign Out</span>
+              {!isMobile && <span className="sm:hidden">Out</span>}
             </Button>
           </div>
         </div>

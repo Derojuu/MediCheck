@@ -1,13 +1,15 @@
 import {
   AgentBuilder,
   AIAgentCapability,
+  AIAgentType,
   InboundTopicType,
 } from "@hashgraphonline/standards-sdk";
 import { hedera10Client } from "./hedera10Client";
+import { hedera11Client } from "./hedera11Client";
 import { prisma } from "./prisma";
 import { Logger } from "@hashgraphonline/standards-sdk";
-import { Agent } from "./generated/prisma";
 import { encryptKey } from "./cryptoUtils";
+
 
 const logger = Logger.getInstance({
   level: "info",
@@ -15,8 +17,9 @@ const logger = Logger.getInstance({
   prettyPrint: true,
 });
 
+
 /**
- * 🧠 Create and register a new HCS-10 Agent
+ * 🧠 Create a new HCS-10 Agent and automatically attach an HCS-11 profile.
  */
 export async function createAndRegisterAgent({
   name,
@@ -26,7 +29,7 @@ export async function createAndRegisterAgent({
   model = "gpt-4",
   capabilities = [AIAgentCapability.TEXT_GENERATION],
   metadata = {},
-  agentType = "manual",
+  agentType = "autonomous",
 }: {
   name: string;
   description: string;
@@ -38,71 +41,231 @@ export async function createAndRegisterAgent({
   agentType?: "manual" | "autonomous";
 }) {
   try {
-    logger.info(`Creating new HCS-10 Agent: ${name}`);
+    console.log(`🚀 Creating new HCS-10 Agent: ${name}`);
 
-    // 1️⃣ Build agent configuration
+    // 1️⃣ Validate input
+    if (!orgId || !role)
+      throw new Error("Missing required parameters: orgId or role");
+
+    // create agent profile
+    const profilePayload = hedera11Client.createAIAgentProfile(
+      name,
+      agentType === "autonomous" ? AIAgentType.AUTONOMOUS : AIAgentType.MANUAL,
+      capabilities,
+      model,
+      {
+        bio: description,
+        creator: "HCS10Registry",
+        properties: { orgId, role, ...metadata },
+      }
+    );
+
+    const profileResult = await hedera11Client.createAndInscribeProfile(
+      profilePayload,
+      true
+    );
+
+    console.log("Profile creation worked", profileResult);
+
+    console.log(
+      `🔗 HCS-11 profile created: ${profileResult.profileTopicId}`
+    );
+
+    if (!profileResult.success)
+      throw new Error("Failed to inscribe HCS-11 profile");
+
+
+    // 2️⃣ Build HCS-10 Agent config
     const agentBuilder = new AgentBuilder()
       .setName(name)
-      .setDescription(description)
-      .setAgentType(agentType)
+      .setBio(description)
       .setCapabilities(capabilities)
       .setModel(model)
+      .setType(agentType)
       .setNetwork("testnet")
       .setMetadata({
-        creator: "HCS10Registry",
+        creator: "MEDICHECK",
         type: agentType,
-        properties: {
-          orgId,
-          role,
-          ...metadata,
-        },
-      });
+        properties: { orgId, role, ...metadata },
+      })
+      .setInboundTopicType(InboundTopicType.PUBLIC)
+      // .setExistingAccount(
+      //   process.env.HEDERA_OPERATOR_ID!,
+      //   process.env.HEDERA_OPERATOR_KEY!
+      // );
 
-    // 2️⃣ Create and register agent
+    // 3️⃣ Register agent on Hedera (HCS-10)
     const result = await hedera10Client.createAndRegisterAgent(agentBuilder, {
-      progressCallback: (progress) => {
-        logger.info(`${progress.stage}: ${progress.progressPercent}%`);
-      },
+      progressCallback: (p) => logger.info(`${p.stage}: ${p.progressPercent}%`),
     });
 
     if (!result.success)
       throw new Error(result.error || "Agent creation failed");
-
     const meta = result.metadata || {};
 
-    console.log("Agent registration metadata:", JSON.stringify(meta, null, 2));
+    console.log(`✅ HCS-10 Agent created. Account: ${meta.accountId}`);
 
 
-    console.log(
-      "Agent registration metadata:",
-      JSON.stringify(result, null, 2)
-    );
+    const savedAgent = await prisma.agent.create({
+      data: {
+        orgId,
+        role,
+        accountId: meta.accountId,
+        inboundTopic: meta.inboundTopicId,
+        outboundTopic: meta.outboundTopicId,
+        connectionTopic: meta.connectionTopicId ?? null,
+        profileId: profileResult.profileTopicId,
+        managedRegistry: null,
+        publicKey: meta.publicKey ?? "",
+        privateKey: meta.privateKey ? encryptKey(meta.privateKey) : null,
+      },
+    });
 
+    console.log(`✅ Agent stored in DB: ${savedAgent.accountId}`);
 
-    // 3️⃣ Prepare DB data (strict typing)
-    const agentData = {
-      orgId,
-      accountId: meta.accountId as string,
-      role,
-      inboundTopic: meta.inboundTopicId as string,
-      outboundTopic: meta.outboundTopicId as string,
-      connectionTopic: meta.connectionTopicId ?? null,
-      managedRegistry: null,
-      profileId: meta.profileTopicId ?? null,
-      publicKey: meta.publicKey ?? "",
-      privateKey: meta.privateKey ? encryptKey(meta.privateKey) : null,
+    // Optional: verify inscription memo
+    const memo = await hedera10Client.getAccountMemo(meta.accountId);
+    
+    console.log(`🧾 Account memo: ${memo}`);
+
+    // 6️⃣ Return references
+    return {
+      success: true,
+      data: {
+        ...savedAgent,
+        hcs10InboundTopic: meta.inboundTopicId,
+        hcs10OutboundTopic: meta.outboundTopicId,
+        hcs11ProfileTopic: profileResult.profileTopicId,
+      },
     };
-
-    // 4️⃣ Store in database
-    const savedAgent: Agent = await prisma.agent.create({ data: agentData });
-
-    logger.info(`✅ Agent registered successfully: ${savedAgent.accountId}`);
-    return { success: true, data: savedAgent };
-  } catch (error: any) {
-    logger.error(`❌ createAndRegisterAgent failed: ${error.message}`);
+  }
+  catch (error: any) {
+    console.log(`❌ createAndRegisterAgent failed: ${error.message}`);
     return { success: false, error: error.message };
   }
 }
+
+// export async function createAndRegisterAgent({
+//   name,
+//   description,
+//   orgId,
+//   role,
+//   model = "gpt-4",
+//   capabilities = [AIAgentCapability.TEXT_GENERATION],
+//   metadata = {},
+//   agentType = "autonomous",
+// }: {
+//   name: string;
+//   description: string;
+//   orgId: string;
+//   role: string;
+//   model?: string;
+//   capabilities?: AIAgentCapability[];
+//   metadata?: Record<string, any>;
+//   agentType?: "manual" | "autonomous";
+// }) {
+//   try {
+//     console.log(`🚀 Creating new HCS-10 Agent: ${name}`);
+
+//     // 1️⃣ Validate input
+//     if (!orgId || !role) throw new Error("Missing required parameters: orgId or role");
+
+//     // 2️⃣ Build HCS-10 Agent config
+//     const agentBuilder = new AgentBuilder()
+//       .setName(name)
+//       .setDescription(description)
+//       .setAgentType(agentType)
+//       .setCapabilities(capabilities)
+//       .setModel(model)
+//       .setNetwork("testnet")
+//       .setMetadata({
+//         creator: "HCS10Registry",
+//         type: agentType,
+//         properties: { orgId, role, ...metadata },
+//       });
+
+//     // 3️⃣ Register agent on Hedera (HCS-10)
+//     const result = await hedera10Client.createAndRegisterAgent(agentBuilder, {
+//       progressCallback: (p) => logger.info(`${p.stage}: ${p.progressPercent}%`),
+//     });
+
+//     if (!result.success) throw new Error(result.error || "Agent creation failed");
+//     const meta = result.metadata || {};
+
+//     console.log(`✅ HCS-10 Agent created. Account: ${meta.accountId}`);
+
+//     // 4️⃣ Generate HCS-11 profile
+//     const hcs11Client = new HCS11Client({
+//       network: "testnet",
+//       auth: {
+//         operatorId: meta.accountId,
+//         privateKey: meta.privateKey,
+//       },
+//     });
+
+//     const profilePayload = hcs11Client.createAIAgentProfile(
+//       name,
+//       agentType === "autonomous" ? AIAgentType.AUTONOMOUS : AIAgentType.MANUAL,
+//       capabilities,
+//       model,
+//       {
+//         bio: description,
+//         creator: "HCS10Registry",
+//         inboundTopicId: meta.inboundTopicId,
+//         outboundTopicId: meta.outboundTopicId,
+//         properties: { orgId, role, ...metadata },
+//       }
+//     );
+
+//     const profileResult = await hcs11Client.createAndInscribeProfile(profilePayload, true);
+
+//     console.log("Profile creation worked", profileResult);
+
+//     console.log(
+//       `🔗 HCS-11 profile created: ${profileResult.profileTopicId}`
+//     );
+
+//     if (!profileResult.success) throw new Error("Failed to inscribe HCS-11 profile");
+    
+//     // 5️⃣ Persist agent and profile to DB
+//     const savedAgent = await prisma.agent.create({
+//       data: {
+//         orgId,
+//         role,
+//         accountId: meta.accountId,
+//         inboundTopic: meta.inboundTopicId,
+//         outboundTopic: meta.outboundTopicId,
+//         connectionTopic: meta.connectionTopicId ?? null,
+//         profileId: profileResult.profileTopicId,
+//         managedRegistry: null,
+//         publicKey: meta.publicKey ?? "",
+//         privateKey: meta.privateKey ? encryptKey(meta.privateKey) : null,
+//       },
+//     });
+
+//     console.log(`✅ Agent stored in DB: ${savedAgent.accountId}`);
+
+//     // Optional: verify inscription memo
+//     const memo = await hedera10Client.getAccountMemo(meta.accountId);
+//     console.log(`🧾 Account memo: ${memo}`);
+
+//     // 6️⃣ Return references
+//     return {
+//       success: true,
+//       data: {
+//         ...savedAgent,
+//         hcs10InboundTopic: meta.inboundTopicId,
+//         hcs10OutboundTopic: meta.outboundTopicId,
+//         hcs11ProfileTopic: profileResult.profileTopicId,
+//       },
+//     };
+//   }
+//   catch (error: any) {
+//     console.log(`❌ createAndRegisterAgent failed: ${error.message}`);
+//     return { success: false, error: error.message };
+//   }
+// }
+
 
 /**
  * 🔍 Fetch existing agent by account ID
@@ -153,6 +316,43 @@ export async function sendAgentMessage(
 }
 
 /**
+ * 📣 Broadcast a public message to the agent's outbound topic
+ * (For public announcements like batch creation)
+ */
+export async function broadcastAgentMessage(
+  outboundTopicId: string,
+  message: string | object,
+  memo = "Public Agent Broadcast"
+) {
+  try {
+    const content =
+      typeof message === "object" ? JSON.stringify(message) : message;
+
+    const result = await hedera10Client.sendMessage(
+      outboundTopicId,
+      content,
+      memo
+    );
+
+    if (!result?.topicSequenceNumber)
+      throw new Error("Public message submission failed");
+
+    logger.info(
+      `📢 Broadcast sent on ${outboundTopicId} | Seq: ${result.topicSequenceNumber}`
+    );
+
+    return {
+      success: true,
+      sequenceNumber: result.topicSequenceNumber.toString(),
+    };
+  } catch (error: any) {
+    logger.error(`❌ broadcastAgentMessage failed: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
+
+
+/**
  * 📥 Fetch messages from a connection topic
  */
 export async function fetchMessages(topicId: string, limit = 20) {
@@ -177,19 +377,3 @@ export async function fetchMessages(topicId: string, limit = 20) {
   }
 }
 
-/**
- * 🧩 Create an inbound topic manually (optional advanced use)
- */
-export async function createInboundTopic(accountId: string) {
-  try {
-    const topicId = await hedera10Client.createInboundTopic(
-      accountId,
-      InboundTopicType.PUBLIC,
-      60
-    );
-    return { success: true, topicId };
-  } catch (error: any) {
-    logger.error(`❌ createInboundTopic failed: ${error.message}`);
-    return { success: false, error: error.message };
-  }
-}

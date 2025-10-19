@@ -102,3 +102,37 @@ export interface MyPublicMetadata {
   role?: string;
   organizationType?: string;
 }
+
+
+export interface HCSMessage {
+  p: "hcs-10"; // Protocol identifier
+  op:
+    | "connection_request" // Operation type
+    | "connection_created"
+    | "message"
+    | "close_connection";
+  data: string; // Message content
+  created?: Date; // Creation timestamp
+  consensus_timestamp?: string; // Hedera consensus timestamp
+  m?: string; // Optional memo
+  payer: string; // Transaction payer account
+  outbound_topic_id?: string; // Related outbound topic
+  connection_request_id?: number; // For connection requests
+  confirmed_request_id?: number; // For confirmations
+  connection_topic_id?: string; // Shared connection topic
+  connected_account_id?: string; // Connected account
+  requesting_account_id?: string; // Requesting account
+  connection_id?: number; // Unique connection ID
+  sequence_number: number; // Message sequence
+  operator_id?: string; // Operator ID (format: topicId@accountId)
+  reason?: string; // Optional reason (for close)
+  close_method?: string; // Close method
+}
+
+
+
+export enum Hcs10MemoType {
+  INBOUND = "inbound", // For inbound topic memos
+  OUTBOUND = "outbound", // For outbound topic memos
+  CONNECTION = "connection", // For connection topic memos
+}
