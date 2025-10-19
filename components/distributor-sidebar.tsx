@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LoadingSpinner } from "@/components/ui/loading"
 import {
   Shield,
   LayoutDashboard,
@@ -18,6 +19,7 @@ import {
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs"
 import { authRoutes } from "@/utils"
+import { useState } from "react"
 
 interface DistributorSidebarProps {
   activeTab: string
@@ -27,6 +29,17 @@ interface DistributorSidebarProps {
 export function DistributorSidebar({ activeTab, setActiveTab }: DistributorSidebarProps) {
 
   const { signOut } = useClerk();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut({ redirectUrl: authRoutes.login });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      setIsSigningOut(false);
+    }
+  };
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -40,7 +53,17 @@ export function DistributorSidebar({ activeTab, setActiveTab }: DistributorSideb
   ]
 
   return (
-    <div className="w-64 sm:w-64 bg-sidebar border-r border-sidebar-border">
+    <>
+      {/* Full-page loading overlay when signing out */}
+      {isSigningOut && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card p-8 rounded-lg shadow-lg border">
+            <LoadingSpinner size="large" text="Signing out..." />
+          </div>
+        </div>
+      )}
+      
+      <div className="w-64 sm:w-64 bg-sidebar border-r border-sidebar-border">
       <div className="p-4 sm:p-6">
         <Link href="/" className="flex items-center space-x-2">
           <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-sidebar-primary" />
@@ -88,8 +111,9 @@ export function DistributorSidebar({ activeTab, setActiveTab }: DistributorSideb
         </div>
         <Button
           variant="ghost"
-          className="w-full justify-start text-muted-foreground cursor-pointer text-xs sm:text-sm"
-          onClick={() => signOut({ redirectUrl: authRoutes.login })}
+          className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors text-xs sm:text-sm"
+          onClick={handleSignOut}
+          disabled={isSigningOut}
         >
           <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3" />
           <span className="hidden sm:inline">Sign Out</span>
@@ -98,5 +122,6 @@ export function DistributorSidebar({ activeTab, setActiveTab }: DistributorSideb
       </div>
       
     </div>
+    </>
   )
 }

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 // components import 
-import { HospitalSidebar } from "@/components/hospital-sidebar";
+import { HospitalSidebar } from "@/components/hospital-page-component/hospital-sidebar";
 import HospitalSettings from "@/components/hospital-page-component/HospitalSettings";
 import HospitalAlerts from "@/components/hospital-page-component/HospitalAlerts";
 import HospitalReports from "@/components/hospital-page-component/HospitalReports";
