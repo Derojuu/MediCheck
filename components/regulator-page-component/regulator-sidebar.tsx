@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { LoadingSpinner } from "@/components/ui/loading"
 import {
   Shield,
   LayoutDashboard,
@@ -34,6 +35,7 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
   
   // TODO: Replace with actual organization name from context, props, or API
   const [orgName, setOrgName] = useState<string>("Regulator Org");
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     async function fetchOrgName() {
@@ -47,6 +49,16 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
     }
     fetchOrgName();
   }, []);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut({ redirectUrl: authRoutes.login });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      setIsSigningOut(false);
+    }
+  };
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -70,6 +82,15 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
 
   return (
     <>
+      {/* Full-page loading overlay when signing out */}
+      {isSigningOut && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card p-8 rounded-lg shadow-lg border">
+            <LoadingSpinner size="large" text="Signing out..." />
+          </div>
+        </div>
+      )}
+      
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
@@ -140,16 +161,15 @@ export function RegulatorSidebar({ activeTab, setActiveTab, isOpen = false, onCl
 
         {/* Sign Out Button */}
         <div className="p-4 border-t flex-shrink-0 space-y-3">
-          <Link href="/auth/login">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-muted-foreground cursor-pointer text-xs sm:text-sm"
-              onClick={() => signOut({ redirectUrl: authRoutes.login })}
-            >
-              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3" />
-              <span>Sign Out</span>
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors text-xs sm:text-sm"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+          >
+            <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2 sm:mr-3" />
+            <span>Sign Out</span>
+          </Button>
         </div>
       </div>
     </>
