@@ -95,3 +95,84 @@ Create a .env.local file in the project root as shown in the section above.
     ```
 
 Visit http://localhost:3000 to see the application.
+
+---
+
+## API Documentation
+
+MediCheck provides comprehensive API documentation using **Swagger/OpenAPI 3.0**. The interactive documentation allows you to explore all endpoints, view request/response schemas, and understand the complete API surface.
+
+### Accessing the Documentation
+
+Once your development server is running (`pnpm dev`), access the API documentation at:
+
+- **Interactive Swagger UI**: [http://localhost:3000/docs](http://localhost:3000/docs)
+- **OpenAPI JSON Spec**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+
+### Features
+
+- 📚 **50+ Documented Endpoints** across 14 feature categories
+- 🔍 **Searchable Interface** - quickly find the endpoint you need
+- 📋 **Complete Schemas** - request/response examples for all endpoints
+- 🏷️ **Organized by Tags** - Authentication, Organizations, Batches, Transfers, Verification, Hospital, Regulator, Consumer, Analytics, AI Services, and more
+- 🔐 **Security Documented** - Clerk authentication requirements clearly marked
+- 📥 **Import to Tools** - Export OpenAPI JSON for use in Postman, Insomnia, or API client generators
+
+### API Categories
+
+| Category | Description | Endpoints |
+| :--- | :--- | :--- |
+| **Authentication** | User registration and team member login | 2 |
+| **Organizations** | Organization management and info | 4 |
+| **Team Members** | Invite, manage, and remove team members | 3 |
+| **Batches** | Create and manage medication batches | 3 |
+| **Products** | Product registration and catalog | 2 |
+| **Transfers** | Batch ownership transfers | 3 |
+| **Verification** | Verify batch and unit authenticity | 2 |
+| **Hospital** | Hospital-specific endpoints | 6 |
+| **Regulator** | Regulatory authority management | 12 |
+| **Consumer** | Consumer profile and scan history | 2 |
+| **Dashboard** | Statistics and analytics | 5 |
+| **Analytics** | Advanced analytics and reporting | 2 |
+| **AI Services** | Chat, translation, ML predictions | 3 |
+| **Hotspots** | Counterfeit hotspot predictions | 2 |
+
+### Using with External Tools
+
+**Import to Postman:**
+1. Open Postman
+2. Click **Import** → **Link**
+3. Paste: `http://localhost:3000/api-docs`
+4. Click **Continue** and **Import**
+
+**Generate API Client:**
+```bash
+# Install OpenAPI Generator
+npm install -g @openapitools/openapi-generator-cli
+
+# Generate TypeScript client
+openapi-generator-cli generate -i http://localhost:3000/api-docs -g typescript-axios -o ./generated-client
+```
+
+### Updating the Documentation
+
+The API documentation is defined in `lib/openapi.ts`. When you add or modify endpoints:
+
+1. Update the corresponding path in `lib/openapi.ts`
+2. Add/update request/response schemas in the `components.schemas` section
+3. Restart the dev server - changes will be reflected immediately at `/docs`
+
+**Example: Adding a new endpoint**
+```typescript
+// In lib/openapi.ts
+"/api/your-new-endpoint": {
+  post: {
+    tags: ["YourCategory"],
+    summary: "Brief description",
+    description: "Detailed description",
+    requestBody: { /* schema */ },
+    responses: { /* response schemas */ },
+    security: [{ clerkAuth: [] }]
+  }
+}
+```

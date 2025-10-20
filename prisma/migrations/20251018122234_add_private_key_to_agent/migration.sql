@@ -274,6 +274,36 @@ CREATE TABLE "public"."audit_logs" (
     CONSTRAINT "audit_logs_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "public"."Agent" (
+    "id" SERIAL NOT NULL,
+    "accountId" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "inboundTopic" TEXT NOT NULL,
+    "outboundTopic" TEXT NOT NULL,
+    "connectionTopic" TEXT,
+    "managedRegistry" TEXT,
+    "profileId" TEXT,
+    "publicKey" TEXT NOT NULL,
+    "privateKey" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "orgId" TEXT NOT NULL,
+
+    CONSTRAINT "Agent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."AgentMessage" (
+    "id" SERIAL NOT NULL,
+    "topicId" TEXT NOT NULL,
+    "message" JSONB NOT NULL,
+    "sequence" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "agentId" INTEGER NOT NULL,
+
+    CONSTRAINT "AgentMessage_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_clerkUserId_key" ON "public"."users"("clerkUserId");
 
@@ -294,6 +324,12 @@ CREATE UNIQUE INDEX "medication_units_serialNumber_key" ON "public"."medication_
 
 -- CreateIndex
 CREATE UNIQUE INDEX "system_config_key_key" ON "public"."system_config"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Agent_accountId_key" ON "public"."Agent"("accountId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Agent_orgId_key" ON "public"."Agent"("orgId");
 
 -- AddForeignKey
 ALTER TABLE "public"."consumers" ADD CONSTRAINT "consumers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -348,3 +384,9 @@ ALTER TABLE "public"."counterfeit_reports" ADD CONSTRAINT "counterfeit_reports_b
 
 -- AddForeignKey
 ALTER TABLE "public"."counterfeit_reports" ADD CONSTRAINT "counterfeit_reports_reporterId_fkey" FOREIGN KEY ("reporterId") REFERENCES "public"."consumers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Agent" ADD CONSTRAINT "Agent_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."AgentMessage" ADD CONSTRAINT "AgentMessage_agentId_fkey" FOREIGN KEY ("agentId") REFERENCES "public"."Agent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
