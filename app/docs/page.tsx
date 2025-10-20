@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { Shield, FileText, Code2, ExternalLink } from 'lucide-react'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 // Import Swagger UI dynamically (client-side only) to avoid SSR issues
 const SwaggerUI = dynamic<any>(() => import('swagger-ui-react').then(mod => mod.default), { ssr: false })
@@ -19,27 +20,30 @@ export default function ApiDocumentationPage() {
     <div className="min-h-screen bg-background">
       {/* Header Section */}
       <div className="border-b bg-card/95 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="relative group">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start space-x-3 sm:space-x-4">
+              <div className="relative group flex-shrink-0">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-                <div className="relative bg-gradient-to-r from-primary to-accent p-3 rounded-xl">
-                  <Shield className="h-8 w-8 text-white" />
+                <div className="relative bg-gradient-to-r from-primary to-accent p-2.5 sm:p-3 rounded-xl">
+                  <Shield className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
                 </div>
               </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   MediCheck API Documentation
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-xs sm:text-sm lg:text-base text-muted-foreground mt-1 leading-snug">
                   AI + Blockchain Medication Verification & Traceability Platform
                 </p>
               </div>
             </div>
-            <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              ← Back to Home
-            </Link>
+            <div className="flex items-center gap-3 self-start sm:self-auto">
+              <ThemeToggle />
+              <Link href="/" className="text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors whitespace-nowrap">
+                ← Back to Home
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -154,8 +158,8 @@ export default function ApiDocumentationPage() {
                 3
               </div>
               <div>
-                <p className="text-sm font-medium">Test endpoints (coming soon)</p>
-                <p className="text-xs text-muted-foreground">Authentication support will allow you to test API calls directly from this page</p>
+                <p className="text-sm font-medium">Test endpoints directly</p>
+                <p className="text-xs text-muted-foreground">Click "Try it out" on any endpoint, add authentication token (for protected routes), and execute requests</p>
               </div>
             </div>
           </CardContent>
@@ -180,7 +184,8 @@ export default function ApiDocumentationPage() {
                 filter={true}
                 showExtensions={true}
                 showCommonExtensions={true}
-                tryItOutEnabled={false} // Disable "Try it out" for now (requires auth setup)
+                tryItOutEnabled={true}
+                persistAuthorization={true}
               />
             </div>
           </CardContent>
