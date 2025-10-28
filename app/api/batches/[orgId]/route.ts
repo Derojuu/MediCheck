@@ -31,7 +31,8 @@ export async function GET(
     });
 
     return NextResponse.json(batches, { status: 200 });
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Error fetching batches:", error);
     return NextResponse.json(
       { error: "Failed to fetch batches" },

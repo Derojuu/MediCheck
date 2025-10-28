@@ -9,6 +9,7 @@ import { encodeFeatures } from "@/lib/formatModelInput";
 import * as ort from "onnxruntime-node";
 import { promises as fs } from "fs";
 import path from "path";
+import { safeSendHcs10 } from "@/lib/hcs10";
 
 const QR_SECRET = process.env.QR_SECRET || "dev-secret";
 
@@ -16,13 +17,12 @@ export async function GET(
   req: Request,
   context: { params: { serialNumber: string } }
 ) {
-
   console.log("GET /api/verify/unit/[serialNumber] called");
 
   const { userId } = await auth();
 
   let loggedInUser = null;
-  
+
   if (userId) {
     loggedInUser = await currentUser();
   }
@@ -34,7 +34,6 @@ export async function GET(
   const sig = url.searchParams.get("sig");
   const longitude = url.searchParams.get("long");
   const latitude = url.searchParams.get("lat");
-
 
   const modelPath = path.join(process.cwd(), "models", "scan-classifier.onnx");
 
@@ -64,17 +63,16 @@ export async function GET(
     );
   }
 
-  //  Fetch user & team membership
+  //  Fetch user & consumer (if available)
   const user = await prisma.user.findUnique({
     where: { clerkUserId: userId ?? "" },
     include: { consumer: true },
   });
 
   // VERIFYING THAT THIS UNIT BELONGS TO A BATCH REGISTERED ON OUR PLATFORM
-  // conpare serialnumber from db with the serialnumber in the url, same thing with the
   const splitSerialNumber = serialNumber.split("-");
 
-  // reconstruct the batchid this unit belongs to
+  // reconstruct the batchid this unit belongs to (original format in your code)
   const batchIdFromUrl = splitSerialNumber[1] + "-" + splitSerialNumber[2];
 
   if (
@@ -90,29 +88,25 @@ export async function GET(
 
   // 2️⃣ Recompute signature
   const data = `${unit.serialNumber}|${unit.batch.batchId}|${unit.registrySequence}`;
-
   let valid = verifySignature(data, sig, QR_SECRET);
 
-  //
   const topicId = unit.batch.registryTopicId ?? "";
-
   const logEntries = await getBatchEventLogs(topicId);
-
   const logEntriesMessages = logEntries.map((entry) => entry.message);
 
-  console.log("logEntriesMessages", logEntriesMessages);
-
-  // logEntries is the array you showed above
+  // Parse only EVENT_LOG entries
   const eventLogs = logEntriesMessages
     .map((entry) => {
-      const parsed = JSON.parse(entry.metadata || "");
-      return parsed;
+      try {
+        const parsed = JSON.parse(entry.metadata || "");
+        return parsed;
+      } catch {
+        return null;
+      }
     })
     .filter((entry) => entry && entry.type === "EVENT_LOG");
 
-
-    console.log("works")
-  // AUTHENTICITY CHECK
+  // AUTHENTICITY CHECKS
   const authenticityResultCheck = await runAllUnitAuthenticityChecks(
     eventLogs,
     unit.id,
@@ -121,17 +115,14 @@ export async function GET(
     topicId
   );
 
-      console.log("works 22")
-
-  // SAVE SCAN HISTORY
-
+  // SAVE SCAN HISTORY (we save before notifying org so we can reference savedScan.id)
   const consumer = user
     ? await prisma.consumer.findUnique({ where: { userId: user.id } })
     : null;
 
   const authenticityScanResult =
     authenticityResultCheck?.status === "NOT_SAFE" ? "SUSPICIOUS" : "GENUINE";
-  
+
   valid = authenticityResultCheck?.status === "NOT_SAFE" ? false : valid;
 
   const organizationInformation = await prisma.organization.findUnique({
@@ -152,6 +143,123 @@ export async function GET(
       timestamp: now,
     },
   });
+
+
+
+
+
+
+  // --------------------- NEW: HCS-10 COMMUNICATION ---------------------
+  // Notify owner organization about this unit verification (managedRegistry + inbound agent topic)
+  try {
+    const ownerOrg = await prisma.organization.findUnique({
+      where: { id: unit.batch.organizationId },
+      include: {
+        organizationAgent: {
+          select: {
+            id: true,
+            agentName: true,
+            inboundTopic: true,
+            outboundTopic: true,
+          },
+        },
+      },
+    });
+
+    const verificationPayload = {
+      p: "hcs-10",
+      op: "unit_verification_event",
+      unitId: unit.id,
+      serialNumber: unit.serialNumber,
+      batchId: unit.batch.batchId,
+      registryTopic: topicId,
+      scanId: savedScan.id,
+      scanner: loggedInUser
+        ? { type: "CONSUMER", id: consumer?.id ?? null }
+        : { type: "ANONYMOUS" },
+      result: authenticityResultCheck?.status ?? "UNKNOWN",
+      reasons: authenticityResultCheck?.reasons ?? [],
+      timestamp: new Date().toISOString(),
+    };
+
+    const sendResults: Array<any> = [];
+
+    // 1) Send to owner's managed registry (if present) for global visibility
+    if (ownerOrg?.managedRegistry) {
+      const r = await safeSendHcs10(
+        ownerOrg.managedRegistry,
+        verificationPayload,
+        "Unit verification event (registry)"
+      );
+      sendResults.push({ target: ownerOrg.managedRegistry, result: r });
+    }
+
+    // 2) Send to owner's inbound agent topic (direct agent notification)
+    if (ownerOrg?.organizationAgent?.inboundTopic) {
+      const response = await safeSendHcs10(
+        ownerOrg.organizationAgent.inboundTopic,
+        {
+          ...verificationPayload,
+          op: "unit_verification_request",
+        },
+        "Unit verification request (agent inbound)"
+      );
+
+      sendResults.push({
+        target: ownerOrg.organizationAgent.inboundTopic,
+        result: response,
+      });
+
+      // Log outbound message to AgentMessage table (if agent exists)
+      try {
+        // attempt to extract a sequence number from the Hedera send result (best-effort)
+        // Ensure we have a numeric sequence, default to 0 if not available
+        const seq = typeof response === 'number' ? response : 0;
+
+        await prisma.agentMessage.create({
+          data: {
+            topicId: ownerOrg.organizationAgent.inboundTopic,
+            message: verificationPayload,
+            sequence: seq,
+            agentId: ownerOrg.organizationAgent.id,
+          },
+        });
+      } catch (logErr) {
+        console.warn("Failed to log agent message to DB (non-fatal):", logErr);
+      }
+    }
+
+    // Optional: if ownerOrg has outboundTopic 
+    if (ownerOrg?.organizationAgent?.outboundTopic) {
+      const r2 = await safeSendHcs10(
+        ownerOrg.organizationAgent.outboundTopic,
+        {
+          ...verificationPayload,
+          op: "unit_verification_notice",
+        },
+        "Unit verification notice (agent outbound)"
+      );
+      sendResults.push({
+        target: ownerOrg.organizationAgent.outboundTopic,
+        result: r2,
+      });
+    }
+
+    // attach sendResults for debugging in response
+    // (no sensitive values, just targets and success metadata)
+    // you can remove this from production responses if you prefer
+    console.log("HCS-10 sendResults:", sendResults);
+  }
+  catch (commError) {
+    console.warn("HCS-10 communication failed (non-fatal):", commError);
+  }
+
+
+
+
+
+
+  // ------------------- END HCS-10 COMMUNICATION -------------------
 
   // Day of week
   const dayMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

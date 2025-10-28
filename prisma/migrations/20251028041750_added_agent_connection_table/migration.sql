@@ -70,6 +70,7 @@ CREATE TABLE "public"."organizations" (
     "contactPersonName" TEXT,
     "address" TEXT NOT NULL,
     "country" TEXT NOT NULL,
+    "managedRegistry" TEXT NOT NULL,
     "state" TEXT,
     "rcNumber" TEXT,
     "nafdacNumber" TEXT,
@@ -163,6 +164,7 @@ CREATE TABLE "public"."medication_units" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "registrySequence" INTEGER,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "soldAt" TIMESTAMP(3),
 
     CONSTRAINT "medication_units_pkey" PRIMARY KEY ("id")
 );
@@ -204,6 +206,7 @@ CREATE TABLE "public"."scan_history" (
     "unitId" TEXT,
     "consumerId" TEXT,
     "isAnonymous" BOOLEAN NOT NULL,
+    "hcs10Seq" INTEGER,
     "region" TEXT,
     "scanDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "scanResult" "public"."ScanResult" NOT NULL,
@@ -277,7 +280,8 @@ CREATE TABLE "public"."audit_logs" (
 -- CreateTable
 CREATE TABLE "public"."Agent" (
     "id" SERIAL NOT NULL,
-    "accountId" TEXT NOT NULL,
+    "agentName" TEXT NOT NULL,
+    "accountId" TEXT,
     "role" TEXT NOT NULL,
     "inboundTopic" TEXT NOT NULL,
     "outboundTopic" TEXT NOT NULL,
@@ -304,6 +308,33 @@ CREATE TABLE "public"."AgentMessage" (
     CONSTRAINT "AgentMessage_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "public"."AgentConnection" (
+    "id" TEXT NOT NULL,
+    "initiatorOrgId" TEXT NOT NULL,
+    "receiverOrgId" TEXT NOT NULL,
+    "initiatorAgentId" INTEGER NOT NULL,
+    "receiverAgentId" INTEGER NOT NULL,
+    "connectionTopicId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AgentConnection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."registration_requests" (
+    "id" TEXT NOT NULL,
+    "agent_id" TEXT NOT NULL,
+    "org_id" TEXT NOT NULL,
+    "network" TEXT NOT NULL,
+    "status" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "registration_requests_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_clerkUserId_key" ON "public"."users"("clerkUserId");
 
@@ -324,9 +355,6 @@ CREATE UNIQUE INDEX "medication_units_serialNumber_key" ON "public"."medication_
 
 -- CreateIndex
 CREATE UNIQUE INDEX "system_config_key_key" ON "public"."system_config"("key");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Agent_accountId_key" ON "public"."Agent"("accountId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Agent_orgId_key" ON "public"."Agent"("orgId");
@@ -390,3 +418,15 @@ ALTER TABLE "public"."Agent" ADD CONSTRAINT "Agent_orgId_fkey" FOREIGN KEY ("org
 
 -- AddForeignKey
 ALTER TABLE "public"."AgentMessage" ADD CONSTRAINT "AgentMessage_agentId_fkey" FOREIGN KEY ("agentId") REFERENCES "public"."Agent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."AgentConnection" ADD CONSTRAINT "AgentConnection_initiatorOrgId_fkey" FOREIGN KEY ("initiatorOrgId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."AgentConnection" ADD CONSTRAINT "AgentConnection_receiverOrgId_fkey" FOREIGN KEY ("receiverOrgId") REFERENCES "public"."organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."AgentConnection" ADD CONSTRAINT "AgentConnection_initiatorAgentId_fkey" FOREIGN KEY ("initiatorAgentId") REFERENCES "public"."Agent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."AgentConnection" ADD CONSTRAINT "AgentConnection_receiverAgentId_fkey" FOREIGN KEY ("receiverAgentId") REFERENCES "public"."Agent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
