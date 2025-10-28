@@ -53,6 +53,7 @@ model Organization {
   contactPersonName String?
   address           String
   country           String
+  managedRegistry   String
   state             String?
   rcNumber          String?
   nafdacNumber      String?
@@ -68,6 +69,8 @@ model Organization {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
+  initiatedConnections AgentConnection[] @relation("InitiatorOrg")
+  receivedConnections  AgentConnection[] @relation("ReceiverOrg")
   medicationBatches MedicationBatch[]
   organizationAgent Agent? @relation("OrgAgent")
   users             User                @relation(fields: [adminId], references: [id], onDelete: Cascade)
@@ -301,7 +304,8 @@ model AuditLog {
 
 model Agent {
   id             Int      @id @default(autoincrement())
-  accountId      String   @unique   // Hedera account e.g. "0.0.54321"
+  agentName      String
+  accountId      String?  
   role           String     // "manufacturer" | "distributor" | "pharmacy" | "hospital" | "regulator" | "gateway"
   inboundTopic   String
   outboundTopic  String
@@ -313,6 +317,10 @@ model Agent {
   createdAt      DateTime   @default(now())
 
   messages AgentMessage[]
+  
+  // 🔁 Reverse relations to AgentConnection
+  initiatedConnections AgentConnection[] @relation("InitiatorAgent")
+  receivedConnections  AgentConnection[] @relation("ReceiverAgent")
 
   orgId        String       @unique
   organization Organization @relation("OrgAgent", fields: [orgId], references: [id])
@@ -329,6 +337,34 @@ model AgentMessage {
   agentId     Int
   Agent       Agent    @relation(fields: [agentId], references: [id])
 }
+
+model AgentConnection {
+  id                 String   @id @default(cuid())
+  initiatorOrgId     String
+  receiverOrgId      String
+  initiatorAgentId   Int
+  receiverAgentId    Int
+  connectionTopicId  String   // shared HCS-10 topic for both
+  status             String   @default("PENDING") // PENDING | ACTIVE | CLOSED
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  initiatorOrg       Organization @relation("InitiatorOrg", fields: [initiatorOrgId], references: [id])
+  receiverOrg        Organization @relation("ReceiverOrg", fields: [receiverOrgId], references: [id])
+
+  initiatorAgent     Agent @relation("InitiatorAgent", fields: [initiatorAgentId], references: [id])
+  receiverAgent      Agent @relation("ReceiverAgent", fields: [receiverAgentId], references: [id])
+}
+
+model registration_requests {
+  id          String   @id @default(uuid())
+  agent_id    String
+  org_id      String
+  network     String   // required by the SDK
+  status      String?
+  created_at  DateTime @default(now())
+}
+
 
 
 enum UserRole {

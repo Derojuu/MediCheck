@@ -9,6 +9,7 @@ import { encodeFeatures } from "@/lib/formatModelInput";
 import * as ort from "onnxruntime-node";
 import { promises as fs } from "fs";
 import path from "path";
+import { safeSendHcs10, createAgentConnection } from "@/lib/hcs10";
 
 const QR_SECRET = process.env.QR_SECRET || "dev-secret";
 
@@ -32,16 +33,13 @@ export async function GET(
       );
     }
 
+    // Load ONNX model buffer (keep your original model-loading behavior)
     const modelPath = path.join(
       process.cwd(),
       "models",
       "scan-classifier.onnx"
     );
-
-    // Load as Buffer
     const modelBuffer = await fs.readFile(modelPath);
-
-    // 🔑 Convert Buffer to Uint8Array
     const modelUint8 = new Uint8Array(modelBuffer);
 
     if (!sig) {
@@ -64,9 +62,9 @@ export async function GET(
       );
     }
 
-    const orgId = user?.teamMember?.organizationId;
+    const scannerOrgId = user.teamMember.organizationId;
 
-    // 1️⃣ Fetch batch
+    // 1️⃣ Fetch batch + include sender org & their agent info
     const batch = await prisma.medicationBatch.findUnique({
       where: { batchId },
     });
@@ -89,39 +87,57 @@ export async function GET(
       );
     }
 
-    // 2️⃣ Recompute signature
-    const data = `BATCH|${batch.batchId}|${batch.registryTopicId}`;
-    const valid = verifySignature(data, sig, QR_SECRET);
 
-    if (!valid) {
+    if (batch.status === "RECALLED") {
+      return NextResponse.json(
+        {
+          valid: false,
+          error:
+            "This batch has been recalled back to the factory by the manufacturer, please contact the manufacturer.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 2️⃣ Recompute signature to verify QR integrity
+    const data = `BATCH|${batch.batchId}|${batch.registryTopicId}`;
+    const validSig = verifySignature(data, sig, QR_SECRET);
+
+    if (!validSig) {
       return NextResponse.json(
         { valid: false, error: "This batch has been compromised!!" },
         { status: 400 }
       );
     }
 
-    // 4️⃣ Check if org is expecting this batch
+    // 3️⃣ Check if org (scanner) is expecting this batch (transfer)
     const transfer = await prisma.ownershipTransfer.findFirst({
       where: {
         batchId: batch.id,
-        toOrgId: orgId,
+        toOrgId: scannerOrgId,
       },
+    });
+
+    // Load org metadata for sender (current batch owner) and receiver (scanner org)
+    const senderOrg = await prisma.organization.findUnique({
+      where: { id: batch.organizationId },
+      include: { organizationAgent: true },
+    });
+
+    const receiverOrg = await prisma.organization.findUnique({
+      where: { id: scannerOrgId },
+      include: { organizationAgent: true },
     });
 
     let updatedBatch = batch;
 
-    const organizationInformation = await prisma.organization.findUnique({
-      where: { id: batch.organizationId },
-    });
-
-    const prevOrg = batch.batchId;
-
     if (transfer && transfer.status === "PENDING") {
-      // 1. Transfer ownership
+      // ========= Transfer acceptance flow =========
+      // 1. Update ownership in DB
       updatedBatch = await prisma.medicationBatch.update({
-        where: { batchId: prevOrg },
+        where: { batchId: batch.batchId },
         data: {
-          organizationId: orgId,
+          organizationId: scannerOrgId,
           status: "DELIVERED",
         },
       });
@@ -132,53 +148,196 @@ export async function GET(
         data: { status: "COMPLETED" },
       });
 
-      // 3. log digital footprint on-chain
-      console.log(
-        `Batch ${prevOrg} ownership transferred to org ${orgId} by user ${userId}`
+      // 3. Log transfer on HCS-2 (immutable registry)
+      const transferSeq = await logBatchEvent(
+        batch.registryTopicId ?? "",
+        "BATCH_OWNERSHIP",
+        {
+          batchId: batch.batchId,
+          transferFrom: batch.organizationId,
+          transferTo: scannerOrgId,
+          qrSignature: batch.qrSignature ?? "",
+          timestamp: new Date().toISOString(),
+        }
       );
 
-      // Log the batch creation event to Hedera
-      await logBatchEvent(batch.registryTopicId ?? "", "BATCH_OWNERSHIP", {
-        batchId: batch.batchId,
-        organizationId: batch.organizationId,
-        transferFrom: prevOrg,
-        transferTo: orgId,
-        qrSignature: batch.qrSignature ?? "",
+      // 4 Ensure connection between agents
+      let connection = await prisma.agentConnection.findFirst({
+        where: {
+          initiatorOrgId: batch.organizationId,
+          receiverOrgId: scannerOrgId,
+          status: "ACTIVE",
+        },
       });
 
+      if (!connection) {
+        console.log("🔗 No existing connection found — creating new...");
+        connection = await createAgentConnection(
+          batch.organizationId,
+          scannerOrgId
+        );
+      } else {
+        console.log("🔗 Using existing active connection:", connection.id);
+      }
+
+      // 5️⃣ Prepare payload
+      const payload = {
+        batchId: batch.batchId,
+        fromOrgId: batch.organizationId,
+        toOrgId: scannerOrgId,
+        registryTopic: batch.registryTopicId,
+        hederaSeq: transferSeq,
+        timestamp: new Date().toISOString(),
+      };
+
+      // 6️⃣ Announce via shared connection topic (both agents see it)
+      await safeSendHcs10(
+        connection.connectionTopicId,
+        { p: "hcs-10", op: "batch_transfer_confirmed", ...payload },
+        "Batch ownership confirmed",
+        connection.id
+      );
+
+      // 7️⃣  Announce on managed registries ( global visibility)
+      try {
+        if (senderOrg?.managedRegistry)
+          await safeSendHcs10(
+            senderOrg.managedRegistry,
+            { type: "BATCH_TRANSFERRED", ...payload },
+            "Sender registry log"
+          );
+
+        if (receiverOrg?.managedRegistry)
+          await safeSendHcs10(
+            receiverOrg.managedRegistry,
+            { type: "BATCH_RECEIVED", ...payload },
+            "Receiver registry log"
+          );
+      }
+      catch (e) {
+        console.warn("Non-fatal registry broadcast error:", e);
+      }
+
+      // 8️⃣ Off-chain audit
+      await prisma.batchEvent.create({
+        data: {
+          batchId: batch.id,
+          eventType: "BATCH_TRANSFERRED",
+          hederaSeq: transferSeq ?? 0,
+          payload: { fromOrgId: batch.organizationId, toOrgId: scannerOrgId },
+          region: receiverOrg?.state ?? "",
+        },
+      });
     }
     else {
-      // Flag batch
+      // ========= Flagging flow (no valid transfer found) =========
       updatedBatch = await prisma.medicationBatch.update({
-        where: { batchId: prevOrg },
+        where: { batchId: batch.batchId },
         data: { status: "FLAGGED" },
       });
 
-      // if (transfer) {
-      //   await prisma.ownershipTransfer.delete({
-      //     where: { id: transfer.id },
-      //   });
-      // }
+      // Log flag event in HCS-2
+      const flagSeq = await logBatchEvent(
+        batch.registryTopicId ?? "",
+        "BATCH_FLAG",
+        {
+          batchId: batch.batchId,
+          organizationId: batch.organizationId,
+          qrSignature: batch.qrSignature ?? "",
+          flagReason: "Transfer not expected or unauthorized scan",
+          timestamp: new Date().toISOString(),
+        }
+      );
 
-      // log flag event
-
-      await logBatchEvent(batch.registryTopicId ?? "", "BATCH_FLAG", {
+      // Announce flag on HCS-10 (org managed registries + agent topics), non-fatal
+      const flagPayload = {
+        // p: "hcs-10",
+        // op: "batch_flag",
         batchId: batch.batchId,
-        organizationId: batch.organizationId,
-        qrSignature: batch.qrSignature ?? "",
-        flagReason: "The tranfer of this batch seems malicious.",
+        orgId: batch.organizationId,
+        scannerOrgId,
+        registryTopic: batch.registryTopicId,
+        hederaSeq: flagSeq,
+        timestamp: new Date().toISOString(),
+      };
+
+      try {
+        if (senderOrg?.managedRegistry) {
+          await safeSendHcs10(
+            senderOrg.managedRegistry,
+            { type: "BATCH_FLAG", ...flagPayload },
+            "Batch flagged"
+          );
+        }
+        if (senderOrg?.organizationAgent?.outboundTopic) {
+          await safeSendHcs10(
+            senderOrg.organizationAgent.outboundTopic,
+            { p: "hcs-10", op: "batch_flag", ...flagPayload },
+            "Batch flagged (agent outbound)"
+          );
+        }
+      }
+      catch (e) {
+        console.warn(
+          "Non-fatal: failed to announce flag to sender channels",
+          e
+        );
+      }
+
+      // off-chain event
+      await prisma.batchEvent.create({
+        data: {
+          batchId: batch.id,
+          eventType: "BATCH_FLAG",
+          hederaSeq: flagSeq ?? 0,
+          payload: { reason: "Transfer not expected or unauthorized scan" },
+          region: senderOrg?.state ?? "",
+        },
       });
+
+      // find or create connection
+      let flagConnection = await prisma.agentConnection.findFirst({
+        where: {
+          initiatorOrgId: batch.organizationId,
+          receiverOrgId: scannerOrgId,
+        },
+      });
+
+      if (!flagConnection) {
+        flagConnection = await createAgentConnection(
+          batch.organizationId,
+          scannerOrgId
+        );
+      }
+
+      // send flag alert via shared topic
+      await safeSendHcs10(
+        flagConnection.connectionTopicId,
+        {
+          p: "hcs-10",
+          op: "batch_flag_alert",
+          batchId: batch.batchId,
+          orgId: batch.organizationId,
+          scannerOrgId,
+          registryTopic: batch.registryTopicId,
+          hederaSeq: flagSeq,
+          timestamp: new Date().toISOString(),
+        },
+        "Unauthorized batch transfer alert",
+        flagConnection.id
+      );
     }
 
+
+    // ========== SCAN HISTORY + ML INFERENCE (keep unchanged) ==========
     const now = new Date();
 
-    // batch level scan
     const savedScan = await prisma.scanHistory.create({
       data: {
         batchId: batch.id,
         teamMemberId: user.teamMember.id,
         scanResult: transfer ? "GENUINE" : "SUSPICIOUS",
-        region: organizationInformation?.state,
+        region: senderOrg?.state ?? "",
         isAnonymous: false,
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
@@ -186,11 +345,9 @@ export async function GET(
       },
     });
 
-    // Day of week
     const dayMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const dayOfWeek = dayMap[now.getDay()];
 
-    // Time of day
     const hour = now.getHours();
     let timeOfDay;
     if (hour >= 5 && hour < 12) timeOfDay = "morning";
@@ -201,7 +358,7 @@ export async function GET(
     // total scans in region in last 30 days
     const totalScans = await prisma.scanHistory.count({
       where: {
-        region: organizationInformation?.state,
+        region: senderOrg?.state,
         timestamp: {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
         },
@@ -211,7 +368,7 @@ export async function GET(
     // suspicious scans in region in last 30 days
     const suspiciousScans = await prisma.scanHistory.count({
       where: {
-        region: organizationInformation?.state,
+        region: senderOrg?.state,
         scanResult: "SUSPICIOUS",
         timestamp: {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -219,13 +376,8 @@ export async function GET(
       },
     });
 
-    // incident rate
     const pastIncidentRate = totalScans > 0 ? suspiciousScans / totalScans : 0;
 
-    // 1. Base risk by role
-    let baseRisk = 0.1; // Team Members always start low risk
-
-    // 2. Behavior adjustment: suspicious scans ratio for this team member
     const totalUserScans = await prisma.scanHistory.count({
       where: { teamMemberId: user.teamMember?.id },
     });
@@ -240,11 +392,11 @@ export async function GET(
     const suspiciousRatio =
       totalUserScans > 0 ? suspiciousUserScans / totalUserScans : 0;
 
-    // 3. Combine to make user_flag
+    let baseRisk = 0.1;
     const userFlag = Math.min(baseRisk + suspiciousRatio * 0.5, 1);
 
     const features = encodeFeatures({
-      region: organizationInformation?.state ?? "",
+      region: senderOrg?.state ?? "",
       latitude: latitude ? parseFloat(latitude) : 0,
       longitude: longitude ? parseFloat(longitude) : 0,
       time_of_day: timeOfDay,
@@ -253,12 +405,10 @@ export async function GET(
       user_flag: userFlag,
     });
 
-    // Initialize ONNX Runtime with proper error handling
+    // ONNX inference 
     try {
       const session = await ort.InferenceSession.create(modelUint8);
-
       const inputArray = Float32Array.from(features);
-
       const inputTensor = new ort.Tensor("float32", inputArray, [1, 52]);
 
       const feeds: Record<string, ort.Tensor> = {
@@ -267,48 +417,39 @@ export async function GET(
 
       const results = await session.run(feeds);
 
-      // Get the raw arrays
-      const labelArr = results.label.data as BigInt64Array; // int64 -> BigInt64Array
+      const labelArr = results.label.data as BigInt64Array;
+      const probArr = results.probabilities.data as Float32Array;
 
-      const probArr = results.probabilities.data as Float32Array; // float32 -> Float32Array
-
-      // Convert safely
-      const predictedLabelInt = Number(labelArr[0]); // from BigInt to number
-
-      const predictedProbability = probArr[predictedLabelInt]; // probability of predicted label
-
-      console.log("predictedLabelInt", predictedLabelInt);
-
-      console.log("predictedProbability", predictedProbability);
-
-      // If you want a boolean:
+      const predictedLabelInt = Number(labelArr[0]);
+      const predictedProbability = probArr[predictedLabelInt];
       const predictedLabel = predictedLabelInt === 1;
 
-      // Then save
       await prisma.predictionScore.create({
         data: {
           scanHistoryId: savedScan.id,
           predictedLabel,
-          predictedProbability, 
-          region: organizationInformation?.state,
+          predictedProbability,
+          region: senderOrg?.state,
           scanType: "BATCH",
         },
       });
     }
     catch (onnxError) {
       console.error("ONNX Runtime Error:", onnxError);
+      // Do not fail the endpoint on model error — return a useful response
       return NextResponse.json(
         { valid: false, error: "ONNX Runtime Error", onnxError },
         { status: 400 }
       );
     }
 
-    // 3️⃣ Response
+    // Final response returns the updated batch and simple verification result
     return NextResponse.json({
       valid: true,
       batch: updatedBatch,
+      transfer: transfer ? { status: "COMPLETED" } : null,
     });
-    
+
   }
   catch (err: any) {
     console.error("VerifyBatch API Error:", err);

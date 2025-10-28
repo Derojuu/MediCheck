@@ -6,11 +6,10 @@ if (!process.env.HEDERA_OPERATOR_ID || !process.env.HEDERA_OPERATOR_KEY) {
 
 // Basic configuration
 export const hedera10Client = new HCS10Client({
-  network: "testnet", // Network: 'testnet' or 'mainnet'
-  operatorId: process.env.HEDERA_OPERATOR_ID!, // Your Hedera account ID
-  operatorPrivateKey: process.env.HEDERA_OPERATOR_KEY!, // Your Hedera private key
-  logLevel: process.env.NODE_ENV === "production" ? "silent" : "info", // Optional: 'debug', 'info', 'warn', 'error'
-  prettyPrint: true, // Optional: prettier console output
-  guardedRegistryBaseUrl: "https://moonscape.tech", // Optional: registry URL
-  feeAmount: 1,
+  network: "testnet",
+  operatorId: process.env.HEDERA_OPERATOR_ID!,
+  operatorPrivateKey: process.env.HEDERA_OPERATOR_KEY!,
+  logLevel: process.env.NODE_ENV === "production" ? "silent" : "info",
+  prettyPrint: true,
 });
+

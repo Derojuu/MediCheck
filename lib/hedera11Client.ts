@@ -6,9 +6,10 @@ if (!process.env.HEDERA_OPERATOR_ID || !process.env.HEDERA_OPERATOR_KEY) {
 
 // Basic configuration
 export const hedera11Client = new HCS11Client({
-  network: "testnet", 
-   auth: {
+  network: "testnet",
+  auth: {
     operatorId: process.env.HEDERA_OPERATOR_ID!,
     privateKey: process.env.HEDERA_OPERATOR_KEY!,
   },
+  logLevel: "info",
 });

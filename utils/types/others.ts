@@ -1,4 +1,5 @@
 
+import { AIAgentCapability } from "@hashgraphonline/standards-sdk"
 import { MedicationBatchProp } from "./schemType"
 export interface ProductProps {
   name: string
@@ -82,7 +83,11 @@ export interface TransferProps {
 
 export interface HederaLogPayload {
   batchId: string;
-  organizationId: string;
+  organizationId?: string;
+  timestamp?: string;
+  // specific to batch unit creation
+  units?: string[];
+  count?: number;
   // region: string;
   drugName?: string;
   batchSize?: string;
@@ -94,8 +99,7 @@ export interface HederaLogPayload {
   transferTo?: string; // for transfer
   qrSignature?: string;
   // flag
-  flagReason?: string
-
+  flagReason?: string;
 }
 
 export interface MyPublicMetadata {
@@ -136,3 +140,17 @@ export enum Hcs10MemoType {
   OUTBOUND = "outbound", // For outbound topic memos
   CONNECTION = "connection", // For connection topic memos
 }
+
+
+
+
+export interface CreateAgentProp{
+  name: string;
+  description: string;
+  orgId: string;
+  role: string;
+  model?: string;
+  capabilities?: AIAgentCapability[];
+  metadata?: Record<string, any>;
+  agentType?: "manual" | "autonomous";
+};
