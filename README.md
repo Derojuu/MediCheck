@@ -3,7 +3,9 @@
 **Track:** Healthcare & Supply Chain Innovation  
 **Hedera Network:** Testnet
 
----
+<img width="1472" height="704" alt="Gemini_Generated_Image_ebcrwcebcrwcebcr" src="https://github.com/user-attachments/assets/1b982062-7f1d-40aa-8392-6575dd7eedcf" />
+
+
 
 ## Project Overview
 
