@@ -5,16 +5,86 @@
 
 <img width="1297" height="704" alt="Gemini_Generated_Image_ebcrwcebcrwcebcr" src="https://github.com/user-attachments/assets/76913b90-5af2-49c0-a9e5-523215bb92fd" />
 
-
-
-
 ## Project Overview
 
 MediCheck tackles Africa's counterfeit drug crisis by combining Hedera's consensus services with AI-powered verification. The platform enables secure drug traceability from manufacturer to patient, with real-time authenticity verification in local languages, addressing the $200B+ global counterfeit pharmaceutical problem that disproportionately affects developing regions.
 
 ---
 
-## Architecture Diagram
+## 🚀 HCS-10 Integration: Intelligent Communication Layer
+
+### Overview
+
+MediCheck is a medication verification and traceability platform leveraging Hedera's Distributed Ledger Technology (DLT). The integration of **HCS-10** adds a secure, intelligent communication layer between organizations, transforming MediCheck from a simple event logging system into an interactive verification network.
+
+### What is HCS-10?
+
+HCS-10 defines a decentralized protocol for agent communication across organizations. Agents represent organizations like manufacturers, distributors, pharmacies, and hospitals, interacting via Hedera Consensus Service topics for verifiable communication.
+
+**In Simple Terms:** HCS-10 enables organizations to "talk" to each other through blockchain-verified messages, creating a living network where every interaction is transparent, traceable, and tamper-proof.
+
+### Why Integrate HCS-10?
+
+**Before HCS-10:** Inter-organization communication was off-chain, manual, and unverifiable. Organizations logged events independently without direct coordination.
+
+**After HCS-10:** Agents can exchange verifiable messages in real-time, ensuring transparency and immediate event propagation across the drug supply chain. Every handshake, transfer, and verification is now cryptographically proven.
+
+### Key Components Added
+
+1. **Agent Creation:** Creates HCS-10 agents with inbound/outbound topics for each organization
+2. **Managed Registry:** Each organization has a registry for announcements like "Batch Created" or "Batch Flagged"
+3. **Agent Connections:** Enables secure, traceable communication between two organizations
+4. **Batch Transfer Updates:** Adds HCS-10 announcements for transfers between sender and receiver
+5. **Unit Verification:** Broadcasts scan results to manufacturers for authenticity checks
+6. **SafeSendHcs10 Helper:** Provides fault-tolerant message dispatch to correct HCS topics
+7. **Agent Message Logging:** Keeps a verifiable audit trail of all HCS-10 communications
+
+### Security Benefits
+
+After HCS-10 integration, MediCheck benefits from:
+
+- **Improved Data Authenticity:** Two-layer verification (HCS-2 logs + HCS-10 confirmations)
+- **Complete Communication Auditability:** Every message between organizations is permanently recorded
+- **Real-time Attack Detection:** Suspicious communication patterns trigger immediate alerts
+- **Fully Traceable Event Histories:** Complete provenance from manufacturer to patient
+
+### System Flow Summary
+
+1. **Organization registers** → HCS-10 agent is automatically created
+2. **Manufacturer creates a batch** → Event broadcast via managed registry
+3. **Batch transfers** → Sender and receiver agents communicate via connection topic
+4. **Consumer scans a drug unit** → Authenticity verified and broadcast to manufacturer via HCS-10
+
+**Result:** HCS-10 transforms MediCheck into an intelligent, interactive verification network where each organization operates a verifiable agent, enabling real-time, ledger-backed communication across the healthcare supply chain.
+
+---
+
+## Architecture Evolution: HCS-2 + HCS-10
+
+### Before (HCS-2 Only)
+
+```
+<img width="1266" height="502" alt="Untitled diagram-2025-10-29-224752" src="https://github.com/user-attachments/assets/f8344828-3867-423e-a9c4-e133fc77b460" />
+
+```
+
+All event types (create, transfer, flag) were written to a single registry. No direct communication between agents — just reading shared logs.
+
+### After (HCS-2 + HCS-10)
+
+```
+<img width="472" height="625" alt="Screenshot 2025-10-29 234930" src="https://github.com/user-attachments/assets/276d7501-f8c4-4dc2-abc7-2dada3dbf55e" />
+
+```
+
+**Key Upgrades:**
+- Each organization gets a managedRegistry (HCS-10 topic)
+- Agents have inboundTopic, outboundTopic, and optional connectionTopic fields
+- The organization agent mediates between HCS-2 (permanent logs) and HCS-10 (direct comms)
+
+---
+
+## Complete Architecture Diagram
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -43,21 +113,22 @@ MediCheck tackles Africa's counterfeit drug crisis by combining Hedera's consens
                     │   │  - Batch Creation    │   │
                     │   │  - Transfer Logic    │   │
                     │   │  - Verification      │   │
+                    │   │  - HCS-10 Agents     │   │
                     │   └──────────────────────┘   │
                     └────────┬──────────┬──────────┘
                              │          │
-              ┌──────────────┘          └────────────────┐
-              │                                           │
-    ┌─────────▼──────────┐                   ┌───────────▼─────────┐
-    │  HEDERA NETWORK    │                   │   GEMINI AI API     │
-    │    (Testnet)       │                   │                     │
-    │ ┌────────────────┐ │                   │  - Drug Verification│
-    │ │ HCS Topic      │ │◄──────────────────┤  - Local Language  │
-    │ │ (Immutable Log)│ │     AI Analysis   │    Translation     │
-    │ └────────────────┘ │                   │  - Consumer Ed     │
-    │ ┌────────────────┐ │                   └─────────────────────┘
-    │ │ Consensus      │ │
-    │ │ Service        │ │
+              ┌──────────────┴──────┐   └────────────────┐
+              │                     │                     │
+    ┌─────────▼──────────┐ ┌───────▼─────────┐ ┌────────▼──────────┐
+    │  HEDERA HCS-2      │ │  HEDERA HCS-10  │ │   GEMINI AI API   │
+    │    (Testnet)       │ │    (Testnet)    │ │                   │
+    │ ┌────────────────┐ │ │ ┌─────────────┐ │ │ - Drug Verification│
+    │ │ Registry Topic │ │ │ │   Agents    │ │ │ - Local Language  │
+    │ │(Immutable Log) │ │ │ │Managed Reg. │ │ │   Translation     │
+    │ └────────────────┘ │ │ │ Connection  │ │ │ - Consumer Ed     │
+    │ ┌────────────────┐ │ │ │   Topics    │ │ └───────────────────┘
+    │ │ Consensus      │ │ │ └─────────────┘ │
+    │ │ Service        │ │ └─────────────────┘
     │ └────────────────┘ │
     │ ┌────────────────┐ │
     │ │ Mirror Node    │ │
@@ -69,32 +140,54 @@ DATA FLOW:
 1. User scans QR/NFC → Frontend captures unit ID
 2. Frontend → Backend API (auth via Clerk)
 3. Backend queries PostgreSQL for batch metadata
-4. Backend submits verification event → HCS Topic (TopicMessageSubmitTransaction)
-5. Hedera returns consensus timestamp + transaction ID
-6. Backend stores transaction receipt in PostgreSQL
-7. Backend queries Gemini AI for drug info + local translation
-8. Response flows back: Hedera status + AI insights → Frontend → User
+4. Backend submits verification event → HCS-2 Topic (immutable log)
+5. HCS-10 agent broadcasts scan event to manufacturer's managed registry
+6. Hedera returns consensus timestamp + transaction ID
+7. Backend stores transaction receipt in PostgreSQL
+8. Backend queries Gemini AI for drug info + local translation
+9. Response flows back: Hedera status + AI insights → Frontend → User
 ```
+![archi](https://github.com/user-attachments/assets/817796e3-e750-4966-a0b7-4cc0d3d836a4)
 
+
+---
 ---
 
 ## Hedera Integration Summary
 
-### Hedera Consensus Service (HCS)
+### Dual-Layer Architecture: HCS-2 + HCS-10
 
-**Why HCS:** We chose HCS for immutable logging of critical supply chain events because its predictable $0.0001 fee guarantees operational cost stability, which is essential for low-margin logistics in Africa. Unlike traditional blockchains with volatile gas fees, HCS enables sustainable operations for pharmaceutical distributors operating on thin margins while providing cryptographic proof of authenticity.
+**HCS-2 (Hedera Consensus Service):**
+- **Purpose:** Immutable event ledger for critical supply chain records
+- **What it stores:** Batch creation, ownership transfers, flagging, recalls
+- **Why HCS-2:** Provides permanent, tamper-proof audit trail with predictable $0.0001 fee
 
-**How It Works:**
-- Each drug batch creation, transfer, and verification is recorded as a message to a dedicated HCS Topic
-- Messages include: batch ID, timestamp, actor (manufacturer/distributor/hospital), action type, and cryptographic hash of product details
-- The consensus timestamp provides an immutable, ordered audit trail
-- Mirror Node API queries enable real-time verification without transaction costs
+**HCS-10 (Intelligent Communication Layer):**
+- **Purpose:** Real-time, verifiable communication between organization agents
+- **What it enables:** Transfer confirmations, authenticity handshakes, event announcements
+- **Why HCS-10:** Adds interactive coordination while maintaining cryptographic verification
 
-**Transaction Types Used:**
-- `TopicMessageSubmitTransaction` – Submit batch creation, transfer, and verification events
-- `TopicCreateTransaction` – Initialize organization-specific audit topics (during onboarding)
+**Combined Power:**
+- HCS-2 guarantees integrity (permanent record)
+- HCS-10 guarantees communication (real-time coordination)
+- Together, they guarantee trust across the entire supply chain
 
-**Economic Impact:** At $0.0001 per transaction, a distributor processing 10,000 drug units monthly pays just $1/month for blockchain verification—a 99.9% cost reduction compared to Ethereum-based solutions, making the platform financially viable for African healthcare systems.
+### Why HCS Over Traditional Blockchain?
+
+**Cost Efficiency:**
+- **Hedera HCS:** $0.0001 per transaction → $1/month for 10,000 verifications
+- **Ethereum Alternative:** ~$2-5 per transaction → $20,000-50,000/month (prohibitive for Africa)
+- **Traditional Centralized DB:** Free transactions but lacks auditability, immutability, and trust
+
+**Performance:**
+- Hedera's 10,000 TPS throughput supports national-scale rollout without congestion
+- 3-5 second finality enables real-time QR code verification at pharmacy counters
+- ABFT consensus ensures no forking or rollbacks (critical for regulatory compliance)
+
+**Africa-Specific Impact:**
+- Low, predictable fees make the platform sustainable for underfunded healthcare systems
+- Fast finality reduces patient wait times in high-volume clinics
+- Immutable audit trail builds trust in regions with weak regulatory enforcement
 
 ---
 
@@ -102,8 +195,9 @@ DATA FLOW:
 
 **Critical Infrastructure IDs:**
 - **Operator Account ID:** `0.0.5140687`
-- **Primary HCS Topic ID:** `0.0.5140925` (Main audit log for all supply chain events)
-- **Secondary HCS Topic ID:** `0.0.5141106` (Organization-specific events)
+- **Primary HCS-2 Topic ID:** `0.0.5140925` (Main audit log for all supply chain events)
+- **Secondary HCS-2 Topic ID:** `0.0.5141106` (Organization-specific events)
+- **HCS-10 Agent Topics:** Dynamically created per organization during registration
 
 **Note:** All transactions visible on HashScan Testnet Explorer: `https://hashscan.io/testnet/topic/0.0.5140925`
 
@@ -116,7 +210,8 @@ DATA FLOW:
 | **Frontend/Backend** | Next.js 15 | Full-stack React framework |
 | **Authentication** | Clerk | Secure user/role management |
 | **Database** | PostgreSQL + Prisma ORM | Off-chain data (user profiles, analytics) |
-| **Blockchain** | Hedera Testnet | Immutable supply chain audit trail |
+| **Blockchain (HCS-2)** | Hedera Testnet | Immutable supply chain audit trail |
+| **Communication (HCS-10)** | Hedera Testnet | Agent-to-agent verifiable messaging |
 | **AI/LLM** | Google Gemini | Local-language verification + education |
 | **Styling** | Tailwind CSS | Responsive UI components |
 
@@ -214,6 +309,55 @@ Comprehensive API documentation with 50+ endpoints available at:
 - Consumer Profile (2 endpoints)
 - Analytics & Dashboards (7 endpoints)
 - AI Services (3 endpoints)
+- **HCS-10 Agent Management (5 endpoints)**
+
+---
+
+## Transaction Flow Examples
+
+### Batch Creation by Manufacturer (HCS-2 + HCS-10)
+
+1. Manufacturer submits batch details via API (`POST /api/batches`)
+2. Backend generates unique batch ID + cryptographic hash
+3. **HCS-2:** `TopicMessageSubmitTransaction` → Topic 0.0.5140925 (permanent log)
+4. **HCS-10:** Broadcast announcement to organization's managed registry
+5. Transaction receipt stored in PostgreSQL with consensus timestamp
+6. QR codes generated for individual units
+
+### Consumer Verification (Enhanced with HCS-10)
+
+1. Consumer scans QR code via mobile app
+2. Frontend extracts unit ID → Backend API (`POST /api/verify`)
+3. Backend queries PostgreSQL for batch metadata
+4. **HCS-2:** Mirror Node query verifies official transaction exists
+5. **HCS-10:** Broadcast scan event to manufacturer's agent for real-time monitoring
+6. Gemini AI translates drug info to consumer's language (e.g., Hausa, Swahili)
+7. Response: Authentic + supply chain journey OR Counterfeit alert
+
+### Batch Transfer (Distributor → Hospital) with Agent Confirmation
+
+1. Distributor initiates transfer (`POST /api/transfers`)
+2. **HCS-10:** Distributor agent sends transfer intent to hospital agent
+3. **HCS-10:** Hospital agent confirms receipt and acknowledgment
+4. **HCS-2:** `TopicMessageSubmitTransaction` logs verified transfer event
+5. Ownership updated in PostgreSQL (triggers notification to hospital)
+6. Both agents log confirmation in their managed registries
+
+**Result:** Two-layer proof — HCS-2 provides immutable record, HCS-10 provides interactive confirmation between parties.
+
+---
+
+## Impact Summary: HCS-2 vs. HCS-2 + HCS-10
+
+| Capability | HCS-2 Only | HCS-2 + HCS-10 |
+|------------|-----------|----------------|
+| **Event Logging** | ✅ Immutable | ✅ Immutable |
+| **Org-to-Org Communication** | ❌ Off-chain | ✅ On-chain, verifiable |
+| **Transfer Confirmation** | ❌ One-sided | ✅ Two-way handshake |
+| **Real-time Alerts** | ❌ Manual polling | ✅ Agent-based broadcasts |
+| **Authenticity Verification** | ⚠️ Log-based only | ✅ Dual-source validation |
+| **Scalability** | ⚠️ Single topic congestion | ✅ Multi-topic architecture |
+| **Audit Trail** | ✅ Events only | ✅ Events + communications |
 
 ---
 
@@ -222,14 +366,16 @@ Comprehensive API documentation with 50+ endpoints available at:
 **Clean Code Practices:**
 - ESLint + Prettier configured for consistent formatting
 - TypeScript strict mode enabled for type safety
-- Clear function naming conventions (e.g., `createBatchOnHedera()`, `verifyDrugAuthenticity()`)
+- Clear function naming conventions (e.g., `createBatchOnHedera()`, `verifyDrugAuthenticity()`, `safeSendHcs10()`)
 - Inline comments for complex business logic
 - Standardized commit history with conventional commits
 
 **Core Logic Files (for Judge Review):**
-- `/lib/hedera.ts` – All Hedera SDK interactions (HCS topic submissions, account queries)
-- `/app/api/batches/route.ts` – Batch creation logic + blockchain integration
-- `/app/api/verify/route.ts` – Drug verification flow (Hedera query + AI analysis)
+- `/lib/hedera.ts` – All Hedera SDK interactions (HCS-2 + HCS-10)
+- `/lib/hcs10-agent.ts` – HCS-10 agent creation and management
+- `/app/api/batches/route.ts` – Batch creation logic + dual-layer blockchain integration
+- `/app/api/verify/route.ts` – Drug verification flow (HCS-2 query + HCS-10 broadcast + AI analysis)
+- `/app/api/transfers/route.ts` – Transfer logic with agent confirmation
 - `/lib/prisma.ts` – Database client configuration
 - `/lib/openapi.ts` – Complete API specification
 
@@ -252,7 +398,7 @@ Comprehensive API documentation with 50+ endpoints available at:
 ## Economic Justification: Why Hedera?
 
 **Cost Efficiency:**
-- **Hedera HCS:** $0.0001 per transaction → $1/month for 10,000 verifications
+- **Hedera HCS (Combined):** $0.0001 per transaction → $1-2/month for 10,000 verifications + inter-org communications
 - **Ethereum Alternative:** ~$2-5 per transaction → $20,000-50,000/month (prohibitive for Africa)
 - **Traditional Centralized DB:** Free transactions but lacks auditability, immutability, and trust
 
@@ -267,31 +413,6 @@ Comprehensive API documentation with 50+ endpoints available at:
 - Immutable audit trail builds trust in regions with weak regulatory enforcement
 
 **User Adoption:** By eliminating blockchain complexity (users only scan QR codes), we leverage Hedera's performance without requiring crypto literacy—essential for African consumer adoption.
-
----
-
-## Transaction Flow Examples
-
-**Batch Creation by Manufacturer:**
-1. Manufacturer submits batch details via API (`POST /api/batches`)
-2. Backend generates unique batch ID + cryptographic hash
-3. `TopicMessageSubmitTransaction` → HCS Topic 0.0.5140925
-4. Transaction receipt stored in PostgreSQL with consensus timestamp
-5. QR codes generated for individual units
-
-**Consumer Verification:**
-1. Consumer scans QR code via mobile app
-2. Frontend extracts unit ID → Backend API (`POST /api/verify`)
-3. Backend queries PostgreSQL for batch metadata
-4. Mirror Node query verifies HCS transaction exists
-5. Gemini AI translates drug info to consumer's language (e.g., Hausa, Swahili)
-6. Response: Authentic + supply chain journey OR Counterfeit alert
-
-**Batch Transfer (Distributor → Hospital):**
-1. Distributor initiates transfer (`POST /api/transfers`)
-2. `TopicMessageSubmitTransaction` logs transfer event on Hedera
-3. Ownership updated in PostgreSQL (triggers notification to hospital)
-4. Hospital confirms receipt → Second HCS message (immutable proof of delivery)
 
 ---
 
@@ -311,5 +432,12 @@ For judge inquiries or setup issues:
 - **Documentation:** In-code comments + `/docs` Swagger UI
 - **Demo Video:** [Link provided in DoraHacks submission]
 
+---
+
+## Summary
+
+HCS-10 transforms MediCheck from a simple ledger-based tracking system into an **intelligent, interactive verification network**. Each organization now operates a verifiable agent, enabling real-time, ledger-backed communication across the healthcare supply chain. 
+
+**The Result:** A two-layer trust architecture where HCS-2 guarantees integrity and HCS-10 guarantees communication — together creating an unbreakable chain of custody from manufacturer to patient.
 
 **Thank you for reviewing MediCheck!** We're excited to demonstrate how Hedera's unique economics and performance enable real-world impact in African healthcare.
