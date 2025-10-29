@@ -311,4 +311,4 @@ For judge inquiries or setup issues:
 - **Demo Video:** [Link provided in DoraHacks submission]
 
 
-**Thank you for reviewing MediCheck!** We're excited to demonstrate how Hedera's unique economics and performance enable real-world impact in African healthcare. 🚀
+**Thank you for reviewing MediCheck!** We're excited to demonstrate how Hedera's unique economics and performance enable real-world impact in African healthcare.
