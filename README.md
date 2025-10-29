@@ -63,19 +63,19 @@ After HCS-10 integration, MediCheck benefits from:
 
 ### Before (HCS-2 Only)
 
-```
+
 <img width="1266" height="502" alt="Untitled diagram-2025-10-29-224752" src="https://github.com/user-attachments/assets/f8344828-3867-423e-a9c4-e133fc77b460" />
 
-```
+
 
 All event types (create, transfer, flag) were written to a single registry. No direct communication between agents — just reading shared logs.
 
 ### After (HCS-2 + HCS-10)
 
-```
+
 <img width="472" height="625" alt="Screenshot 2025-10-29 234930" src="https://github.com/user-attachments/assets/276d7501-f8c4-4dc2-abc7-2dada3dbf55e" />
 
-```
+
 
 **Key Upgrades:**
 - Each organization gets a managedRegistry (HCS-10 topic)
@@ -150,8 +150,7 @@ DATA FLOW:
 ![archi](https://github.com/user-attachments/assets/817796e3-e750-4966-a0b7-4cc0d3d836a4)
 
 
----
----
+
 
 ## Hedera Integration Summary
 
