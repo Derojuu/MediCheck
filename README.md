@@ -236,7 +236,7 @@ Comprehensive API documentation with 50+ endpoints available at:
 
 ## Security & Secrets
 
-**🔒 CRITICAL SECURITY NOTICE:**
+**CRITICAL SECURITY NOTICE:**
 - **NO** private keys, `.env` files, or sensitive credentials are committed to this repository
 - All secrets are managed via environment variables
 - Test credentials for judges are provided **ONLY** in the DoraHacks submission notes
@@ -282,7 +282,7 @@ Comprehensive API documentation with 50+ endpoints available at:
 3. Backend queries PostgreSQL for batch metadata
 4. Mirror Node query verifies HCS transaction exists
 5. Gemini AI translates drug info to consumer's language (e.g., Hausa, Swahili)
-6. Response: ✅ Authentic + supply chain journey OR ⚠️ Counterfeit alert
+6. Response: Authentic + supply chain journey OR Counterfeit alert
 
 **Batch Transfer (Distributor → Hospital):**
 1. Distributor initiates transfer (`POST /api/transfers`)
