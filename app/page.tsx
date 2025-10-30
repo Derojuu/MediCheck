@@ -396,7 +396,7 @@ export default function HomePage() {
                     size="xl"
                     className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl px-6 sm:px-8 md:px-12 lg:px-16 py-3 sm:py-4 md:py-6 lg:py-8 xl:py-10 cursor-pointer shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 group font-semibold w-full sm:w-auto"
                   >
-                    <Scan className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 xl:h-8 xl:w-8 mr-2 sm:mr-3 md:mr-4 lg:mr-5 group-hover:rotate-12 transition-transform duration-300" />
+                    <Scan className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 xl:h-8 xl:w-8 mr-2 sm:mr-3 md:mr-4 lg:mr-5" />
                     <span className="hidden sm:inline">Start Scanning Now</span>
                     <span className="sm:hidden">Scan Now</span>
                     <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 ml-1 sm:ml-2 md:ml-3 lg:ml-4 group-hover:translate-x-3 transition-transform duration-300" />
@@ -427,24 +427,52 @@ export default function HomePage() {
                 Enterprise Blockchain Security
               </span>
             </div>
-            {/* Right: Links */}
+            {/* Right: Social Media & Links */}
             <div className="flex flex-col sm:flex-row items-center md:items-center gap-3 sm:gap-6 md:gap-8 lg:gap-10 text-sm sm:text-base md:mr-16">
+              {/* Social Media Icons */}
+              <div className="flex items-center gap-4">
+                <Link
+                  href="https://x.com/medi_check2025"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:scale-110 transition-all duration-300 cursor-pointer group"
+                  aria-label="Follow us on X (Twitter)"
+                >
+                  <svg className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#55ACEE" d="M31.993,6.077C30.816,6.6,29.552,6.953,28.223,7.11c1.355-0.812,2.396-2.098,2.887-3.63c-1.269,0.751-2.673,1.299-4.168,1.592C25.744,3.797,24.038,3,22.149,3c-3.625,0-6.562,2.938-6.562,6.563c0,0.514,0.057,1.016,0.169,1.496C10.301,10.785,5.465,8.172,2.227,4.201c-0.564,0.97-0.888,2.097-0.888,3.3c0,2.278,1.159,4.286,2.919,5.464c-1.075-0.035-2.087-0.329-2.972-0.821c-0.001,0.027-0.001,0.056-0.001,0.082c0,3.181,2.262,5.834,5.265,6.437c-0.55,0.149-1.13,0.23-1.729,0.23c-0.424,0-0.834-0.041-1.234-0.117c0.834,2.606,3.259,4.504,6.13,4.558c-2.245,1.76-5.075,2.811-8.15,2.811c-0.53,0-1.053-0.031-1.566-0.092C2.905,27.913,6.355,29,10.062,29c12.072,0,18.675-10.001,18.675-18.675c0-0.284-0.008-0.568-0.02-0.85C30,8.55,31.112,7.395,31.993,6.077z"/>
+                  </svg>
+                </Link>
+                <Link
+                  href="https://www.linkedin.com/company/medicheck25"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:scale-110 transition-all duration-300 cursor-pointer group"
+                  aria-label="Follow us on LinkedIn"
+                >
+                  <svg className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#2867b2" d="M512,64c0,-35.323 -28.677,-64 -64,-64l-384,0c-35.323,0 -64,28.677 -64,64l0,384c0,35.323 28.677,64 64,64l384,0c35.323,0 64,-28.677 64,-64l0,-384Z"/>
+                    <rect fill="#fff" height="257.962" width="85.76" x="61.053" y="178.667"/>
+                    <path fill="#fff" d="M104.512,54.28c-29.341,0-48.512,19.29-48.512,44.573c0,24.752,18.588,44.574,47.377,44.574l0.554,0c29.903,0,48.516-19.822,48.516-44.574c-0.555-25.283-18.611-44.573-47.935-44.573Z"/>
+                    <path fill="#fff" d="M357.278,172.601c-45.49,0-65.866,25.017-77.276,42.589l0,-36.523l-85.738,0c1.137,24.197,0,257.961,0,257.961l85.737,0l0,-144.064c0,-7.711,0.554,-15.42,2.827,-20.931c6.188,-15.4,20.305,-31.352,43.993,-31.352c31.012,0,43.436,23.664,43.436,58.327l0,138.02l85.741,0l0,-147.93c0,-79.237-42.305,-116.097-98.72,-116.097Z"/>
+                  </svg>
+                </Link>
+              </div>
               <Link
-                href="#"
+                href="/privacy-policy"
                 className="text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer font-medium relative group"
               >
                 Privacy Policy
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all duration-300 group-hover:w-full"></span>
               </Link>
               <Link
-                href="#"
+                href="/terms-of-service"
                 className="text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer font-medium relative group"
               >
                 Terms of Service
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all duration-300 group-hover:w-full"></span>
               </Link>
               <Link
-                href="#"
+                href="/contact"
                 className="text-muted-foreground hover:text-primary transition-all duration-300 cursor-pointer font-medium relative group"
               >
                 Contact
@@ -454,7 +482,7 @@ export default function HomePage() {
           </div>
           <div className="pt-8 sm:pt-10 md:pt-12 border-t text-center">
             <p className="text-muted-foreground leading-relaxed text-sm sm:text-base md:text-lg mb-2 sm:mb-3">
-              &copy; 2024 MediCheck. All rights reserved. Securing medication authenticity with enterprise blockchain
+              &copy; 2025 MediCheck. All rights reserved. Securing medication authenticity with enterprise blockchain
               technology.
             </p>
             <p className="text-xs sm:text-sm md:text-base text-muted-foreground/80">
