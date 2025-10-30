@@ -1,6 +1,6 @@
 # MediCheck: AI + Blockchain Medication Verification Platform
 
-**Track:** Healthcare & Supply Chain Innovation  
+**Track:** AI & DePIN 
 **Hedera Network:** Testnet
 
 <img width="1297" height="704" alt="Gemini_Generated_Image_ebcrwcebcrwcebcr" src="https://github.com/user-attachments/assets/76913b90-5af2-49c0-a9e5-523215bb92fd" />
@@ -11,7 +11,7 @@ MediCheck tackles Africa's counterfeit drug crisis by combining Hedera's consens
 
 ---
 
-## 🚀 HCS-10 Integration: Intelligent Communication Layer
+## HCS-10 Integration: Intelligent Communication Layer
 
 ### Overview
 
