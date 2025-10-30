@@ -12,11 +12,11 @@ MediCheck tackles Africa's counterfeit drug crisis by combining Hedera's consens
 
 ---
 
-## HCS-10 Integration: Intelligent Communication Layer
+## Dual-Layer Architecture: HCS-2 + HCS-10
 
 ### Overview
 
-MediCheck is a medication verification and traceability platform leveraging Hedera's Distributed Ledger Technology (DLT). The integration of **HCS-10** adds a secure, intelligent communication layer between organizations, transforming MediCheck from a simple event logging system into an interactive verification network.
+MediCheck is a medication verification and traceability platform leveraging Hedera's Distributed Ledger Technology (DLT). The platform utilizes **both HCS-2 and HCS-10** working together to create a comprehensive trust system: **HCS-2 provides immutable event logging** while **HCS-10 enables secure, intelligent communication** between organizations.
 
 ### What is HCS-10?
 
@@ -24,13 +24,15 @@ HCS-10 defines a decentralized protocol for agent communication across organizat
 
 **In Simple Terms:** HCS-10 enables organizations to "talk" to each other through blockchain-verified messages, creating a living network where every interaction is transparent, traceable, and tamper-proof.
 
-### Why Integrate HCS-10?
+### Why Use HCS-2 and HCS-10 Together?
 
-**Before HCS-10:** Inter-organization communication was off-chain, manual, and unverifiable. Organizations logged events independently without direct coordination.
+**HCS-2 (Event Ledger):** Provides immutable logging of all critical supply chain events—batch creation, transfers, flagging, and recalls. Every action is permanently recorded with cryptographic proof.
 
-**After HCS-10:** Agents can exchange verifiable messages in real-time, ensuring transparency and immediate event propagation across the drug supply chain. Every handshake, transfer, and verification is now cryptographically proven.
+**HCS-10 (Communication Layer):** Enables real-time, verifiable communication between organizations. Transfer confirmations, authenticity handshakes, and event announcements happen through dedicated agent topics.
 
-### Key Components Added
+**Combined Power:** HCS-2 logs what happened (immutable history), while HCS-10 coordinates how it happens (verifiable communication). Together, they create complete transparency and trust across the pharmaceutical supply chain.
+
+### Key Components
 
 1. **Agent Creation:** Creates HCS-10 agents with inbound/outbound topics for each organization
 2. **Managed Registry:** Each organization has a registry for announcements like "Batch Created" or "Batch Flagged"
@@ -42,7 +44,7 @@ HCS-10 defines a decentralized protocol for agent communication across organizat
 
 ### Security Benefits
 
-After HCS-10 integration, MediCheck benefits from:
+With the combined HCS-2 + HCS-10 architecture, MediCheck benefits from:
 
 - **Improved Data Authenticity:** Two-layer verification (HCS-2 logs + HCS-10 confirmations)
 - **Complete Communication Auditability:** Every message between organizations is permanently recorded
@@ -52,34 +54,32 @@ After HCS-10 integration, MediCheck benefits from:
 ### System Flow Summary
 
 1. **Organization registers** → HCS-10 agent is automatically created
-2. **Manufacturer creates a batch** → Event broadcast via managed registry
-3. **Batch transfers** → Sender and receiver agents communicate via connection topic
-4. **Consumer scans a drug unit** → Authenticity verified and broadcast to manufacturer via HCS-10
+2. **Manufacturer creates a batch** → Event logged on HCS-2 + broadcast via HCS-10 managed registry
+3. **Batch transfers** → Sender and receiver agents communicate via HCS-10 connection topic + permanent log on HCS-2
+4. **Consumer scans a drug unit** → Authenticity verified from HCS-2 logs + scan event broadcast to manufacturer via HCS-10
 
-**Result:** HCS-10 transforms MediCheck into an intelligent, interactive verification network where each organization operates a verifiable agent, enabling real-time, ledger-backed communication across the healthcare supply chain.
+**Result:** The dual-layer architecture transforms MediCheck into an intelligent, interactive verification network where each organization operates a verifiable agent, enabling real-time, ledger-backed communication across the healthcare supply chain.
 
 ---
 
-## Architecture Evolution: HCS-2 + HCS-10
+## Architecture: HCS-2 + HCS-10 Working Together
 
-### Before (HCS-2 Only)
+### Visual Architecture
 
+**Before (Single-Layer Approach)**
 
 <img width="1266" height="502" alt="Untitled diagram-2025-10-29-224752" src="https://github.com/user-attachments/assets/f8344828-3867-423e-a9c4-e133fc77b460" />
 
+Single topic for all events. No direct communication between organizations—just reading shared logs.
 
-
-All event types (create, transfer, flag) were written to a single registry. No direct communication between agents — just reading shared logs.
-
-### After (HCS-2 + HCS-10)
-
+**MediCheck (Dual-Layer Architecture)**
 
 <img width="472" height="625" alt="Screenshot 2025-10-29 234930" src="https://github.com/user-attachments/assets/276d7501-f8c4-4dc2-abc7-2dada3dbf55e" />
 
-
-
-**Key Upgrades:**
-- Each organization gets a managedRegistry (HCS-10 topic)
+**How They Work Together:**
+- **HCS-2** serves as the immutable event ledger (batch registry, logs, and public record)
+- **HCS-10** operates as the real-time communication and validation layer between organizations
+- Each organization gets a managedRegistry (HCS-10 topic) for announcements
 - Agents have inboundTopic, outboundTopic, and optional connectionTopic fields
 - The organization agent mediates between HCS-2 (permanent logs) and HCS-10 (direct comms)
 
@@ -151,10 +151,7 @@ DATA FLOW:
 
 <img width="1193" height="628" alt="Screenshot 2025-10-29 235536" src="https://github.com/user-attachments/assets/a4f2d6ef-e207-430a-b5af-fb7c76e83e4f" />
 
-
-
-
-
+---
 
 ## Hedera Integration Summary
 
@@ -178,7 +175,7 @@ DATA FLOW:
 ### Why HCS Over Traditional Blockchain?
 
 **Cost Efficiency:**
-- **Hedera HCS:** $0.0001 per transaction → $1/month for 10,000 verifications
+- **Hedera HCS:** $0.0001 per transaction → $1-2/month for 10,000 verifications + inter-org communications
 - **Ethereum Alternative:** ~$2-5 per transaction → $20,000-50,000/month (prohibitive for Africa)
 - **Traditional Centralized DB:** Free transactions but lacks auditability, immutability, and trust
 
@@ -197,12 +194,9 @@ DATA FLOW:
 ## Deployed Hedera IDs (Testnet)
 
 **Critical Infrastructure IDs:**
-- **Operator Account ID:** `0.0.5140687`
-- **Primary HCS-2 Topic ID:** `0.0.5140925` (Main audit log for all supply chain events)
-- **Secondary HCS-2 Topic ID:** `0.0.5141106` (Organization-specific events)
-- **HCS-10 Agent Topics:** Dynamically created per organization during registration
+- **Operator Account ID:** `0.0.6621805`
 
-**Note:** All transactions visible on HashScan Testnet Explorer: `https://hashscan.io/testnet/topic/0.0.5140925`
+**Note:** All transactions visible on HashScan Testnet Explorer: `https://hashscan.io/testnet/topic/0.0.6621805`
 
 ---
 
@@ -257,7 +251,7 @@ DATABASE_URL="postgresql://user:password@localhost:5432/medicheck"
 POSTGRES_URL="postgresql://user:password@localhost:5432/medicheck"
 
 # Hedera Testnet
-HEDERA_OPERATOR_ID="0.0.5140687"
+HEDERA_OPERATOR_ID="0.0.6621805"
 HEDERA_OPERATOR_KEY="302e020100300506032b6570042204..." # Test key provided separately
 
 # Clerk Authentication
@@ -322,12 +316,12 @@ Comprehensive API documentation with 50+ endpoints available at:
 
 1. Manufacturer submits batch details via API (`POST /api/batches`)
 2. Backend generates unique batch ID + cryptographic hash
-3. **HCS-2:** `TopicMessageSubmitTransaction` → Topic 0.0.5140925 (permanent log)
+3. **HCS-2:** `TopicMessageSubmitTransaction` → Registry topic (permanent log)
 4. **HCS-10:** Broadcast announcement to organization's managed registry
 5. Transaction receipt stored in PostgreSQL with consensus timestamp
 6. QR codes generated for individual units
 
-### Consumer Verification (Enhanced with HCS-10)
+### Consumer Verification (Dual-Layer Validation)
 
 1. Consumer scans QR code via mobile app
 2. Frontend extracts unit ID → Backend API (`POST /api/verify`)
@@ -350,15 +344,15 @@ Comprehensive API documentation with 50+ endpoints available at:
 
 ---
 
-## Impact Summary: HCS-2 vs. HCS-2 + HCS-10
+## Impact Summary: Dual-Layer Architecture Benefits
 
-| Capability | HCS-2 Only | HCS-2 + HCS-10 |
+| Capability | Single Layer | HCS-2 + HCS-10 |
 |------------|-----------|----------------|
-| **Event Logging** | Immutable | Immutable |
-| **Org-to-Org Communication** | Off-chain | On-chain, verifiable |
-| **Transfer Confirmation** | One-sided | Two-way handshake |
-| **Real-time Alerts** | Manual polling | Agent-based broadcasts |
-| **Authenticity Verification** | Log-based only | Dual-source validation |
+| **Event Logging** | Immutable | Immutable (HCS-2) |
+| **Org-to-Org Communication** | Off-chain | On-chain, verifiable (HCS-10) |
+| **Transfer Confirmation** | One-sided | Two-way handshake (HCS-10) |
+| **Real-time Alerts** | Manual polling | Agent-based broadcasts (HCS-10) |
+| **Authenticity Verification** | Log-based only | Dual-source validation (HCS-2 + HCS-10) |
 | **Scalability** | Single topic congestion | Multi-topic architecture |
 | **Audit Trail** | Events only | Events + communications |
 
@@ -439,7 +433,7 @@ For judge inquiries or setup issues:
 
 ## Summary
 
-HCS-10 transforms MediCheck from a simple ledger-based tracking system into an **intelligent, interactive verification network**. Each organization now operates a verifiable agent, enabling real-time, ledger-backed communication across the healthcare supply chain. 
+The dual-layer architecture transforms MediCheck into an **intelligent, interactive verification network**. Each organization operates a verifiable agent, enabling real-time, ledger-backed communication across the healthcare supply chain. 
 
 **The Result:** A two-layer trust architecture where HCS-2 guarantees integrity and HCS-10 guarantees communication — together creating an unbreakable chain of custody from manufacturer to patient.
 
