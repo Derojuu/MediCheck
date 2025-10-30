@@ -7,8 +7,11 @@
 Project Resources
 
 Quick Access Links:
+
 Environment Credentials: https://docs.google.com/document/d/1pOZ3opnTLzVvlFvsu5gxMswkm-E0sPu49zsfBML2FwM/edit?usp=sharing
+
 Pitch Deck: https://docs.google.com/presentation/d/1S6l7vSx-KgAKe2gYKyFRRvFEI--JD8ei/edit?usp=sharing&ouid=116381652802117211901&rtpof=true&sd=true
+
 Certificates: https://docs.google.com/document/d/1F2XAjufBptCFSGo4QIjS4GaiIjhoc9L6xyf5rDqzTcM/edit?usp=sharing
 
 <img width="1297" height="704" alt="Gemini_Generated_Image_ebcrwcebcrwcebcr" src="https://github.com/user-attachments/assets/76913b90-5af2-49c0-a9e5-523215bb92fd" />
