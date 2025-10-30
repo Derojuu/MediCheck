@@ -1,15 +1,15 @@
-// /lib/hedera.ts
+// Hedera Blockchain Integration - Handles batch registry creation and verification on Hedera Hashgraph
 import { hedera2Client } from "./hedera2Client";
 import { HCS2RegistryType } from "@hashgraphonline/standards-sdk";
 import { HederaLogPayload } from "@/utils";
 
-
+// Creates a new batch registry on Hedera blockchain for tracking medication batches
 export async function createBatchRegistry(
   batchId: string,
   orgId?: string,
   drugName?: string
 ) {
-  // Step 1: Create the registry topic
+  // Create registry topic on Hedera
   const registry = await hedera2Client.createRegistry({
     registryType: HCS2RegistryType.INDEXED,
     ttl: 60 * 60 * 24 * 365, // 1 year
@@ -22,7 +22,7 @@ export async function createBatchRegistry(
 
   const registryTopicId = registry.topicId;
 
-  // Step 2: Store metadata as the first registry entry (acts as memo)
+  // Store batch metadata as first entry
   const metaPayload = {
     type: "BATCH_REGISTRY_META",
     batchId,
@@ -39,11 +39,7 @@ export async function createBatchRegistry(
   return registry;
 }
 
-
-/**
- * Creates a managed registry for an organization.
- * This registry will store all batch events and metadata belonging to the org.
- */
+// Creates organization-wide registry for managing all batches
 export async function createOrgManagedRegistry(orgId: string, orgName: string) {
   const registry = await hedera2Client.createRegistry({
     registryType: HCS2RegistryType.INDEXED,

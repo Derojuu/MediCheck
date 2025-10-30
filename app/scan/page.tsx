@@ -141,7 +141,7 @@ export default function ScanPage() {
             Verify Your Medicine
           </h1>
           <p className="text-muted-foreground text-base">
-            Scan the QR code or NFC tag on your medication packaging
+            Scan the QR code on your medication packaging
           </p>
         </div>
         <Card className="max-w-2xl mx-auto border-2 border-primary/10 shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 glass-effect">
@@ -152,7 +152,7 @@ export default function ScanPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
+            <div className="text-center py-12">
               <QRScanner
                 onScan={handleQRScan}
                 onError={handleQRError}
