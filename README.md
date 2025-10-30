@@ -147,7 +147,10 @@ DATA FLOW:
 8. Backend queries Gemini AI for drug info + local translation
 9. Response flows back: Hedera status + AI insights → Frontend → User
 ```
-![archi](https://github.com/user-attachments/assets/817796e3-e750-4966-a0b7-4cc0d3d836a4)
+
+<img width="1193" height="628" alt="Screenshot 2025-10-29 235536" src="https://github.com/user-attachments/assets/a4f2d6ef-e207-430a-b5af-fb7c76e83e4f" />
+
+
 
 
 
@@ -350,13 +353,13 @@ Comprehensive API documentation with 50+ endpoints available at:
 
 | Capability | HCS-2 Only | HCS-2 + HCS-10 |
 |------------|-----------|----------------|
-| **Event Logging** | ✅ Immutable | ✅ Immutable |
-| **Org-to-Org Communication** | ❌ Off-chain | ✅ On-chain, verifiable |
-| **Transfer Confirmation** | ❌ One-sided | ✅ Two-way handshake |
-| **Real-time Alerts** | ❌ Manual polling | ✅ Agent-based broadcasts |
-| **Authenticity Verification** | ⚠️ Log-based only | ✅ Dual-source validation |
-| **Scalability** | ⚠️ Single topic congestion | ✅ Multi-topic architecture |
-| **Audit Trail** | ✅ Events only | ✅ Events + communications |
+| **Event Logging** | Immutable | Immutable |
+| **Org-to-Org Communication** | Off-chain | On-chain, verifiable |
+| **Transfer Confirmation** | One-sided | Two-way handshake |
+| **Real-time Alerts** | Manual polling | Agent-based broadcasts |
+| **Authenticity Verification** | Log-based only | Dual-source validation |
+| **Scalability** | Single topic congestion | Multi-topic architecture |
+| **Audit Trail** | Events only | Events + communications |
 
 ---
 
