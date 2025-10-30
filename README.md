@@ -246,33 +246,81 @@ pnpm install
 Create a `.env` file in the project root with the following structure (see `.env.example` for template):
 
 ```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/medicheck"
-POSTGRES_URL="postgresql://user:password@localhost:5432/medicheck"
+# ===============================================
+# DATABASE CONFIGURATION
+# ===============================================
+# Prisma Accelerate connection URL (for pooled connections)
+DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=YOUR_PRISMA_ACCELERATE_API_KEY"
 
-# Hedera Testnet
-HEDERA_OPERATOR_ID="0.0.6621805"
-HEDERA_OPERATOR_KEY="302e020100300506032b6570042204..." # Test key provided separately
+# Direct PostgreSQL connection URL (non-pooled) for migrations and schema operations
+POSTGRES_URL="postgres://USERNAME:PASSWORD@HOST:5432/DATABASE_NAME?sslmode=require"
 
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
-CLERK_SECRET_KEY="sk_test_..."
+# ===============================================
+# HEDERA NETWORK CONFIGURATION (Testnet)
+# ===============================================
+# Your Hedera testnet account ID (format: 0.0.XXXXXX)
+HEDERA_OPERATOR_ID=0.0.XXXXXX
 
-# Application
-QR_SECRET="your-secure-random-string-for-qr-generation"
+# Your Hedera testnet account private key (64-character hex string with 0x prefix)
+HEDERA_OPERATOR_KEY=0xYOUR_HEDERA_PRIVATE_KEY_HERE
+
+# HCS Topic ID for batch registry (created during initial setup)
+HEDERA_BATCH_REGISTRY_TOPIC_ID=0.0.XXXXXX
+
+# ===============================================
+# CLERK AUTHENTICATION
+# ===============================================
+# Get these from your Clerk Dashboard: https://dashboard.clerk.com
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+CLERK_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# ===============================================
+# APPLICATION CONFIGURATION
+# ===============================================
+# Secret key for QR code generation and encryption (generate with: openssl rand -hex 32)
+QR_SECRET="YOUR_RANDOM_SECRET_KEY_HERE"
+
+# Base URL for your application
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NODE_ENV="development"
 
-# AI Services
-GEMINI_API_KEY="AIzaSy..." # Google Gemini API key
+# Environment mode (development | production | test)
+NODE_ENV=development
+
+# ===============================================
+# AI SERVICES
+# ===============================================
+# Google Gemini API key from https://makersuite.google.com/app/apikey
+GEMINI_API_KEY=AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# ===============================================
+# SECURITY & ENCRYPTION
+# ===============================================
+# Agent encryption secret for HCS-10 communications (generate with: openssl rand -base64 32)
+AGENT_ENCRYPTION_SECRET=YOUR_BASE64_ENCODED_SECRET_HERE
+
+# ===============================================
+# SETUP INSTRUCTIONS
+# ===============================================
+# 1. Copy this file to .env: cp .env.example .env
+# 2. Fill in all placeholder values with your actual credentials
+# 3. Never commit .env to version control
+# 4. For production, use environment variables instead of .env file
+#
+# Quick Setup:
+# - Hedera Account: Create at https://portal.hedera.com
+# - Clerk Auth: Sign up at https://clerk.com
+# - Gemini API: Get key at https://makersuite.google.com
+# - Database: Use Neon, Supabase, or local PostgreSQL
+# - Generate secrets: openssl rand -hex 32 (QR_SECRET)
+#                     openssl rand -base64 32 (AGENT_ENCRYPTION_SECRET)
 ```
 
 **JUDGE ACCESS:** Test credentials for Hedera Operator Account are provided in the DoraHacks submission text field for verification purposes only.
 
 **4. Initialize Database**
 ```bash
-pnpm prisma generate
-pnpm prisma db push
+npx prisma generate
+npx prisma db push
 ```
 
 **5. Run the Development Server**
