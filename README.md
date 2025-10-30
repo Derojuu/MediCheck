@@ -1,6 +1,7 @@
 # MediCheck: AI + Blockchain Medication Verification Platform
 
 **Track:** AI & DePIN 
+
 **Hedera Network:** Testnet
 
 <img width="1297" height="704" alt="Gemini_Generated_Image_ebcrwcebcrwcebcr" src="https://github.com/user-attachments/assets/76913b90-5af2-49c0-a9e5-523215bb92fd" />
