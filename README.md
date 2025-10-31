@@ -101,10 +101,10 @@ Single topic for all events. No direct communication between organizations—jus
 ┌──────────────────────────────────────────────────────────────────────┐
 │                         FRONTEND (Next.js)                           │
 │                     http://localhost:3000                            │
-│  ┌────────────┐  ┌─────────────┐  ┌──────────────┐  ┌────────────┐ │
-│  │ QR Scanner │  │ Verification│  │  Dashboard   │  │  Transfer  │ │
-│  │   (NFC)    │  │     UI      │  │  Analytics   │  │  Management│ │
-│  └─────┬──────┘  └──────┬──────┘  └──────┬───────┘  └─────┬──────┘ │
+│  ┌────────────┐  ┌─────────────┐  ┌──────────────┐  ┌────────────┐   │
+│  │ QR Scanner │  │ Verification│  │  Dashboard   │  │  Transfer  │   │
+│  │   (NFC)    │  │     UI      │  │  Analytics   │  │  Management│   │
+│  └─────┬──────┘  └──────┬──────┘  └──────┬───────┘  └─────┬──────┘   │
 └────────┼─────────────────┼────────────────┼─────────────────┼────────┘
          │                 │                │                 │
          └─────────────────┼────────────────┼─────────────────┘
@@ -133,10 +133,10 @@ Single topic for all events. No direct communication between organizations—jus
     ┌─────────▼──────────┐ ┌───────▼─────────┐ ┌────────▼──────────┐
     │  HEDERA HCS-2      │ │  HEDERA HCS-10  │ │   GEMINI AI API   │
     │    (Testnet)       │ │    (Testnet)    │ │                   │
-    │ ┌────────────────┐ │ │ ┌─────────────┐ │ │ - Drug Verification│
-    │ │ Registry Topic │ │ │ │   Agents    │ │ │ - Local Language  │
-    │ │(Immutable Log) │ │ │ │Managed Reg. │ │ │   Translation     │
-    │ └────────────────┘ │ │ │ Connection  │ │ │ - Consumer Ed     │
+    │ ┌────────────────┐ │ │ ┌─────────────┐ │ │ -Drug Verification│
+    │ │ Registry Topic │ │ │ │   Agents    │ │ │ -Local Language   │
+    │ │(Immutable Log) │ │ │ │Managed Reg. │ │ │  Translation      │
+    │ └────────────────┘ │ │ │ Connection  │ │ │ -Consumer Ed      │
     │ ┌────────────────┐ │ │ │   Topics    │ │ └───────────────────┘
     │ │ Consensus      │ │ │ └─────────────┘ │
     │ │ Service        │ │ └─────────────────┘
