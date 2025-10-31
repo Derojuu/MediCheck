@@ -1,4 +1,3 @@
-// app/verify/batch/[batchId]/page.tsx
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
@@ -7,7 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { getRedirectPath } from "@/utils";
 import { MyPublicMetadata } from "@/utils";
 import Link from "next/link";
-import { Loader2, Shield } from "lucide-react";
+import { Loader2, Shield, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -318,12 +317,21 @@ export default function VerifyBatchPage() {
                 </p>
               </div>
             )}
-            <Link
-              className="mt-6 inline-block rounded bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 text-sm sm:text-base font-semibold shadow transition-colors"
-              href={getRedirectPath(publicMetadata?.role, publicMetadata?.organizationType)}
-            >
-              Go To Dashboard
-            </Link>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Link
+                className="inline-flex items-center justify-center rounded-full bg-secondary hover:bg-secondary/90 text-secondary-foreground p-3 shadow transition-colors"
+                href="/consumer/scan"
+                aria-label="Back to Scanner"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+              <Link
+                className="inline-block rounded bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 text-sm sm:text-base font-semibold shadow transition-colors text-center flex-1"
+                href={getRedirectPath(publicMetadata?.role, publicMetadata?.organizationType)}
+              >
+                Go To Dashboard
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </main>

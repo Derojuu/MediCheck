@@ -87,7 +87,7 @@ export default function HomePage() {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-base sm:text-lg md:text-2xl text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">MediCheck</span>
-                <span className="text-xs text-muted-foreground font-mono hidden sm:block">Blockchain Verified</span>
+                <span className="text-xs text-muted-foreground font-mono hidden sm:block">Consensus Secured</span>
               </div>
             </div>
             <div className="hidden lg:flex items-center space-x-6 xl:space-x-10">
@@ -424,7 +424,7 @@ export default function HomePage() {
                 <span className="font-bold text-xl sm:text-2xl md:text-3xl text-foreground">MediCheck</span>
               </div>
               <span className="text-xs sm:text-sm text-muted-foreground font-mono mb-2 md:mb-0">
-                Enterprise Blockchain Security
+                Enterprise-Grade Consensus Security
               </span>
             </div>
             {/* Right: Social Media & Links */}
@@ -482,7 +482,7 @@ export default function HomePage() {
           </div>
           <div className="pt-8 sm:pt-10 md:pt-12 border-t text-center">
             <p className="text-muted-foreground leading-relaxed text-sm sm:text-base md:text-lg mb-2 sm:mb-3">
-              &copy; 2025 MediCheck. All rights reserved. Securing medication authenticity with enterprise blockchain
+              &copy; 2025 MediCheck. All rights reserved. Securing medication authenticity with enterprise-grade consensus security
               technology.
             </p>
             <p className="text-xs sm:text-sm md:text-base text-muted-foreground/80">
